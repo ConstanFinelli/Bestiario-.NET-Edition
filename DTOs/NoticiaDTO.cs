@@ -8,6 +8,6 @@ namespace DTOs
         public string Titulo { get; set; }
         public string Contenido { get; set; }
         public DateTime FechaPublicacion { get; set; }
-        //public Investigador Publicador {get; set;}
+        //public Guid PublicadorId {get; set;}
     }
 }

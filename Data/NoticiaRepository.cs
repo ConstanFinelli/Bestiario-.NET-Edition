@@ -19,7 +19,7 @@ namespace date {
         public async Task AddAsync(Noticias noticia)
         {
             context.Noticias.Add(noticia);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync();p
         }
 
         public async Task<bool> DeleteAsync(Guid id)
