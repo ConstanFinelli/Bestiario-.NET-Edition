@@ -12,6 +12,7 @@ namespace Domain.Model
         public Guid Id { get; set; }
         public string Nombre { get; private set; }
         public string Descripcion { get; private set; }
+        // public Collection<Bestia> Bestias { get; set; }
 
         public Categoria(Guid id, string nombre, string descripcion) {
             Id = id;
