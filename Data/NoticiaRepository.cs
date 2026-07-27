@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Model;
+using Microsoft.EntityFrameworkCore;
 
-namespace date { 
+namespace Data { 
 
    public class  NoticiaRepository : INoticiaRepository
     {
@@ -16,15 +17,15 @@ namespace date {
             this.context = context;
         }
 
-        public async Task AddAsync(Noticias noticia)
+        public async Task AddAsync(Noticia noticia)
         {
             context.Noticias.Add(noticia);
-            await context.SaveChangesAsync();p
+            await context.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var noticia = await context.Noticas.FindAsync(id);
+            var noticia = await context.Noticias.FindAsync(id);
             if (noticia != null)
             {
                 context.Noticias.Remove(noticia);

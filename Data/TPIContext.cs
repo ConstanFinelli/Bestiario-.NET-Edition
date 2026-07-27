@@ -12,13 +12,11 @@ namespace Data
         public TPIContext(DbContextOptions<TPIContext> options) : base(options)
         {
             this.Database.EnsureCreated();
-            SeedInitialData();
         }
 
         internal TPIContext()
         {
             this.Database.EnsureCreated();
-            SeedInitialData();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -34,7 +32,7 @@ namespace Data
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
-  
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -42,21 +40,21 @@ namespace Data
             modelBuilder.Entity<Noticia>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                
+
                 entity.Property(e => e.Id)
                     .ValueGeneratedOnAdd();
-                
+
                 entity.Property(e => e.Titulo)
                     .IsRequired()
                     .HasMaxLength(25);
-                
+
                 entity.Property(e => e.Contenido)
                     .IsRequired()
                     .HasMaxLength(150);
-                
+
                 entity.Property(e => e.FechaPublicacion)
                     .IsRequired();
-                
+
                 /*entity.Navigation(e => e.Publicador)
                     .HasField("_publicador");
                     
@@ -68,24 +66,26 @@ namespace Data
             modelBuilder.Entity<Categoria>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                
+
                 entity.Property(e => e.Id)
                     .ValueGeneratedOnAdd();
-                
+
                 entity.Property(e => e.Nombre)
                     .IsRequired()
                     .HasMaxLength(20);
-                
+
                 entity.HasIndex(e => e.Nombre)
                     .IsUnique();
 
                 // Datos iniciales
                 entity.HasData(
-                    new { Id = Guid.newGuid(), Nombre = "Artropodo" },
-                    new { Id = Guid.newGuid(), Nombre = "Anfibio" },
-                    new { Id = Guid.newGuid(), Nombre = "Aereo" },
-                    new { Id = Guid.newGuid(), Nombre = "Bipedo" },
-                    new { Id = Guid.newGuid(), Nombre = "Cuadrupedo" }
+                    new { Id = Guid.NewGuid(), Nombre = "Artropodo" },
+                    new { Id = Guid.NewGuid(), Nombre = "Anfibio" },
+                    new { Id = Guid.NewGuid(), Nombre = "Aereo" },
+                    new { Id = Guid.NewGuid(), Nombre = "Bipedo" },
+                    new { Id = Guid.NewGuid(), Nombre = "Cuadrupedo" }
                 );
             });
+        }
+    }
 }

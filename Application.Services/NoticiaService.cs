@@ -17,7 +17,7 @@ namespace Application.Services
         {
 
             var fechaPublicacion = DateTime.Now;
-            Noticia noticia = new Noticia(0, dto.Titulo, dto.Contenido, fechaPublicacion/*, dto.PublicadorId */);
+            Noticia noticia = new Noticia(dto.Titulo, dto.Contenido, fechaPublicacion/*, dto.PublicadorId */);
 
             await noticiaRepository.AddAsync(noticia);
 
@@ -65,7 +65,7 @@ namespace Application.Services
         public async Task<bool> UpdateAsync(NoticiaDTO dto)
         {
 
-            Noticia noticia = new Noticia(dto.Id, dto.Titulo, dto.Contenido, fechaPublicacion/*, dto.PublicadorId */);
+            Noticia noticia = new Noticia(dto.Id, dto.Titulo, dto.Contenido, dto.FechaPublicacion/*, dto.PublicadorId */);
             return await noticiaRepository.UpdateAsync(noticia);
         }
     }

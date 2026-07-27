@@ -3,8 +3,8 @@
     public class Noticia
     {
         public Guid Id { get; set; }
-        public string Titulo { get; set; }
-        public string Contenido { get; set; }
+        public string? Titulo { get; set; }
+        public string? Contenido { get; set; }
         public DateTime FechaPublicacion { get; set; }
         /*private Investigador _publicador; Aun no se desarrollo la clase investigador
         private Guid _publicadorId;
@@ -49,7 +49,7 @@
             //Publicador = inPublicador
         }
 
-        public SetTitulo(string inTitulo) { 
+        public void SetTitulo(string inTitulo) { 
             if(inTitulo.Length == 0)
             {
                 throw new ArgumentException("El titulo no puede ser una cadena de carácteres vacíos");
@@ -57,7 +57,7 @@
             Titulo = inTitulo;
         }
 
-        public SetContenido (string inContenido)
+        public void SetContenido (string inContenido)
         {
             if (inContenido.Length == 0)
             {

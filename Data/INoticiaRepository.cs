@@ -11,7 +11,7 @@ namespace Data
     {
         Task AddAsync(Noticia noticia);
         Task<bool> DeleteAsync(Guid id);
-        Task<Categoria?> GetAsync(Guid id);
+        Task<Noticia?> GetAsync(Guid id);
         Task<IEnumerable<Noticia>> GetAllAsync();
         Task<bool> UpdateAsync(Noticia noticia);
     }
