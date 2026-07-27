@@ -79,11 +79,11 @@ namespace Data
 
                 // Datos iniciales
                 entity.HasData(
-                    new { Id = Guid.NewGuid(), Nombre = "Artropodo" },
-                    new { Id = Guid.NewGuid(), Nombre = "Anfibio" },
-                    new { Id = Guid.NewGuid(), Nombre = "Aereo" },
-                    new { Id = Guid.NewGuid(), Nombre = "Bipedo" },
-                    new { Id = Guid.NewGuid(), Nombre = "Cuadrupedo" }
+                    new { Id = Guid.NewGuid(), Nombre = "Artropodo", Descripcion = "Invertebrados dotados de un esqueleto externo"},
+                    new { Id = Guid.NewGuid(), Nombre = "Anfibio", Descripcion = "Animal que vive partes de su vida en agua y tierra"},
+                    new { Id = Guid.NewGuid(), Nombre = "Aereo", Descripcion = "Puede volar"},
+                    new { Id = Guid.NewGuid(), Nombre = "Bipedo", Descripcion = "Animal que se mueve en dos patas" },
+                    new { Id = Guid.NewGuid(), Nombre = "Cuadrupedo", Descripcion = "Ser vivo que se mueve en cuatro patas" }
                 );
             });
         }
