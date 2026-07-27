@@ -61,6 +61,15 @@ namespace Data
                 entity.HasOne(e => e.Publicador)
                     .WithMany()
                     .HasForeignKey(e => e.PublicadorId); */
+
+                // Datos iniciales
+                entity.HasData(
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Artropodo", Contenido = "Invertebrados dotados de un esqueleto externo", FechaPublicacion = DateTime.Now },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Anfibio", Contenido = "Animal que vive partes de su vida en agua y tierra", FechaPublicacion = DateTime.Now },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Aereo", Contenido = "Puede volar", FechaPublicacion = DateTime.Now },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Bipedo", Contenido = "Animal que se mueve en dos patas", FechaPublicacion = DateTime.Now },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Cuadrupedo", Contenido = "Ser vivo que se mueve en cuatro patas", FechaPublicacion = DateTime.Now }
+                );
             });
 
             modelBuilder.Entity<Categoria>(entity =>

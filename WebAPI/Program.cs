@@ -12,11 +12,12 @@ builder.Services.AddDbContext<TPIContext>();
 
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
+builder.Services.AddScoped<INoticiaService, NoticiaService>();
 
 var app = builder.Build();
 
 Console.ForegroundColor = ConsoleColor.Red;
-Console.WriteLine("***** ESTOY EJECUTANDO ESTE PROGRAM.CS *****");
 Console.ResetColor();
 
 if (app.Environment.IsDevelopment())
@@ -26,5 +27,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapCategoriaEndpoints();
+app.MapNoticiaEndpoints();
 
 app.Run();
