@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DTOs;
+using API.Clients;
 
 namespace WindowsForms
 {
@@ -41,50 +42,24 @@ namespace WindowsForms
 
             this.categoriasDataGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
-                Name = "Apellido",
-                HeaderText = "Apellido",
-                DataPropertyName = "Apellido",
-                Width = 200
-            });
-
-            this.categoriasDataGridView.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Email",
-                HeaderText = "Email",
-                DataPropertyName = "Email",
-                Width = 250
-            });
-
-            this.categoriasDataGridView.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "PaisNombre",
-                HeaderText = "País",
-                DataPropertyName = "PaisNombre",
-                Width = 150
-            });
-
-            this.categoriasDataGridView.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "FechaAlta",
-                HeaderText = "Fecha Alta",
-                DataPropertyName = "FechaAlta",
-                Width = 250,
-                DefaultCellStyle = { Format = "dd/MM/yyyy HH:mm:ss" }
+                Name = "Descripcion",
+                HeaderText = "Descripcion",
+                DataPropertyName = "Descripcion",
+                Width = 300
             });
         }
 
         private async void Categorias_Load(object sender, EventArgs e)
         {
-            await ConfigureButtonPermissions();
             await this.GetByCriteriaAndLoad();
         }
 
         private async void agregarButton_Click(object sender, EventArgs e)
         {
-            CategoriaDTO clienteNuevo = new CategoriaDTO();
-            CategoriaDetalle clienteDetalle = new CategoriaDetalle(FormMode.Add, clienteNuevo);
+            CategoriaDTO categoriaNuevo = new CategoriaDTO();
+            CategoriaDetalle categoriaDetalle = new CategoriaDetalle(FormMode.Add, categoriaNuevo);
 
-            clienteDetalle.ShowDialog();
+            categoriaDetalle.ShowDialog();
 
             await this.GetByCriteriaAndLoad();
         }
@@ -96,16 +71,16 @@ namespace WindowsForms
                 DeshabilitarControles();
 
                 Guid id = this.SelectedItem().Id;
-                CategoriaDTO cliente = await CategoriaApiClient.GetAsync(id);
+                CategoriaDTO categoria = await CategoriaApiClient.GetAsync(id);
 
-                CategoriaDetalle clienteDetalle = new CategoriaDetalle(FormMode.Update, cliente);
-                clienteDetalle.ShowDialog();
+                CategoriaDetalle categoriaDetalle = new CategoriaDetalle(FormMode.Update, categoria);
+                categoriaDetalle.ShowDialog();
 
                 await this.GetByCriteriaAndLoad();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al actualizar cliente: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al actualizar categoria: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -115,21 +90,21 @@ namespace WindowsForms
 
         private async void eliminarButton_Click(object sender, EventArgs e)
         {
-            CategoriaDTO cliente = this.SelectedItem();
+            CategoriaDTO categoria = this.SelectedItem();
 
-            var result = MessageBox.Show($"¿Está seguro que desea eliminar el cliente {cliente.Nombre} {cliente.Apellido} ({cliente.Email})?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = MessageBox.Show($"¿Está seguro que desea eliminar la categoria {categoria.Nombre} {categoria.Descripcion}?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
                 try
                 {
                     DeshabilitarControles();
-                    await CategoriaApiClient.DeleteAsync(cliente.Id);
+                    await CategoriaApiClient.DeleteAsync(categoria.Id);
                     await this.GetByCriteriaAndLoad();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al eliminar cliente: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Error al eliminar categoria: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {
@@ -146,7 +121,7 @@ namespace WindowsForms
                 this.categoriasDataGridView.DataSource = null;
 
                 IEnumerable<CategoriaDTO> categorias;
-                if (string.IsNullOrWhiteSpace(text  o))
+                if (string.IsNullOrWhiteSpace(texto))
                 {
                     categorias = await CategoriaApiClient.GetAllAsync();
                 }
@@ -188,11 +163,11 @@ namespace WindowsForms
 
         private CategoriaDTO SelectedItem()
         {
-            CategoriaDTO cliente;
+            CategoriaDTO categoria;
 
-            cliente = (CategoriaDTO)categoriasDataGridView.SelectedRows[0].DataBoundItem;
+            categoria = (CategoriaDTO)categoriasDataGridView.SelectedRows[0].DataBoundItem;
 
-            return cliente;
+            return categoria;
         }
 
         private async void buscarButton_Click(object sender, EventArgs e)

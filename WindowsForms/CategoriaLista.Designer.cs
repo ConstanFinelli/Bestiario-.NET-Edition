@@ -88,7 +88,7 @@
             // 
             buscarTextBox.Location = new Point(39, 38);
             buscarTextBox.Name = "buscarTextBox";
-            buscarTextBox.PlaceholderText = "Buscar por nombre, apellido o email...";
+            buscarTextBox.PlaceholderText = "Buscar por nombre o descripcion";
             buscarTextBox.Size = new Size(400, 39);
             buscarTextBox.TabIndex = 4;
             // 
@@ -102,7 +102,7 @@
             buscarButton.UseVisualStyleBackColor = true;
             buscarButton.Click += buscarButton_Click;
             // 
-            // ClienteLista
+            // CategoriaLista
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
