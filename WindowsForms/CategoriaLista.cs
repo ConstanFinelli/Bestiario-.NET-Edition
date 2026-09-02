@@ -146,7 +146,7 @@ namespace WindowsForms
                 this.categoriasDataGridView.DataSource = null;
 
                 IEnumerable<CategoriaDTO> categorias;
-                if (string.IsNullOrWhiteSpace(text  o))
+                if (string.IsNullOrWhiteSpace(texto))
                 {
                     categorias = await CategoriaApiClient.GetAllAsync();
                 }
