@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -47,6 +47,12 @@ namespace WindowsForms
                 DataPropertyName = "Descripcion",
                 Width = 300
             });
+
+            this.categoriasDataGridView.ReadOnly = true;
+            this.categoriasDataGridView.AllowUserToAddRows = false;
+            this.categoriasDataGridView.AllowUserToDeleteRows = false;
+            this.categoriasDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.categoriasDataGridView.MultiSelect = false;
         }
 
         private async void Categorias_Load(object sender, EventArgs e)
@@ -133,8 +139,8 @@ namespace WindowsForms
                 this.categoriasDataGridView.DataSource = categorias;
 
                 // Solo manejar Enabled/Disabled si los botones son visibles (tienen permisos)
-                bool canUpdate = actualizarButton.Tag is bool updatePermission && updatePermission;
-                bool canDelete = eliminarButton.Tag is bool deletePermission && deletePermission;
+                bool canUpdate = actualizarButton.Tag is bool updatePermission ? updatePermission : true;
+                bool canDelete = eliminarButton.Tag is bool deletePermission ? deletePermission : true;
 
                 if (this.categoriasDataGridView.Rows.Count > 0)
                 {

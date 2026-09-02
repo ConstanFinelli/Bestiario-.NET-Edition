@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace API.Clients
@@ -14,6 +14,7 @@ namespace API.Clients
 
         protected static async Task ConfigureHttpClientAsync(HttpClient client)
         {
+            await Task.CompletedTask;
             // Leer URL base de configuración, si no existe usar localhost por defecto
             string baseUrl = GetBaseUrlFromConfig();
             client.BaseAddress = new Uri(baseUrl);
@@ -29,7 +30,8 @@ namespace API.Clients
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Intentando leer configuración...");
 
                 // 1. Primero revisar variable de entorno
-                string? envUrl = Environment.GetEnvironmentVariable("TPI_API_BASE_URL");
+                DotNetEnv.Env.TraversePath().Load(); 
+                string? envUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
                 if (!string.IsNullOrEmpty(envUrl))
                 {
                     System.Diagnostics.Debug.WriteLine($"[DEBUG] URL desde variable de entorno: {envUrl}");
@@ -43,7 +45,7 @@ namespace API.Clients
                 if (runtimeInfo.StartsWith("android"))
                 {
                     System.Diagnostics.Debug.WriteLine($"[DEBUG] Detectado Android - usando IP de emulador");
-                    return "http://10.0.2.2:5183/";
+                    return "http://10.0.2.2:5076/";
                 }
             }
             catch (Exception ex)
@@ -52,7 +54,7 @@ namespace API.Clients
             }
 
             // URL por defecto para Windows/otras plataformas
-            string defaultUrl = "http://localhost:5183/";
+            string defaultUrl = "http://localhost:5076/";
             System.Diagnostics.Debug.WriteLine($"[DEBUG] Usando URL por defecto: {defaultUrl}");
             return defaultUrl;
         }

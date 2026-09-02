@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -26,10 +26,17 @@ namespace WindowsForms
 
             this.noticiaGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
-                Name = "ID",
+                Name = "Id",
                 HeaderText = "ID",
-                DataPropertyName = "ID",
+                DataPropertyName = "Id",
                 Width = 150
+            });
+            this.noticiaGridView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "Titulo",
+                HeaderText = "Título",
+                DataPropertyName = "Titulo",
+                Width = 180
             });
             this.noticiaGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -37,14 +44,7 @@ namespace WindowsForms
                 HeaderText = "Fecha Publicacion",
                 DataPropertyName = "FechaPublicacion",
                 DefaultCellStyle = { Format = "dd/MM/yyyy HH:mm:ss" },
-                Width = 100
-            });
-            this.noticiaGridView.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Publicador",
-                HeaderText = "Publicador",
-                DataPropertyName = "Publicador",
-                Width = 100
+                Width = 130
             });
             this.noticiaGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -53,7 +53,11 @@ namespace WindowsForms
                 DataPropertyName = "Contenido",
                 Width = 250
             });
-
+            this.noticiaGridView.ReadOnly = true;
+            this.noticiaGridView.AllowUserToAddRows = false;
+            this.noticiaGridView.AllowUserToDeleteRows = false;
+            this.noticiaGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.noticiaGridView.MultiSelect = false;
         }
 
 
@@ -146,8 +150,8 @@ namespace WindowsForms
                 this.noticiaGridView.DataSource = noticias;
 
                 // Solo manejar Enabled/Disabled si los botones son visibles (tienen permisos)
-                bool canUpdate = actualizarButton.Tag is bool updatePermission && updatePermission;
-                bool canDelete = eliminarButton.Tag is bool deletePermission && deletePermission;
+                bool canUpdate = actualizarButton.Tag is bool updatePermission ? updatePermission : true;
+                bool canDelete = eliminarButton.Tag is bool deletePermission ? deletePermission : true;
 
                 if (this.noticiaGridView.Rows.Count > 0)
                 {

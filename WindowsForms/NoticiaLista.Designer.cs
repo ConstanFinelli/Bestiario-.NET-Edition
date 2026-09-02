@@ -1,4 +1,4 @@
-﻿namespace WindowsForms
+namespace WindowsForms
 {
     partial class NoticiaLista
     {
@@ -54,6 +54,7 @@
             buscarButton.TabIndex = 1;
             buscarButton.Text = "Buscar";
             buscarButton.UseVisualStyleBackColor = true;
+            buscarButton.Click += buscarButton_Click;
             // 
             // noticiaGridView
             // 
@@ -73,6 +74,7 @@
             eliminarButton.TabIndex = 3;
             eliminarButton.Text = "Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
+            eliminarButton.Click += eliminarButton_Click;
             // 
             // agregarButton
             // 
@@ -82,6 +84,7 @@
             agregarButton.TabIndex = 4;
             agregarButton.Text = "Agregar";
             agregarButton.UseVisualStyleBackColor = true;
+            agregarButton.Click += agregarButton_Click;
             // 
             // actualizarButton
             // 
@@ -91,18 +94,20 @@
             actualizarButton.TabIndex = 5;
             actualizarButton.Text = "Actualizar";
             actualizarButton.UseVisualStyleBackColor = true;
+            actualizarButton.Click += actualizarButton_Click;
             // 
             // NoticiaLista
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(790, 392);
             Controls.Add(actualizarButton);
             Controls.Add(agregarButton);
             Controls.Add(eliminarButton);
             Controls.Add(noticiaGridView);
             Controls.Add(buscarButton);
             Controls.Add(buscarTextBox);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Name = "NoticiaLista";
             Text = "NoticiaLista";
             Load += NoticiaLista_Load;

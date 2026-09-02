@@ -40,7 +40,6 @@ namespace WindowsForms
             cancelarButton = new Button();
             descripcionLabel = new Label();
             descripcionTextBox = new TextBox();
-            descripcionTextBox = new TextBox();
             idLabel = new Label();
             idTextBox = new TextBox();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
@@ -48,25 +47,28 @@ namespace WindowsForms
             // 
             // nombreTextBox
             // 
-            nombreTextBox.Location = new Point(243, 109);
+            nombreTextBox.Location = new Point(131, 51);
+            nombreTextBox.Margin = new Padding(2, 1, 2, 1);
             nombreTextBox.Name = "nombreTextBox";
-            nombreTextBox.Size = new Size(200, 39);
+            nombreTextBox.Size = new Size(110, 23);
             nombreTextBox.TabIndex = 0;
             // 
             // nombreLabel
             // 
             nombreLabel.AutoSize = true;
-            nombreLabel.Location = new Point(44, 109);
+            nombreLabel.Location = new Point(24, 51);
+            nombreLabel.Margin = new Padding(2, 0, 2, 0);
             nombreLabel.Name = "nombreLabel";
-            nombreLabel.Size = new Size(102, 32);
+            nombreLabel.Size = new Size(51, 15);
             nombreLabel.TabIndex = 1;
             nombreLabel.Text = "Nombre";
             // 
             // aceptarButton
             // 
-            aceptarButton.Location = new Point(444, 480);
+            aceptarButton.Location = new Point(237, 120);
+            aceptarButton.Margin = new Padding(2, 1, 2, 1);
             aceptarButton.Name = "aceptarButton";
-            aceptarButton.Size = new Size(150, 46);
+            aceptarButton.Size = new Size(81, 22);
             aceptarButton.TabIndex = 2;
             aceptarButton.Text = "Aceptar";
             aceptarButton.UseVisualStyleBackColor = true;
@@ -78,9 +80,10 @@ namespace WindowsForms
             // 
             // cancelarButton
             // 
-            cancelarButton.Location = new Point(614, 480);
+            cancelarButton.Location = new Point(322, 120);
+            cancelarButton.Margin = new Padding(2, 1, 2, 1);
             cancelarButton.Name = "cancelarButton";
-            cancelarButton.Size = new Size(150, 46);
+            cancelarButton.Size = new Size(81, 22);
             cancelarButton.TabIndex = 3;
             cancelarButton.Text = "Cancelar";
             cancelarButton.UseVisualStyleBackColor = true;
@@ -89,41 +92,46 @@ namespace WindowsForms
             // descripcionLabel
             // 
             descripcionLabel.AutoSize = true;
-            descripcionLabel.Location = new Point(44, 176);
+            descripcionLabel.Location = new Point(24, 82);
+            descripcionLabel.Margin = new Padding(2, 0, 2, 0);
             descripcionLabel.Name = "descripcionLabel";
-            descripcionLabel.Size = new Size(102, 32);
+            descripcionLabel.Size = new Size(69, 15);
             descripcionLabel.TabIndex = 5;
-            descripcionLabel.Text = "descripcion";
+            descripcionLabel.Text = "Descripcion";
             // 
             // descripcionTextBox
             // 
-            descripcionTextBox.Location = new Point(243, 176);
+            descripcionTextBox.Location = new Point(131, 82);
+            descripcionTextBox.Margin = new Padding(2, 1, 2, 1);
             descripcionTextBox.Name = "descripcionTextBox";
-            descripcionTextBox.Size = new Size(200, 39);
+            descripcionTextBox.Size = new Size(110, 23);
             descripcionTextBox.TabIndex = 1;
+            // 
             // idLabel
             // 
             idLabel.AutoSize = true;
-            idLabel.Location = new Point(44, 33);
+            idLabel.Location = new Point(24, 15);
+            idLabel.Margin = new Padding(2, 0, 2, 0);
             idLabel.Name = "idLabel";
-            idLabel.Size = new Size(34, 32);
+            idLabel.Size = new Size(17, 15);
             idLabel.TabIndex = 11;
             idLabel.Text = "Id";
             // 
             // idTextBox
             // 
-            idTextBox.Location = new Point(243, 33);
+            idTextBox.Location = new Point(131, 15);
+            idTextBox.Margin = new Padding(2, 1, 2, 1);
             idTextBox.Name = "idTextBox";
             idTextBox.ReadOnly = true;
-            idTextBox.Size = new Size(200, 39);
+            idTextBox.Size = new Size(110, 23);
             idTextBox.TabIndex = 0;
             idTextBox.TabStop = false;
             // 
             // CategoriaDetalle
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 570);
+            ClientSize = new Size(409, 152);
             Controls.Add(idLabel);
             Controls.Add(idTextBox);
             Controls.Add(descripcionLabel);
@@ -132,6 +140,8 @@ namespace WindowsForms
             Controls.Add(aceptarButton);
             Controls.Add(nombreLabel);
             Controls.Add(nombreTextBox);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(2, 1, 2, 1);
             Name = "CategoriaDetalle";
             Text = "Categoria";
             ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();

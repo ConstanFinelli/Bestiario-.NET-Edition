@@ -151,5 +151,9 @@ namespace WindowsForms
 
         }
 
+        private void fechaPublicacionTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

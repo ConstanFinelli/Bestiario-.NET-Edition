@@ -1,4 +1,4 @@
-﻿namespace WindowsForms
+namespace WindowsForms
 {
     partial class NoticiaDetalle
     {
@@ -37,13 +37,12 @@
             contenidoTextBox = new TextBox();
             fechaPublicacionLabel = new Label();
             fechaPublicacionTextBox = new TextBox();
-            label5 = new Label();
             cancelarButton = new Button();
             SuspendLayout();
             // 
             // aceptarButton
             // 
-            aceptarButton.Location = new Point(161, 266);
+            aceptarButton.Location = new Point(199, 205);
             aceptarButton.Name = "aceptarButton";
             aceptarButton.Size = new Size(75, 23);
             aceptarButton.TabIndex = 0;
@@ -53,15 +52,16 @@
             // 
             // idTextBox
             // 
-            idTextBox.Location = new Point(67, 71);
+            idTextBox.Location = new Point(112, 10);
             idTextBox.Name = "idTextBox";
+            idTextBox.ReadOnly = true;
             idTextBox.Size = new Size(169, 23);
             idTextBox.TabIndex = 1;
             // 
             // idLabel
             // 
             idLabel.AutoSize = true;
-            idLabel.Location = new Point(108, 53);
+            idLabel.Location = new Point(87, 13);
             idLabel.Name = "idLabel";
             idLabel.Size = new Size(18, 15);
             idLabel.TabIndex = 2;
@@ -70,7 +70,7 @@
             // tituloLabel
             // 
             tituloLabel.AutoSize = true;
-            tituloLabel.Location = new Point(108, 100);
+            tituloLabel.Location = new Point(71, 42);
             tituloLabel.Name = "tituloLabel";
             tituloLabel.Size = new Size(37, 15);
             tituloLabel.TabIndex = 4;
@@ -78,7 +78,7 @@
             // 
             // tituloTextBox
             // 
-            tituloTextBox.Location = new Point(67, 118);
+            tituloTextBox.Location = new Point(111, 39);
             tituloTextBox.Name = "tituloTextBox";
             tituloTextBox.Size = new Size(169, 23);
             tituloTextBox.TabIndex = 3;
@@ -86,7 +86,7 @@
             // contenidoLabel
             // 
             contenidoLabel.AutoSize = true;
-            contenidoLabel.Location = new Point(108, 152);
+            contenidoLabel.Location = new Point(42, 71);
             contenidoLabel.Name = "contenidoLabel";
             contenidoLabel.Size = new Size(63, 15);
             contenidoLabel.TabIndex = 6;
@@ -94,40 +94,34 @@
             // 
             // contenidoTextBox
             // 
-            contenidoTextBox.Location = new Point(67, 170);
+            contenidoTextBox.Location = new Point(111, 68);
+            contenidoTextBox.Multiline = true;
             contenidoTextBox.Name = "contenidoTextBox";
-            contenidoTextBox.Size = new Size(169, 23);
+            contenidoTextBox.Size = new Size(170, 102);
             contenidoTextBox.TabIndex = 5;
             // 
             // fechaPublicacionLabel
             // 
             fechaPublicacionLabel.AutoSize = true;
-            fechaPublicacionLabel.Location = new Point(108, 200);
+            fechaPublicacionLabel.Location = new Point(2, 179);
             fechaPublicacionLabel.Name = "fechaPublicacionLabel";
             fechaPublicacionLabel.Size = new Size(103, 15);
             fechaPublicacionLabel.TabIndex = 8;
             fechaPublicacionLabel.Text = "Fecha Publicación";
+            fechaPublicacionLabel.TextAlign = ContentAlignment.TopCenter;
             // 
             // fechaPublicacionTextBox
             // 
-            fechaPublicacionTextBox.Location = new Point(67, 218);
+            fechaPublicacionTextBox.Location = new Point(111, 176);
             fechaPublicacionTextBox.Name = "fechaPublicacionTextBox";
+            fechaPublicacionTextBox.ReadOnly = true;
             fechaPublicacionTextBox.Size = new Size(169, 23);
             fechaPublicacionTextBox.TabIndex = 7;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Segoe UI", 11F);
-            label5.Location = new Point(108, 23);
-            label5.Name = "label5";
-            label5.Size = new Size(96, 20);
-            label5.TabIndex = 9;
-            label5.Text = "Crear Noticia";
+            fechaPublicacionTextBox.TextChanged += fechaPublicacionTextBox_TextChanged;
             // 
             // cancelarButton
             // 
-            cancelarButton.Location = new Point(67, 266);
+            cancelarButton.Location = new Point(12, 205);
             cancelarButton.Name = "cancelarButton";
             cancelarButton.Size = new Size(75, 23);
             cancelarButton.TabIndex = 10;
@@ -138,9 +132,8 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(284, 301);
+            ClientSize = new Size(286, 236);
             Controls.Add(cancelarButton);
-            Controls.Add(label5);
             Controls.Add(fechaPublicacionLabel);
             Controls.Add(fechaPublicacionTextBox);
             Controls.Add(contenidoLabel);
@@ -150,6 +143,7 @@
             Controls.Add(idLabel);
             Controls.Add(idTextBox);
             Controls.Add(aceptarButton);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Name = "NoticiaDetalle";
             Text = "Gestión de Noticias";
             Load += NoticiaDetalle_Load;
@@ -168,7 +162,6 @@
         private TextBox contenidoTextBox;
         private Label fechaPublicacionLabel;
         private TextBox fechaPublicacionTextBox;
-        private Label label5;
         private Button cancelarButton;
     }
 }
