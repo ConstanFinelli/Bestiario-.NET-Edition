@@ -15,11 +15,6 @@ using System.Reflection.Emit;
 
 namespace WindowsForms
 {
-    public enum FormMode
-    {
-        Add,
-        Update
-    }
 
     public partial class CategoriaDetalle : Form
     {

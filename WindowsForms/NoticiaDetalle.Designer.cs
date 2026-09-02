@@ -49,7 +49,7 @@
             aceptarButton.TabIndex = 0;
             aceptarButton.Text = "Aceptar";
             aceptarButton.UseVisualStyleBackColor = true;
-            aceptarButton.Click += button1_Click;
+            aceptarButton.Click += aceptarButton_Click;
             // 
             // idTextBox
             // 
@@ -57,7 +57,6 @@
             idTextBox.Name = "idTextBox";
             idTextBox.Size = new Size(169, 23);
             idTextBox.TabIndex = 1;
-            idTextBox.TextChanged += idTextBox_TextChanged;
             // 
             // idLabel
             // 
@@ -67,7 +66,6 @@
             idLabel.Size = new Size(18, 15);
             idLabel.TabIndex = 2;
             idLabel.Text = "ID";
-            idLabel.Click += label1_Click;
             // 
             // tituloLabel
             // 
@@ -77,7 +75,6 @@
             tituloLabel.Size = new Size(37, 15);
             tituloLabel.TabIndex = 4;
             tituloLabel.Text = "Título";
-            tituloLabel.Click += label2_Click;
             // 
             // tituloTextBox
             // 
@@ -85,7 +82,6 @@
             tituloTextBox.Name = "tituloTextBox";
             tituloTextBox.Size = new Size(169, 23);
             tituloTextBox.TabIndex = 3;
-            tituloTextBox.TextChanged += this.tituloTextBox_TextChanged;
             // 
             // contenidoLabel
             // 
@@ -95,7 +91,6 @@
             contenidoLabel.Size = new Size(63, 15);
             contenidoLabel.TabIndex = 6;
             contenidoLabel.Text = "Contenido";
-            contenidoLabel.Click += this.contenidoLabel_Click;
             // 
             // contenidoTextBox
             // 
@@ -103,7 +98,6 @@
             contenidoTextBox.Name = "contenidoTextBox";
             contenidoTextBox.Size = new Size(169, 23);
             contenidoTextBox.TabIndex = 5;
-            contenidoTextBox.TextChanged += this.contenidoTextBox_TextChanged;
             // 
             // fechaPublicacionLabel
             // 
@@ -113,7 +107,6 @@
             fechaPublicacionLabel.Size = new Size(103, 15);
             fechaPublicacionLabel.TabIndex = 8;
             fechaPublicacionLabel.Text = "Fecha Publicación";
-            fechaPublicacionLabel.Click += this.fechaPublicacionLabel_Click;
             // 
             // fechaPublicacionTextBox
             // 
@@ -121,7 +114,6 @@
             fechaPublicacionTextBox.Name = "fechaPublicacionTextBox";
             fechaPublicacionTextBox.Size = new Size(169, 23);
             fechaPublicacionTextBox.TabIndex = 7;
-            fechaPublicacionTextBox.TextChanged += this.fechaPublicacionTextBox_TextChanged;
             // 
             // label5
             // 

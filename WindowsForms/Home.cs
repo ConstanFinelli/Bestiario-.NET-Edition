@@ -17,7 +17,7 @@ namespace WindowsForms
             InitializeComponent();
         }
 
-        private void categoriasToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CategoriaLista categoriasForm = new CategoriaLista();
             categoriasForm.ShowDialog();
@@ -25,9 +25,8 @@ namespace WindowsForms
 
         private void NoticiasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-           NoticiaLista noticiaForm = new NoticiaLista();
-            noticiasForm.ShowDialog();
+           NoticiaLista noticiasForm = new NoticiaLista();
+           noticiasForm.ShowDialog();
         }
     }
-}
 }

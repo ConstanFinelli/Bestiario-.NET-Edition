@@ -50,14 +50,14 @@
             categoriasToolStripMenuItem.Name = "categoriasToolStripMenuItem";
             categoriasToolStripMenuItem.Size = new Size(61, 22);
             categoriasToolStripMenuItem.Text = "Categorias";
-            categoriasToolStripMenuItem.Click += categoriasToolStripMenuItem_Click;
+            categoriasToolStripMenuItem.Click += CategoriasToolStripMenuItem_Click;
             // 
             // noticiasToolStripMenuItem
             // 
             noticiasToolStripMenuItem.Name = "noticiasToolStripMenuItem";
             noticiasToolStripMenuItem.Size = new Size(61, 22);
             noticiasToolStripMenuItem.Text = "Noticias";
-            noticiasToolStripMenuItem.Click += noticiasToolStripMenuItem_Click;
+            noticiasToolStripMenuItem.Click += NoticiasToolStripMenuItem_Click;
             // 
             // Home
             // 
