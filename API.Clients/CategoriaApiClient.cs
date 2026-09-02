@@ -13,7 +13,7 @@ namespace API.Clients
     {
 
 
-        public static async Task<CategoriaDTO> GetAsync(int id)
+        public static async Task<CategoriaDTO> GetAsync(Guid id)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace API.Clients
             }
         }
 
-        public static async Task DeleteAsync(int id)
+        public static async Task DeleteAsync(Guid id)
         {
             try
             {
