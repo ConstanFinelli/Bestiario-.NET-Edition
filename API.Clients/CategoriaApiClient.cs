@@ -135,33 +135,5 @@ namespace API.Clients
                 throw new Exception($"Timeout al actualizar categoria con Id {categoria.Id}: {ex.Message}", ex);
             }
         }
-
-        public static async Task<IEnumerable<CategoriaDTO>> GetByCriteriaAsync(string texto)
-        {
-            try
-            {
-                using var client = await CreateHttpClientAsync();
-                HttpResponseMessage response = await client.GetAsync($"categorias/criteria?texto={Uri.EscapeDataString(texto)}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var categorias = await response.Content.ReadFromJsonAsync<IEnumerable<CategoriaDTO>>();
-                    return categorias ?? new List<CategoriaDTO>();
-                }
-                else
-                {
-                    string errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error al buscar categorias. Status: {response.StatusCode}, Detalle: {errorContent}");
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                throw new Exception($"Error de conexión al buscar categorias: {ex.Message}", ex);
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new Exception($"Timeout al buscar categorias: {ex.Message}", ex);
-            }
-        }
     }
 }

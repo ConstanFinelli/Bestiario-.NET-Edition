@@ -86,6 +86,10 @@ namespace WindowsForms
             }
         }
 
+        private void passwordTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 
 }

@@ -66,14 +66,9 @@ namespace WindowsForms
 
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
         private async void NoticiaLista_Load(object sender, EventArgs e)
         {
-            await this.GetByCriteriaAndLoad();
+            await this.GetCategoriesAndLoad();
         }
 
         private async void agregarButton_Click(object sender, EventArgs e)
@@ -83,7 +78,7 @@ namespace WindowsForms
 
             noticiaDetalle.ShowDialog();
 
-            await this.GetByCriteriaAndLoad();
+            await this.GetCategoriesAndLoad();
         }
 
         private async void actualizarButton_Click(object sender, EventArgs e)
@@ -98,7 +93,7 @@ namespace WindowsForms
                 NoticiaDetalle noticiaDetalle = new NoticiaDetalle(FormMode.Update, noticia);
                 noticiaDetalle.ShowDialog();
 
-                await this.GetByCriteriaAndLoad();
+                await this.GetCategoriesAndLoad();
             }
             catch (Exception ex)
             {
@@ -122,7 +117,7 @@ namespace WindowsForms
                 {
                     DeshabilitarControles();
                     await NoticiaApiClient.DeleteAsync(noticia.Id);
-                    await this.GetByCriteriaAndLoad();
+                    await this.GetCategoriesAndLoad();
                 }
                 catch (Exception ex)
                 {
@@ -135,7 +130,7 @@ namespace WindowsForms
             }
         }
 
-        private async Task GetByCriteriaAndLoad(string texto = "")
+        private async Task GetCategoriesAndLoad()
         {
             try
             {
@@ -149,7 +144,6 @@ namespace WindowsForms
 
                 this.noticiaGridView.DataSource = noticias;
 
-                // Solo manejar Enabled/Disabled si los botones son visibles (tienen permisos)
                 bool canUpdate = actualizarButton.Tag is bool updatePermission ? updatePermission : true;
                 bool canDelete = eliminarButton.Tag is bool deletePermission ? deletePermission : true;
 
@@ -157,13 +151,11 @@ namespace WindowsForms
                 {
                     this.noticiaGridView.Rows[0].Selected = true;
 
-                    // Solo habilitar si tiene permisos Y hay elementos
                     if (canDelete) this.eliminarButton.Enabled = true;
                     if (canUpdate) this.actualizarButton.Enabled = true;
                 }
                 else
                 {
-                    // Solo deshabilitar si son visibles
                     if (canDelete) this.eliminarButton.Enabled = false;
                     if (canUpdate) this.actualizarButton.Enabled = false;
                 }
@@ -186,16 +178,8 @@ namespace WindowsForms
             return noticia;
         }
 
-        private async void buscarButton_Click(object sender, EventArgs e)
-        {
-            string texto = this.buscarTextBox.Text.Trim();
-            await this.GetByCriteriaAndLoad(texto);
-        }
-
         private void DeshabilitarControles()
         {
-            buscarButton.Enabled = false;
-            buscarTextBox.Enabled = false;
             agregarButton.Enabled = false;
             actualizarButton.Enabled = false;
             eliminarButton.Enabled = false;
@@ -204,11 +188,8 @@ namespace WindowsForms
 
         private void HabilitarControles()
         {
-            buscarButton.Enabled = true;
-            buscarTextBox.Enabled = true;
             agregarButton.Enabled = true;
             noticiaGridView.Enabled = true;
-            // actualizar y eliminar se habilitan según permisos y datos en GetByCriteriaAndLoad
         }
     }
 }

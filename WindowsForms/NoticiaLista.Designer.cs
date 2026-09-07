@@ -28,8 +28,6 @@ namespace WindowsForms
         /// </summary>
         private void InitializeComponent()
         {
-            buscarTextBox = new TextBox();
-            buscarButton = new Button();
             noticiaGridView = new DataGridView();
             eliminarButton = new Button();
             agregarButton = new Button();
@@ -37,34 +35,14 @@ namespace WindowsForms
             ((System.ComponentModel.ISupportInitialize)noticiaGridView).BeginInit();
             SuspendLayout();
             // 
-            // buscarTextBox
-            // 
-            buscarTextBox.Location = new Point(43, 40);
-            buscarTextBox.Name = "buscarTextBox";
-            buscarTextBox.PlaceholderText = "Buscar por ID o Publicador";
-            buscarTextBox.Size = new Size(337, 23);
-            buscarTextBox.TabIndex = 0;
-            buscarTextBox.Tag = "";
-            // 
-            // buscarButton
-            // 
-            buscarButton.Location = new Point(385, 40);
-            buscarButton.Name = "buscarButton";
-            buscarButton.Size = new Size(75, 23);
-            buscarButton.TabIndex = 1;
-            buscarButton.Text = "Buscar";
-            buscarButton.UseVisualStyleBackColor = true;
-            buscarButton.Click += buscarButton_Click;
-            // 
             // noticiaGridView
             // 
             noticiaGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            noticiaGridView.Location = new Point(43, 74);
+            noticiaGridView.Location = new Point(43, 37);
             noticiaGridView.Name = "noticiaGridView";
             noticiaGridView.RowHeadersWidth = 25;
-            noticiaGridView.Size = new Size(714, 268);
+            noticiaGridView.Size = new Size(714, 305);
             noticiaGridView.TabIndex = 2;
-            noticiaGridView.CellContentClick += dataGridView1_CellContentClick;
             // 
             // eliminarButton
             // 
@@ -105,21 +83,15 @@ namespace WindowsForms
             Controls.Add(agregarButton);
             Controls.Add(eliminarButton);
             Controls.Add(noticiaGridView);
-            Controls.Add(buscarButton);
-            Controls.Add(buscarTextBox);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Name = "NoticiaLista";
             Text = "NoticiaLista";
             Load += NoticiaLista_Load;
             ((System.ComponentModel.ISupportInitialize)noticiaGridView).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
-
-        private TextBox buscarTextBox;
-        private Button buscarButton;
         private DataGridView noticiaGridView;
         private Button eliminarButton;
         private Button agregarButton;

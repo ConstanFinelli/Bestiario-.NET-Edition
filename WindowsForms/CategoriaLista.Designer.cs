@@ -32,8 +32,6 @@
             agregarButton = new Button();
             eliminarButton = new Button();
             actualizarButton = new Button();
-            buscarTextBox = new TextBox();
-            buscarButton = new Button();
             ((System.ComponentModel.ISupportInitialize)categoriasDataGridView).BeginInit();
             SuspendLayout();
             // 
@@ -88,33 +86,11 @@
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
             // 
-            // buscarTextBox
-            // 
-            buscarTextBox.Location = new Point(21, 18);
-            buscarTextBox.Margin = new Padding(2, 1, 2, 1);
-            buscarTextBox.Name = "buscarTextBox";
-            buscarTextBox.PlaceholderText = "Buscar por nombre o descripcion";
-            buscarTextBox.Size = new Size(217, 23);
-            buscarTextBox.TabIndex = 4;
-            // 
-            // buscarButton
-            // 
-            buscarButton.Location = new Point(242, 18);
-            buscarButton.Margin = new Padding(2, 1, 2, 1);
-            buscarButton.Name = "buscarButton";
-            buscarButton.Size = new Size(65, 18);
-            buscarButton.TabIndex = 5;
-            buscarButton.Text = "Buscar";
-            buscarButton.UseVisualStyleBackColor = true;
-            buscarButton.Click += buscarButton_Click;
-            // 
             // CategoriaLista
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(796, 336);
-            Controls.Add(buscarButton);
-            Controls.Add(buscarTextBox);
             Controls.Add(actualizarButton);
             Controls.Add(eliminarButton);
             Controls.Add(agregarButton);
@@ -126,7 +102,6 @@
             Load += Categorias_Load;
             ((System.ComponentModel.ISupportInitialize)categoriasDataGridView).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -135,7 +110,5 @@
         private Button agregarButton;
         private Button eliminarButton;
         private Button actualizarButton;
-        private TextBox buscarTextBox;
-        private Button buscarButton;
     }
 }
