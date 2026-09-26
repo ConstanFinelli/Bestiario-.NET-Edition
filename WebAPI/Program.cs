@@ -1,6 +1,5 @@
 using Application.Services;
 using Data;
-using System.Linq.Expressions;
 using WebAPI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,15 +9,21 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<TPIContext>();
 
+// Categorias y Noticias
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<INoticiaService, NoticiaService>();
 
-var app = builder.Build();
+// Bestias, Registros y Usuarios
+builder.Services.AddScoped<IBestiaRepository, BestiaRepository>();
+builder.Services.AddScoped<IBestiaService, BestiaService>();
+builder.Services.AddScoped<IRegistroRepository, RegistroRepository>();
+builder.Services.AddScoped<IRegistroService, RegistroService>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
-Console.ForegroundColor = ConsoleColor.Red;
-Console.ResetColor();
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -28,5 +33,8 @@ if (app.Environment.IsDevelopment())
 
 app.MapCategoriaEndpoints();
 app.MapNoticiaEndpoints();
+app.MapBestiaEndpoints();
+app.MapRegistroEndpoints();
+app.MapUsuarioEndpoints();
 
 app.Run();

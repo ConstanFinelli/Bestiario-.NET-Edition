@@ -1,0 +1,99 @@
+using Application.Services;
+using DTOs;
+
+namespace WebAPI
+{
+    public static class RegistroEndpoints
+    {
+        public static void MapRegistroEndpoints(this WebApplication app)
+        {
+            app.MapGet("/bestias/{idBestia}/registros", async (Guid idBestia, IRegistroService registroService) =>
+            {
+                var dtos = await registroService.GetByBestiaAsync(idBestia);
+                return Results.Ok(dtos);
+            })
+            .WithName("GetRegistrosByBestia")
+            .Produces<List<RegistroDTO>>(StatusCodes.Status200OK)
+            .WithOpenApi();
+
+            app.MapGet("/bestias/{idBestia}/registros/{nroRegistro:int}", async (Guid idBestia, int nroRegistro, IRegistroService registroService) =>
+            {
+                var dto = await registroService.GetAsync(idBestia, nroRegistro);
+                if (dto == null)
+                    return Results.NotFound();
+
+                return Results.Ok(dto);
+            })
+            .WithName("GetRegistro")
+            .Produces<RegistroDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+
+            app.MapPost("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, IRegistroService registroService) =>
+            {
+                try
+                {
+                    dto.IdBestia = idBestia;
+                    var result = await registroService.AddAsync(dto);
+                    return Results.Created($"/bestias/{idBestia}/registros/{result.NroRegistro}", result);
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
+            })
+            .WithName("AddRegistro")
+            .Produces<RegistroDTO>(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
+            app.MapPut("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, IRegistroService registroService) =>
+            {
+                try
+                {
+                    dto.IdBestia = idBestia;
+                    var found = await registroService.UpdateAsync(dto);
+                    if (!found)
+                        return Results.NotFound();
+
+                    return Results.NoContent();
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
+            })
+            .WithName("UpdateRegistro")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
+            app.MapDelete("/bestias/{idBestia}/registros/{nroRegistro:int}", async (Guid idBestia, int nroRegistro, IRegistroService registroService) =>
+            {
+                var deleted = await registroService.DeleteAsync(idBestia, nroRegistro);
+                if (!deleted)
+                    return Results.NotFound();
+
+                return Results.NoContent();
+            })
+            .WithName("DeleteRegistro")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+
+            app.MapPut("/bestias/{idBestia}/registros/{nroRegistro:int}/aprobar/{idInvestigador}", async (Guid idBestia, int nroRegistro, Guid idInvestigador, IRegistroService registroService) =>
+            {
+                var ok = await registroService.AprobarAsync(idBestia, nroRegistro, idInvestigador);
+                if (!ok)
+                    return Results.NotFound();
+
+                return Results.NoContent();
+            })
+            .WithName("AprobarRegistro")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+        }
+    }
+}
