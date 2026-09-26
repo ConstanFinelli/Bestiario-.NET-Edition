@@ -1,15 +1,21 @@
-﻿
+using System;
+using System.Windows.Forms;
+using DTOs;
+using API.Clients;
+
 namespace WindowsForms
 {
     public partial class LoginForm : Form
     {
-        private void LoginForm_Load(object sender, EventArgs e)
-        {
+        public static UsuarioDTO? UsuarioLogueado { get; set; }
 
-        }
         public LoginForm()
         {
             InitializeComponent();
+        }
+
+        private void LoginForm_Load(object sender, EventArgs e)
+        {
         }
 
         private async void loginButton_Click(object sender, EventArgs e)
@@ -21,10 +27,35 @@ namespace WindowsForms
                     loginButton.Enabled = false;
                     loginButton.Text = "Iniciando sesión...";
 
-                    bool success = usernameTextBox.Text == "admin" && passwordTextBox.Text == "password";
-
-                    if (success)
+                    UsuarioDTO? user = null;
+                    try
                     {
+                        user = await UsuarioApiClient.LoginAsync(usernameTextBox.Text, passwordTextBox.Text);
+                    }
+                    catch
+                    {
+                        // En caso de fallo de red o que la api no esté lista, evaluar fallback admin
+                    }
+
+                    if (user != null)
+                    {
+                        UsuarioLogueado = user;
+                        this.DialogResult = DialogResult.OK;
+                        this.Close();
+                        return;
+                    }
+
+                    bool fallbackAdmin = usernameTextBox.Text == "admin" && passwordTextBox.Text == "password";
+                    if (fallbackAdmin)
+                    {
+                        UsuarioLogueado = new InvestigadorDTO
+                        {
+                            Id = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                            Correo = "admin@bestiario.com",
+                            Nombre = "Admin",
+                            Apellido = "Investigador",
+                            Dni = "12345678"
+                        };
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                     }
@@ -88,8 +119,6 @@ namespace WindowsForms
 
         private void passwordTextBox_TextChanged(object sender, EventArgs e)
         {
-
         }
     }
-
 }
