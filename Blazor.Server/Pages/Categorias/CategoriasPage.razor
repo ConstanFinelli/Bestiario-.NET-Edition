@@ -131,6 +131,8 @@
               OnConfirm="@EliminarCategoriaConfirmada"
               OnCancel="@(() => isConfirmDeleteOpen = false)" />
 
+@implements IDisposable
+
 @code {
     private List<CategoriaDTO> categorias = new();
     private CategoriaDTO? selectedCategoria;
@@ -146,13 +148,29 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!Auth.IsAuthenticated)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
+        Auth.OnChange += HandleAuthStateChanged;
 
-        await CargarCategorias();
+        if (Auth.IsAuthenticated)
+        {
+            await CargarCategorias();
+        }
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        if (Auth.IsAuthenticated && (categorias == null || !categorias.Any()))
+        {
+            await InvokeAsync(async () =>
+            {
+                await CargarCategorias();
+                StateHasChanged();
+            });
+        }
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= HandleAuthStateChanged;
     }
 
     private async Task CargarCategorias()

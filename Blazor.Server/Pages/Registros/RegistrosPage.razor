@@ -169,6 +169,8 @@
               OnConfirm="@EliminarRegistroConfirmado"
               OnCancel="@(() => isConfirmDeleteOpen = false)" />
 
+@implements IDisposable
+
 @code {
     [SupplyParameterFromQuery]
     public Guid? BestiaId { get; set; }
@@ -191,18 +193,34 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!Auth.IsAuthenticated)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
+        Auth.OnChange += HandleAuthStateChanged;
 
         if (BestiaId.HasValue && BestiaId.Value != Guid.Empty)
         {
             selectedFiltroBestiaId = BestiaId.Value;
         }
 
-        await CargarDatos();
+        if (Auth.IsAuthenticated)
+        {
+            await CargarDatos();
+        }
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        if (Auth.IsAuthenticated && (bestias == null || !bestias.Any()))
+        {
+            await InvokeAsync(async () =>
+            {
+                await CargarDatos();
+                StateHasChanged();
+            });
+        }
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= HandleAuthStateChanged;
     }
 
     private async Task CargarDatos()

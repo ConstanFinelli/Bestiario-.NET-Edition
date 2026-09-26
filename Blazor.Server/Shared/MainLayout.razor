@@ -61,7 +61,15 @@
     protected override void OnInitialized()
     {
         Auth.OnChange += OnAuthStateChanged;
-        VerificarAutenticacion();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Auth.InitializeAsync();
+            VerificarAutenticacion();
+        }
     }
 
     protected override void OnParametersSet()
@@ -71,6 +79,8 @@
 
     private void VerificarAutenticacion()
     {
+        if (Auth.IsInitializing) return;
+
         var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
         int queryIndex = relativePath.IndexOf('?');
         if (queryIndex >= 0)

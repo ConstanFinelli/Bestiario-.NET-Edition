@@ -133,6 +133,8 @@
               OnConfirm="@EliminarNoticiaConfirmada"
               OnCancel="@(() => isConfirmDeleteOpen = false)" />
 
+@implements IDisposable
+
 @code {
     private List<NoticiaDTO> noticias = new();
     private NoticiaDTO? selectedNoticia;
@@ -148,13 +150,29 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!Auth.IsAuthenticated)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
+        Auth.OnChange += HandleAuthStateChanged;
 
-        await CargarNoticias();
+        if (Auth.IsAuthenticated)
+        {
+            await CargarNoticias();
+        }
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        if (Auth.IsAuthenticated && (noticias == null || !noticias.Any()))
+        {
+            await InvokeAsync(async () =>
+            {
+                await CargarNoticias();
+                StateHasChanged();
+            });
+        }
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= HandleAuthStateChanged;
     }
 
     private async Task CargarNoticias()

@@ -75,7 +75,7 @@
 @code {
     protected override void OnInitialized()
     {
-        if (!Auth.IsAuthenticated)
+        if (!Auth.IsInitializing && !Auth.IsAuthenticated)
         {
             Navigation.NavigateTo("/login");
         }

@@ -145,6 +145,8 @@
               OnConfirm="@EliminarBestiaConfirmada"
               OnCancel="@(() => isConfirmDeleteOpen = false)" />
 
+@implements IDisposable
+
 @code {
     private List<BestiaDTO> bestias = new();
     private BestiaDTO? selectedBestia;
@@ -160,13 +162,29 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!Auth.IsAuthenticated)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
+        Auth.OnChange += HandleAuthStateChanged;
 
-        await CargarBestias();
+        if (Auth.IsAuthenticated)
+        {
+            await CargarBestias();
+        }
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        if (Auth.IsAuthenticated && (bestias == null || !bestias.Any()))
+        {
+            await InvokeAsync(async () =>
+            {
+                await CargarBestias();
+                StateHasChanged();
+            });
+        }
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= HandleAuthStateChanged;
     }
 
     private async Task CargarBestias()
