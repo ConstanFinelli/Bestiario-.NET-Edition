@@ -1,10 +1,19 @@
+using System;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace API.Clients
 {
     public abstract class BaseApiClient
     {
+        public static string? AuthToken { get; set; }
+
+        public static void SetAuthToken(string? token) => AuthToken = token;
+
+        public static void ClearAuthToken() => AuthToken = null;
+
         protected static async Task<HttpClient> CreateHttpClientAsync()
         {
             var client = new HttpClient();
@@ -21,6 +30,11 @@ namespace API.Clients
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
+
+            if (!string.IsNullOrEmpty(AuthToken))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
+            }
         }
 
         private static string GetBaseUrlFromConfig()

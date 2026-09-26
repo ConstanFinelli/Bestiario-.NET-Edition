@@ -124,7 +124,7 @@ namespace API.Clients
             }
         }
 
-        public static async Task<UsuarioDTO?> LoginAsync(string correo, string contrasenia)
+        public static async Task<AuthResponseDTO?> LoginAsync(string correo, string contrasenia)
         {
             try
             {
@@ -134,7 +134,12 @@ namespace API.Clients
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<UsuarioDTO>();
+                    var authResult = await response.Content.ReadFromJsonAsync<AuthResponseDTO>();
+                    if (authResult != null && !string.IsNullOrEmpty(authResult.Token))
+                    {
+                        SetAuthToken(authResult.Token);
+                    }
+                    return authResult;
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
