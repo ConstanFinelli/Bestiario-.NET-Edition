@@ -1,0 +1,220 @@
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 480px;">
+            <!-- Barra de Título del Diálogo -->
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-window text-primary" style="font-size: 11px;"></span>
+                    <span>Bestia</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel" disabled="@isSaving">✕</button>
+                </div>
+            </div>
+
+            <!-- Cuerpo del Formulario de Diálogo -->
+            <div class="win-form-content" style="padding: 18px 24px;">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="win-error-msg">
+                        <span class="oi oi-warning me-1"></span> @errorMessage
+                    </div>
+                }
+
+                @if (Mode == FormMode.Update)
+                {
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4">
+                            <label class="win-label">Id:</label>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" class="win-textbox w-100" value="@Bestia.Id" readonly />
+                        </div>
+                    </div>
+                }
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4">
+                        <label class="win-label">Nombre:</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" class="win-textbox w-100 @(nombreInvalido ? "win-field-error" : "")" 
+                               @bind="Bestia.Nombre" maxlength="100" disabled="@isSaving" autofocus />
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4">
+                        <label class="win-label">Peligrosidad:</label>
+                    </div>
+                    <div class="col-8">
+                        <select class="win-textbox w-100" @bind="Bestia.Peligrosidad" disabled="@isSaving">
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Muy Alta">Muy Alta</option>
+                            <option value="Extrema">Extrema</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4">
+                        <label class="win-label">Estado:</label>
+                    </div>
+                    <div class="col-8">
+                        <select class="win-textbox w-100" @bind="Bestia.Estado" disabled="@isSaving">
+                            <option value="pendiente">pendiente</option>
+                            <option value="aprobado">aprobado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Categorías vinculadas (Muchos a Muchos) -->
+                <div class="row mb-2">
+                    <div class="col-4 pt-1">
+                        <label class="win-label">Categorías:</label>
+                    </div>
+                    <div class="col-8">
+                        <div style="border: 1px solid #7f9db9; background: #fff; max-height: 120px; overflow-y: auto; padding: 4px 8px;">
+                            @if (todasCategorias == null || !todasCategorias.Any())
+                            {
+                                <span class="text-muted" style="font-size: 11px;">No hay categorías disponibles.</span>
+                            }
+                            else
+                            {
+                                @foreach (var cat in todasCategorias)
+                                {
+                                    bool isChecked = Bestia.CategoriasIds.Contains(cat.Id);
+                                    <div class="form-check" style="font-size: 11px; margin-bottom: 2px;">
+                                        <input class="form-check-input" type="checkbox" id="cat_@cat.Id" 
+                                               checked="@isChecked" 
+                                               @onchange="(e) => ToggleCategoria(cat.Id, e.Value)" 
+                                               disabled="@isSaving" />
+                                        <label class="form-check-label" for="cat_@cat.Id">
+                                            @cat.Nombre
+                                        </label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones Aceptar / Cancelar -->
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                    <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Aceptar")
+                    </button>
+                    <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Add;
+    [Parameter] public BestiaDTO Bestia { get; set; } = new BestiaDTO();
+
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private List<CategoriaDTO> todasCategorias = new();
+    private bool isSaving = false;
+    private string? errorMessage;
+    private bool nombreInvalido = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        errorMessage = null;
+        nombreInvalido = false;
+
+        if (IsOpen)
+        {
+            if (string.IsNullOrEmpty(Bestia.Peligrosidad))
+                Bestia.Peligrosidad = "Media";
+            if (string.IsNullOrEmpty(Bestia.Estado))
+                Bestia.Estado = "pendiente";
+
+            try
+            {
+                var cats = await CategoriaApiClient.GetAllAsync();
+                todasCategorias = cats?.ToList() ?? new List<CategoriaDTO>();
+            }
+            catch
+            {
+                todasCategorias = new List<CategoriaDTO>();
+            }
+        }
+    }
+
+    private void ToggleCategoria(Guid idCategoria, object? isCheckedObj)
+    {
+        bool isChecked = isCheckedObj is bool b && b;
+        if (isChecked)
+        {
+            if (!Bestia.CategoriasIds.Contains(idCategoria))
+            {
+                Bestia.CategoriasIds.Add(idCategoria);
+            }
+        }
+        else
+        {
+            Bestia.CategoriasIds.Remove(idCategoria);
+        }
+    }
+
+    private bool ValidateInput()
+    {
+        nombreInvalido = string.IsNullOrWhiteSpace(Bestia.Nombre);
+
+        if (nombreInvalido)
+        {
+            errorMessage = "El Nombre es requerido";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
+    }
+
+    private async Task Save()
+    {
+        if (!ValidateInput()) return;
+
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+
+            if (Mode == FormMode.Add)
+            {
+                await BestiaApiClient.AddAsync(Bestia);
+            }
+            else
+            {
+                await BestiaApiClient.UpdateAsync(Bestia);
+            }
+
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar bestia: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}

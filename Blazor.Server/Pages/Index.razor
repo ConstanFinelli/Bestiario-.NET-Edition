@@ -1,0 +1,89 @@
+@page "/"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Windows Forms</PageTitle>
+
+@if (Auth.IsAuthenticated)
+{
+    <div class="win-form" style="width: 650px;">
+        <!-- Barra de Título Windows -->
+        <div class="win-titlebar">
+            <div class="d-flex align-items-center gap-1">
+                <span class="oi oi-window me-1 text-primary"></span>
+                <span>Windows Forms</span>
+            </div>
+        </div>
+
+        <!-- MenuStrip Clásico -->
+        <div class="win-menustrip">
+            <NavLink href="/categorias" class="win-menu-item">
+                Categorias
+            </NavLink>
+            <NavLink href="/noticias" class="win-menu-item">
+                Noticias
+            </NavLink>
+            <NavLink href="/bestias" class="win-menu-item">
+                Bestias
+            </NavLink>
+            <NavLink href="/registros" class="win-menu-item">
+                Registros
+            </NavLink>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px;">Usuario: <strong>@Auth.Username</strong></span>
+                <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 6px;" @onclick="CerrarSesion">
+                    Cerrar sesión
+                </button>
+            </div>
+        </div>
+
+        <!-- Área de Trabajo Principal (Home) -->
+        <div class="win-form-content" style="min-height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <div style="background-color: #ffffff; border: 1px solid #c0c0c0; padding: 25px 40px; border-radius: 2px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); max-width: 550px;">
+                <div class="mb-3">
+                    <span class="oi oi-book text-primary" style="font-size: 42px;"></span>
+                </div>
+                <h4 style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Bestiario - .NET Edition</h4>
+                <p style="color: #555; font-size: 12px; margin-bottom: 20px;">
+                    Seleccione una opción del menú superior para comenzar a gestionar el catálogo del bestiario.
+                </p>
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/categorias"))">
+                        Categorias
+                    </button>
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/noticias"))">
+                        Noticias
+                    </button>
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/bestias"))">
+                        Bestias
+                    </button>
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/registros"))">
+                        Registros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Estado Inferior -->
+        <div class="win-statusbar">
+            <span>Listo</span>
+            <span>Conectado a WebAPI: 5076</span>
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private void CerrarSesion()
+    {
+        Auth.Logout();
+        Navigation.NavigateTo("/login");
+    }
+}

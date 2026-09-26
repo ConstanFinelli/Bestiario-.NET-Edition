@@ -1,0 +1,340 @@
+@inject AuthService Auth
+
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 640px;">
+            <!-- Barra de Título del Diálogo -->
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-window text-primary" style="font-size: 11px;"></span>
+                    <span>Registro de Bestia (Maestro / Detalle)</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel" disabled="@isSaving">✕</button>
+                </div>
+            </div>
+
+            <!-- Cuerpo del Formulario de Diálogo -->
+            <div class="win-form-content" style="padding: 16px 20px; max-height: 80vh; overflow-y: auto;">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="win-error-msg mb-2">
+                        <span class="oi oi-warning me-1"></span> @errorMessage
+                    </div>
+                }
+
+                <!-- DATOS MAESTRO (Registro) -->
+                <fieldset style="border: 1px solid #c0c0c0; padding: 10px 14px; margin-bottom: 12px; background: #fafafa;">
+                    <legend style="font-size: 11px; font-weight: bold; width: auto; padding: 0 4px; margin-bottom: 0;">
+                        Datos Principales (Registro)
+                    </legend>
+
+                    <div class="row align-items-center mb-2">
+                        <div class="col-3">
+                            <label class="win-label">Bestia:</label>
+                        </div>
+                        <div class="col-9">
+                            @if (Mode == FormMode.Update)
+                            {
+                                var nombreBestia = Bestias.FirstOrDefault(b => b.Id == Registro.IdBestia)?.Nombre ?? Registro.IdBestia.ToString();
+                                <input type="text" class="win-textbox w-100" value="@nombreBestia" readonly />
+                            }
+                            else
+                            {
+                                <select class="win-textbox w-100" @bind="Registro.IdBestia" disabled="@isSaving">
+                                    <option value="@Guid.Empty">-- Seleccione una Bestia --</option>
+                                    @foreach (var b in Bestias)
+                                    {
+                                        <option value="@b.Id">@b.Nombre (@b.Peligrosidad)</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Mode == FormMode.Update)
+                    {
+                        <div class="row align-items-center mb-2">
+                            <div class="col-3">
+                                <label class="win-label">Nro. Registro:</label>
+                            </div>
+                            <div class="col-9">
+                                <input type="text" class="win-textbox" style="width: 100px;" value="@Registro.NroRegistro" readonly />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row align-items-center mb-2">
+                        <div class="col-3">
+                            <label class="win-label">Estado:</label>
+                        </div>
+                        <div class="col-9">
+                            <select class="win-textbox" style="width: 140px;" @bind="Registro.Estado" disabled="@isSaving">
+                                <option value="pendiente">pendiente</option>
+                                <option value="aprobado">aprobado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    @if (Mode == FormMode.Update)
+                    {
+                        <div class="row align-items-center mb-1">
+                            <div class="col-3">
+                                <label class="win-label">Publicador:</label>
+                            </div>
+                            <div class="col-9">
+                                <span class="text-muted" style="font-size: 11px;">@(Registro.CorreoPublicador ?? "N/A")</span>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center mb-1">
+                            <div class="col-3">
+                                <label class="win-label">Aprobador:</label>
+                            </div>
+                            <div class="col-9">
+                                <span class="text-muted" style="font-size: 11px;">@(Registro.NombreInvestigadorAprobador ?? "Pendiente de aprobación")</span>
+                            </div>
+                        </div>
+
+                        @if (Registro.FechaAprobacion.HasValue)
+                        {
+                            <div class="row align-items-center mb-1">
+                                <div class="col-3">
+                                    <label class="win-label">Aprobado el:</label>
+                                </div>
+                                <div class="col-9">
+                                    <span class="text-muted" style="font-size: 11px;">@Registro.FechaAprobacion.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </fieldset>
+
+                <!-- DATOS DETALLE (Contenidos del Registro) -->
+                <fieldset style="border: 1px solid #c0c0c0; padding: 10px 14px; background: #fafafa;">
+                    <legend style="font-size: 11px; font-weight: bold; width: auto; padding: 0 4px; margin-bottom: 0;">
+                        Detalle de Contenidos (@Registro.Contenidos.Count)
+                    </legend>
+
+                    <!-- Grilla de Contenidos -->
+                    <div class="win-grid-container mb-2" style="height: 140px;">
+                        <table class="win-grid">
+                            <thead>
+                                <tr>
+                                    <th style="width: 35px;">#</th>
+                                    <th style="width: 160px;">Título</th>
+                                    <th>Contenido</th>
+                                    <th style="width: 50px; text-align: center;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Registro.Contenidos.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-2 text-muted">
+                                            No hay secciones de contenido agregadas aún.
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @for (int i = 0; i < Registro.Contenidos.Count; i++)
+                                    {
+                                        var idx = i;
+                                        var cont = Registro.Contenidos[idx];
+                                        <tr>
+                                            <td style="font-size: 10px; font-weight: bold;">@cont.NroContenido</td>
+                                            <td><strong>@cont.Titulo</strong></td>
+                                            <td style="font-size: 11px;">@cont.Contenido</td>
+                                            <td style="text-align: center;">
+                                                <button type="button" class="btn btn-outline-danger btn-sm p-0 px-1" 
+                                                        style="font-size: 10px;" 
+                                                        @onclick="() => EliminarContenido(idx)" 
+                                                        disabled="@isSaving">
+                                                    ✕
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Formulario para agregar un nuevo contenido detalle -->
+                    <div style="background: #ffffff; border: 1px dashed #a0a0a0; padding: 8px 10px; border-radius: 2px;">
+                        <span class="fw-bold d-block mb-1" style="font-size: 11px;">+ Agregar Nueva Sección al Registro:</span>
+                        <div class="row g-2 align-items-center mb-1">
+                            <div class="col-4">
+                                <input type="text" class="win-textbox w-100" placeholder="Título de la sección..." 
+                                       @bind="nuevoTitulo" disabled="@isSaving" maxlength="100" />
+                            </div>
+                            <div class="col-6">
+                                <input type="text" class="win-textbox w-100" placeholder="Contenido o descripción..." 
+                                       @bind="nuevoContenido" disabled="@isSaving" />
+                            </div>
+                            <div class="col-2 text-end">
+                                <button type="button" class="win-btn w-100" style="height: 24px; font-size: 11px;" 
+                                        @onclick="AgregarContenido" disabled="@isSaving">
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Botones Aceptar / Cancelar -->
+                <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
+                    <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Aceptar")
+                    </button>
+                    <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Add;
+    [Parameter] public RegistroDTO Registro { get; set; } = new RegistroDTO();
+    [Parameter] public List<BestiaDTO> Bestias { get; set; } = new List<BestiaDTO>();
+
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private bool isSaving = false;
+    private string? errorMessage;
+
+    private string nuevoTitulo = string.Empty;
+    private string nuevoContenido = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        errorMessage = null;
+        nuevoTitulo = string.Empty;
+        nuevoContenido = string.Empty;
+
+        if (Registro == null)
+            Registro = new RegistroDTO();
+
+        if (string.IsNullOrEmpty(Registro.Estado))
+            Registro.Estado = "pendiente";
+    }
+
+    private void AgregarContenido()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoTitulo))
+        {
+            errorMessage = "El título de la sección de contenido es requerido.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(nuevoContenido))
+        {
+            errorMessage = "El texto de contenido es requerido.";
+            return;
+        }
+
+        errorMessage = null;
+
+        var proximoNro = Registro.Contenidos.Any() 
+            ? Registro.Contenidos.Max(c => c.NroContenido) + 1 
+            : 1;
+
+        Registro.Contenidos.Add(new ContenidoRegistroDTO
+        {
+            IdBestia = Registro.IdBestia,
+            NroRegistro = Registro.NroRegistro,
+            NroContenido = proximoNro,
+            Titulo = nuevoTitulo.Trim(),
+            Contenido = nuevoContenido.Trim()
+        });
+
+        nuevoTitulo = string.Empty;
+        nuevoContenido = string.Empty;
+    }
+
+    private void EliminarContenido(int index)
+    {
+        if (index >= 0 && index < Registro.Contenidos.Count)
+        {
+            Registro.Contenidos.RemoveAt(index);
+            // Re-numerar correlativo 1..N
+            for (int i = 0; i < Registro.Contenidos.Count; i++)
+            {
+                Registro.Contenidos[i].NroContenido = i + 1;
+            }
+        }
+    }
+
+    private bool ValidateInput()
+    {
+        if (Registro.IdBestia == Guid.Empty)
+        {
+            errorMessage = "Debe seleccionar una Bestia para el registro.";
+            return false;
+        }
+
+        if (!Registro.Contenidos.Any())
+        {
+            errorMessage = "Debe agregar al menos una sección de contenido al registro.";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
+    }
+
+    private async Task Save()
+    {
+        if (!ValidateInput()) return;
+
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+
+            // Asegurar que cada contenido tenga asignada la FK compuesta
+            foreach (var c in Registro.Contenidos)
+            {
+                c.IdBestia = Registro.IdBestia;
+                c.NroRegistro = Registro.NroRegistro;
+            }
+
+            if (Mode == FormMode.Add)
+            {
+                // Asignar publicador desde sesión si es nuevo
+                if (Registro.IdUsuarioPublicador == Guid.Empty)
+                {
+                    Registro.IdUsuarioPublicador = Auth.CurrentUser?.Id ?? Guid.Parse("99999999-9999-9999-9999-999999999999");
+                }
+
+                await RegistroApiClient.AddAsync(Registro);
+            }
+            else
+            {
+                await RegistroApiClient.UpdateAsync(Registro);
+            }
+
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar registro: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}

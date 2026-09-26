@@ -1,0 +1,59 @@
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="min-width: 380px; max-width: 480px;">
+            <!-- Barra de Título MessageBox -->
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-warning text-primary" style="font-size: 11px;"></span>
+                    <span>@Title</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel">✕</button>
+                </div>
+            </div>
+
+            <!-- Cuerpo del MessageBox -->
+            <div class="win-form-content" style="padding: 20px 24px; background-color: #f0f0f0;">
+                <div class="d-flex align-items-start gap-3 mb-4">
+                    <div style="font-size: 28px; line-height: 1; color: #0078d7;">
+                        <span class="oi oi-question-mark"></span>
+                    </div>
+                    <div class="flex-grow-1" style="font-size: 12px; padding-top: 4px; color: #000000;">
+                        @Message
+                    </div>
+                </div>
+
+                <!-- Botones Sí / No estilo MessageBox Windows Forms -->
+                <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                    <button type="button" class="win-btn" style="min-width: 75px;" @onclick="Confirm">
+                        Sí
+                    </button>
+                    <button type="button" class="win-btn" style="min-width: 75px;" @onclick="Cancel">
+                        No
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string Title { get; set; } = "Confirmar eliminación";
+    [Parameter] public string Message { get; set; } = "¿Está seguro que desea realizar esta acción?";
+    [Parameter] public string ConfirmButtonText { get; set; } = "Sí";
+
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private async Task Confirm()
+    {
+        await OnConfirm.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}

@@ -1,0 +1,161 @@
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 380px;">
+            <!-- Barra de Título del Diálogo -->
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-window text-primary" style="font-size: 11px;"></span>
+                    <span>Gestión de Noticias</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel" disabled="@isSaving">✕</button>
+                </div>
+            </div>
+
+            <!-- Cuerpo del Formulario de Diálogo -->
+            <div class="win-form-content" style="padding: 16px 20px;">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="win-error-msg">
+                        <span class="oi oi-warning me-1"></span> @errorMessage
+                    </div>
+                }
+
+                @if (Mode == FormMode.Update)
+                {
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4">
+                            <label class="win-label">ID:</label>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" class="win-textbox w-100" value="@Noticia.Id" readonly />
+                        </div>
+                    </div>
+                }
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4">
+                        <label class="win-label">Título:</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" class="win-textbox w-100 @(tituloInvalido ? "win-field-error" : "")" 
+                               @bind="Noticia.Titulo" maxlength="25" disabled="@isSaving" autofocus />
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-4 pt-1">
+                        <label class="win-label">Contenido:</label>
+                    </div>
+                    <div class="col-8">
+                        <textarea class="win-textarea w-100 @(contenidoInvalido ? "win-field-error" : "")" 
+                                  @bind="Noticia.Contenido" rows="4" maxlength="150" disabled="@isSaving"></textarea>
+                    </div>
+                </div>
+
+                @if (Mode == FormMode.Update)
+                {
+                    <div class="row align-items-center mb-3">
+                        <div class="col-4">
+                            <label class="win-label" style="font-size: 11px;">Fecha Publicación:</label>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" class="win-textbox w-100" 
+                                   value="@Noticia.FechaPublicacion.ToString("dd/MM/yyyy HH:mm:ss")" readonly />
+                        </div>
+                    </div>
+                }
+
+                <!-- Botones: Cancelar a la izquierda, Aceptar a la derecha (idéntico a NoticiaDetalle.Designer.cs) -->
+                <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                    <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
+                        Cancelar
+                    </button>
+                    <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Aceptar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Add;
+    [Parameter] public NoticiaDTO Noticia { get; set; } = new NoticiaDTO();
+
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private bool isSaving = false;
+    private string? errorMessage;
+    private bool tituloInvalido = false;
+    private bool contenidoInvalido = false;
+
+    protected override void OnParametersSet()
+    {
+        errorMessage = null;
+        tituloInvalido = false;
+        contenidoInvalido = false;
+    }
+
+    private bool ValidateInput()
+    {
+        tituloInvalido = string.IsNullOrWhiteSpace(Noticia.Titulo);
+        contenidoInvalido = string.IsNullOrWhiteSpace(Noticia.Contenido);
+
+        if (tituloInvalido)
+        {
+            errorMessage = "El título es requerido";
+            return false;
+        }
+
+        if (contenidoInvalido)
+        {
+            errorMessage = "El contenido es requerido";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
+    }
+
+    private async Task Save()
+    {
+        if (!ValidateInput()) return;
+
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+
+            Noticia.FechaPublicacion = DateTime.Now;
+
+            if (Mode == FormMode.Add)
+            {
+                await NoticiaApiClient.AddAsync(Noticia);
+            }
+            else
+            {
+                await NoticiaApiClient.UpdateAsync(Noticia);
+            }
+
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar noticia: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}

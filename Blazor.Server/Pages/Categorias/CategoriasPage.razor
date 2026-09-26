@@ -1,0 +1,267 @@
+@page "/categorias"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Categorias</PageTitle>
+
+<div class="win-form" style="width: 820px;">
+    <!-- Barra de Título Windows -->
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-window text-primary"></span>
+            <span>Categorias</span>
+        </div>
+    </div>
+
+    <!-- MenuStrip de Navegación -->
+    <div class="win-menustrip">
+        <NavLink href="/" class="win-menu-item">
+            Inicio
+        </NavLink>
+        <NavLink href="/categorias" class="win-menu-item active">
+            Categorias
+        </NavLink>
+        <NavLink href="/noticias" class="win-menu-item">
+            Noticias
+        </NavLink>
+        <NavLink href="/bestias" class="win-menu-item">
+            Bestias
+        </NavLink>
+        <NavLink href="/registros" class="win-menu-item">
+            Registros
+        </NavLink>
+        <div class="ms-auto">
+            <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 6px;" @onclick="CargarCategorias" disabled="@isLoading">
+                Refrescar
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenido del Formulario -->
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        <!-- Grilla DataGridView -->
+        <div class="win-grid-container" style="height: 250px;">
+            <table class="win-grid">
+                <thead>
+                    <tr>
+                        <th class="win-grid-row-header-th"></th>
+                        <th style="width: 120px;">Id</th>
+                        <th style="width: 200px;">Nombre</th>
+                        <th>Descripcion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                Cargando categorias...
+                            </td>
+                        </tr>
+                    }
+                    else if (categorias == null || !categorias.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                No hay categorías disponibles.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var cat in categorias)
+                        {
+                            bool isSelected = selectedCategoria?.Id == cat.Id;
+                            <tr class="@(isSelected ? "selected" : "")" 
+                                @onclick="() => SeleccionarFila(cat)"
+                                @ondblclick="AbrirModalActualizar">
+                                <td class="win-grid-row-header">
+                                    @(isSelected ? "▶" : "")
+                                </td>
+                                <td>@cat.Id</td>
+                                <td>@cat.Nombre</td>
+                                <td>@cat.Descripcion</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
+        <div class="win-btn-action-bar">
+            <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedCategoria == null || isLoading)">
+                Eliminar
+            </button>
+            <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedCategoria == null || isLoading)">
+                Actualizar
+            </button>
+            <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                Agregar
+            </button>
+        </div>
+    </div>
+
+    <!-- Barra de Estado Inferior -->
+    <div class="win-statusbar">
+        <span>@(categorias?.Count ?? 0) elemento(s) cargado(s)</span>
+        <span>@(selectedCategoria != null ? $"Seleccionado: {selectedCategoria.Nombre}" : "Ningún elemento seleccionado")</span>
+    </div>
+</div>
+
+<!-- Modal Detalle (Estilo Ventana Diálogo Windows) -->
+<CategoriaModal IsOpen="@isModalOpen" 
+                Mode="@modalMode" 
+                Categoria="@categoriaParaEditar" 
+                OnSaved="@OnCategoriaGuardada" 
+                OnCancel="@CerrarModal" />
+
+<!-- Diálogo MessageBox Confirmación -->
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar la categoria {selectedCategoria?.Nombre} {selectedCategoria?.Descripcion}?")"
+              ConfirmButtonText="Sí"
+              OnConfirm="@EliminarCategoriaConfirmada"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@code {
+    private List<CategoriaDTO> categorias = new();
+    private CategoriaDTO? selectedCategoria;
+    private CategoriaDTO categoriaParaEditar = new();
+    private FormMode modalMode = FormMode.Add;
+
+    private bool isLoading = true;
+    private bool isModalOpen = false;
+    private bool isConfirmDeleteOpen = false;
+
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        await CargarCategorias();
+    }
+
+    private async Task CargarCategorias()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedCategoria = null;
+
+            var result = await CategoriaApiClient.GetAllAsync();
+            categorias = result?.ToList() ?? new List<CategoriaDTO>();
+
+            if (categorias.Count > 0)
+            {
+                selectedCategoria = categorias[0];
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar categorias: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SeleccionarFila(CategoriaDTO cat)
+    {
+        selectedCategoria = cat;
+    }
+
+    private void AbrirModalAgregar()
+    {
+        modalMode = FormMode.Add;
+        categoriaParaEditar = new CategoriaDTO();
+        isModalOpen = true;
+    }
+
+    private async Task AbrirModalActualizar()
+    {
+        if (selectedCategoria == null) return;
+
+        try
+        {
+            isLoading = true;
+            var fresca = await CategoriaApiClient.GetAsync(selectedCategoria.Id);
+            categoriaParaEditar = new CategoriaDTO
+            {
+                Id = fresca.Id,
+                Nombre = fresca.Nombre,
+                Descripcion = fresca.Descripcion
+            };
+            modalMode = FormMode.Update;
+            isModalOpen = true;
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener datos: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CerrarModal()
+    {
+        isModalOpen = false;
+    }
+
+    private async Task OnCategoriaGuardada()
+    {
+        isModalOpen = false;
+        feedbackMessage = "Operación completada con éxito.";
+        isFeedbackError = false;
+        await CargarCategorias();
+    }
+
+    private void AbrirModalEliminar()
+    {
+        if (selectedCategoria != null)
+        {
+            isConfirmDeleteOpen = true;
+        }
+    }
+
+    private async Task EliminarCategoriaConfirmada()
+    {
+        if (selectedCategoria == null) return;
+
+        try
+        {
+            isConfirmDeleteOpen = false;
+            isLoading = true;
+            await CategoriaApiClient.DeleteAsync(selectedCategoria.Id);
+            feedbackMessage = $"Categoría '{selectedCategoria.Nombre}' eliminada.";
+            isFeedbackError = false;
+            selectedCategoria = null;
+            await CargarCategorias();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar categoria: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+}

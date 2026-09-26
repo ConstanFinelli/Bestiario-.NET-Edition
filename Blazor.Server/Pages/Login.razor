@@ -1,0 +1,122 @@
+@page "/login"
+@inject AuthService Auth
+@inject NavigationManager Navigation
+
+<PageTitle>Iniciar sesión</PageTitle>
+
+<div class="win-form" style="width: 450px; margin-top: 40px;">
+    <!-- Barra de Título Windows -->
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-key text-primary" style="font-size: 11px;"></span>
+            <span>Iniciar sesión</span>
+        </div>
+    </div>
+
+    <!-- Contenido del Formulario de Login -->
+    <div class="win-form-content" style="padding: 20px 30px;">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="win-error-msg text-center mb-3">
+                <span class="oi oi-warning me-1"></span> @errorMessage
+            </div>
+        }
+
+        <div class="text-center mb-1">
+            <label class="win-label fw-bold">Nombre de usuario</label>
+        </div>
+        <div class="text-center mb-3">
+            <input type="text" class="win-textbox text-center @(usernameInvalido ? "win-field-error" : "")" 
+                   style="width: 300px;" @bind="username" @onkeydown="HandleKeyDown" autofocus />
+        </div>
+
+        <div class="text-center mb-1">
+            <label class="win-label fw-bold">Contraseña</label>
+        </div>
+        <div class="text-center mb-4">
+            <input type="password" class="win-textbox text-center @(passwordInvalido ? "win-field-error" : "")" 
+                   style="width: 300px;" @bind="password" @onkeydown="HandleKeyDown" />
+        </div>
+
+        <!-- Botones de Acción: Cancelar a la izquierda, Iniciar sesión a la derecha -->
+        <div class="d-flex justify-content-between px-3">
+            <button type="button" class="win-btn" style="min-width: 120px;" @onclick="Limpiar" disabled="@isLoading">
+                Cancelar
+            </button>
+            <button type="button" class="win-btn" style="min-width: 120px;" @onclick="IniciarSesion" disabled="@isLoading">
+                @(isLoading ? "Iniciando..." : "Iniciar sesión")
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string username = "admin";
+    private string password = "password";
+    private string? errorMessage;
+    private bool isLoading = false;
+    private bool usernameInvalido = false;
+    private bool passwordInvalido = false;
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await IniciarSesion();
+        }
+    }
+
+    private async Task IniciarSesion()
+    {
+        usernameInvalido = string.IsNullOrWhiteSpace(username);
+        passwordInvalido = string.IsNullOrWhiteSpace(password);
+
+        if (usernameInvalido)
+        {
+            errorMessage = "El nombre de usuario es requerido";
+            return;
+        }
+
+        if (passwordInvalido)
+        {
+            errorMessage = "La contraseña es requerida";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            bool ok = await Auth.LoginAsync(username, password);
+            if (ok)
+            {
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = "Usuario o contraseña incorrectos.";
+                password = "";
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private void Limpiar()
+    {
+        username = "";
+        password = "";
+        errorMessage = "Debe ingresar sus credenciales para acceder al sistema.";
+    }
+}

@@ -1,0 +1,146 @@
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 420px;">
+            <!-- Barra de Título del Diálogo -->
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-window text-primary" style="font-size: 11px;"></span>
+                    <span>Categoria</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel" disabled="@isSaving">✕</button>
+                </div>
+            </div>
+
+            <!-- Cuerpo del Formulario de Diálogo -->
+            <div class="win-form-content" style="padding: 18px 24px;">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="win-error-msg">
+                        <span class="oi oi-warning me-1"></span> @errorMessage
+                    </div>
+                }
+
+                @if (Mode == FormMode.Update)
+                {
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4">
+                            <label class="win-label">Id:</label>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" class="win-textbox w-100" value="@Categoria.Id" readonly />
+                        </div>
+                    </div>
+                }
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4">
+                        <label class="win-label">Nombre:</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" class="win-textbox w-100 @(nombreInvalido ? "win-field-error" : "")" 
+                               @bind="Categoria.Nombre" maxlength="20" disabled="@isSaving" autofocus />
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-4">
+                        <label class="win-label">Descripcion:</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" class="win-textbox w-100 @(descripcionInvalida ? "win-field-error" : "")" 
+                               @bind="Categoria.Descripcion" disabled="@isSaving" />
+                    </div>
+                </div>
+
+                <!-- Botones Aceptar / Cancelar (Alineados igual que en WinForms) -->
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                    <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Aceptar")
+                    </button>
+                    <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Add;
+    [Parameter] public CategoriaDTO Categoria { get; set; } = new CategoriaDTO();
+
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private bool isSaving = false;
+    private string? errorMessage;
+    private bool nombreInvalido = false;
+    private bool descripcionInvalida = false;
+
+    protected override void OnParametersSet()
+    {
+        errorMessage = null;
+        nombreInvalido = false;
+        descripcionInvalida = false;
+    }
+
+    private bool ValidateInput()
+    {
+        nombreInvalido = string.IsNullOrWhiteSpace(Categoria.Nombre);
+        descripcionInvalida = string.IsNullOrWhiteSpace(Categoria.Descripcion);
+
+        if (nombreInvalido)
+        {
+            errorMessage = "El Nombre es requerido";
+            return false;
+        }
+
+        if (descripcionInvalida)
+        {
+            errorMessage = "El descripcion es requerido";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
+    }
+
+    private async Task Save()
+    {
+        if (!ValidateInput()) return;
+
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+
+            if (Mode == FormMode.Add)
+            {
+                await CategoriaApiClient.AddAsync(Categoria);
+            }
+            else
+            {
+                await CategoriaApiClient.UpdateAsync(Categoria);
+            }
+
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar categoria: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}

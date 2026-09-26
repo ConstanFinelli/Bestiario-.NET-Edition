@@ -1,0 +1,91 @@
+@inject AuthService Auth
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="">
+            <span class="oi oi-book me-2"></span> Bestiario
+        </a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Inicio
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="categorias">
+                <span class="oi oi-tags" aria-hidden="true"></span> Categorías
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="noticias">
+                <span class="oi oi-bullhorn" aria-hidden="true"></span> Noticias
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="bestias">
+                <span class="oi oi-bug" aria-hidden="true"></span> Bestias
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="registros">
+                <span class="oi oi-list" aria-hidden="true"></span> Registros
+            </NavLink>
+        </div>
+
+        <hr class="text-white-50 my-2 mx-3" />
+
+        <div class="nav-item px-3">
+            @if (Auth.IsAuthenticated)
+            {
+                <div class="text-white-50 px-3 py-1 small">
+                    <span class="oi oi-person me-1"></span> @Auth.Username
+                </div>
+                <button class="nav-link btn btn-link text-start text-danger w-100" @onclick="CerrarSesion">
+                    <span class="oi oi-account-logout" aria-hidden="true"></span> Cerrar Sesión
+                </button>
+            }
+            else
+            {
+                <NavLink class="nav-link" href="login">
+                    <span class="oi oi-account-login" aria-hidden="true"></span> Iniciar Sesión
+                </NavLink>
+            }
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override void OnInitialized()
+    {
+        Auth.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= StateHasChanged;
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void CerrarSesion()
+    {
+        Auth.Logout();
+        Navigation.NavigateTo("/login");
+    }
+}

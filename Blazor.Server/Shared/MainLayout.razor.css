@@ -1,0 +1,33 @@
+.desktop-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #51719c;
+    background-image: radial-gradient(circle at 50% 50%, #466795 0%, #2f496e 100%);
+    overflow-x: hidden;
+}
+
+.desktop-taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 38px;
+    background-color: rgba(235, 240, 245, 0.95);
+    border-top: 1px solid #b8c4d0;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.desktop-work-area {
+    flex: 1;
+    padding: 20px;
+    padding-bottom: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}

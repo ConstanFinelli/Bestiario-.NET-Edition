@@ -1,0 +1,295 @@
+@page "/bestias"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestias</PageTitle>
+
+<div class="win-form" style="width: 860px;">
+    <!-- Barra de Título Windows -->
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-bug text-primary"></span>
+            <span>Bestias</span>
+        </div>
+    </div>
+
+    <!-- MenuStrip de Navegación -->
+    <div class="win-menustrip">
+        <NavLink href="/" class="win-menu-item">
+            Inicio
+        </NavLink>
+        <NavLink href="/categorias" class="win-menu-item">
+            Categorias
+        </NavLink>
+        <NavLink href="/noticias" class="win-menu-item">
+            Noticias
+        </NavLink>
+        <NavLink href="/bestias" class="win-menu-item active">
+            Bestias
+        </NavLink>
+        <NavLink href="/registros" class="win-menu-item">
+            Registros
+        </NavLink>
+        <div class="ms-auto">
+            <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 6px;" @onclick="CargarBestias" disabled="@isLoading">
+                Refrescar
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenido del Formulario -->
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        <!-- Grilla DataGridView -->
+        <div class="win-grid-container" style="height: 260px;">
+            <table class="win-grid">
+                <thead>
+                    <tr>
+                        <th class="win-grid-row-header-th"></th>
+                        <th style="width: 140px;">Id</th>
+                        <th style="width: 180px;">Nombre</th>
+                        <th style="width: 110px;">Peligrosidad</th>
+                        <th style="width: 100px;">Estado</th>
+                        <th>Categorías</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                Cargando bestias...
+                            </td>
+                        </tr>
+                    }
+                    else if (bestias == null || !bestias.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No hay bestias registradas.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var b in bestias)
+                        {
+                            bool isSelected = selectedBestia?.Id == b.Id;
+                            <tr class="@(isSelected ? "selected" : "")" 
+                                @onclick="() => SeleccionarFila(b)"
+                                @ondblclick="AbrirModalActualizar">
+                                <td class="win-grid-row-header">
+                                    @(isSelected ? "▶" : "")
+                                </td>
+                                <td style="font-family: monospace; font-size: 10px;">@b.Id.ToString().Substring(0, 8)...</td>
+                                <td>@b.Nombre</td>
+                                <td>@b.Peligrosidad</td>
+                                <td>
+                                    <span class="badge @(b.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
+                                        @b.Estado
+                                    </span>
+                                </td>
+                                <td>@(b.CategoriasNombres.Any() ? string.Join(", ", b.CategoriasNombres) : "-")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="win-btn-action-bar">
+            @if (selectedBestia != null)
+            {
+                <button class="win-btn me-auto" @onclick="VerRegistrosDeBestia">
+                    Ver Registros (@selectedBestia.Nombre)
+                </button>
+            }
+            <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedBestia == null || isLoading)">
+                Eliminar
+            </button>
+            <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedBestia == null || isLoading)">
+                Actualizar
+            </button>
+            <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                Agregar
+            </button>
+        </div>
+    </div>
+
+    <!-- Barra de Estado Inferior -->
+    <div class="win-statusbar">
+        <span>@(bestias?.Count ?? 0) elemento(s) cargado(s)</span>
+        <span>@(selectedBestia != null ? $"Seleccionado: {selectedBestia.Nombre}" : "Ningún elemento seleccionado")</span>
+    </div>
+</div>
+
+<!-- Modal Detalle -->
+<BestiaModal IsOpen="@isModalOpen" 
+             Mode="@modalMode" 
+             Bestia="@bestiaParaEditar" 
+             OnSaved="@OnBestiaGuardada" 
+             OnCancel="@CerrarModal" />
+
+<!-- Diálogo Confirmación Eliminación -->
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar la bestia '{selectedBestia?.Nombre}'?")"
+              ConfirmButtonText="Sí"
+              OnConfirm="@EliminarBestiaConfirmada"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@code {
+    private List<BestiaDTO> bestias = new();
+    private BestiaDTO? selectedBestia;
+    private BestiaDTO bestiaParaEditar = new();
+    private FormMode modalMode = FormMode.Add;
+
+    private bool isLoading = true;
+    private bool isModalOpen = false;
+    private bool isConfirmDeleteOpen = false;
+
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        await CargarBestias();
+    }
+
+    private async Task CargarBestias()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedBestia = null;
+
+            var result = await BestiaApiClient.GetAllAsync();
+            bestias = result?.ToList() ?? new List<BestiaDTO>();
+
+            if (bestias.Count > 0)
+            {
+                selectedBestia = bestias[0];
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar bestias: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SeleccionarFila(BestiaDTO b)
+    {
+        selectedBestia = b;
+    }
+
+    private void AbrirModalAgregar()
+    {
+        modalMode = FormMode.Add;
+        bestiaParaEditar = new BestiaDTO();
+        isModalOpen = true;
+    }
+
+    private async Task AbrirModalActualizar()
+    {
+        if (selectedBestia == null) return;
+
+        try
+        {
+            isLoading = true;
+            var fresca = await BestiaApiClient.GetAsync(selectedBestia.Id);
+            if (fresca != null)
+            {
+                bestiaParaEditar = new BestiaDTO
+                {
+                    Id = fresca.Id,
+                    Nombre = fresca.Nombre,
+                    Peligrosidad = fresca.Peligrosidad,
+                    Estado = fresca.Estado,
+                    CategoriasIds = new List<Guid>(fresca.CategoriasIds),
+                    CategoriasNombres = new List<string>(fresca.CategoriasNombres)
+                };
+                modalMode = FormMode.Update;
+                isModalOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener datos: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CerrarModal()
+    {
+        isModalOpen = false;
+    }
+
+    private async Task OnBestiaGuardada()
+    {
+        isModalOpen = false;
+        feedbackMessage = "Operación completada con éxito.";
+        isFeedbackError = false;
+        await CargarBestias();
+    }
+
+    private void AbrirModalEliminar()
+    {
+        if (selectedBestia != null)
+        {
+            isConfirmDeleteOpen = true;
+        }
+    }
+
+    private async Task EliminarBestiaConfirmada()
+    {
+        if (selectedBestia == null) return;
+
+        try
+        {
+            isConfirmDeleteOpen = false;
+            isLoading = true;
+            await BestiaApiClient.DeleteAsync(selectedBestia.Id);
+            feedbackMessage = $"Bestia '{selectedBestia.Nombre}' eliminada.";
+            isFeedbackError = false;
+            selectedBestia = null;
+            await CargarBestias();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar bestia: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+
+    private void VerRegistrosDeBestia()
+    {
+        if (selectedBestia != null)
+        {
+            Navigation.NavigateTo($"/registros?bestiaId={selectedBestia.Id}");
+        }
+    }
+}
