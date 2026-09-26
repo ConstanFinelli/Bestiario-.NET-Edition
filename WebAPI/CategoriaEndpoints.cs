@@ -1,4 +1,4 @@
-﻿using Application.Services;
+using Application.Services;
 using DTOs;
 
 namespace WebAPI
@@ -19,7 +19,9 @@ namespace WebAPI
                 return Results.Ok(dto);
             })
             .WithName("GetCategoria")
+            .RequireAuthorization()
             .Produces<CategoriaDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -30,7 +32,9 @@ namespace WebAPI
                 return Results.Ok(dtos);
             })
             .WithName("GetAllCategorias")
+            .RequireAuthorization()
             .Produces<List<CategoriaDTO>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPost("/categorias", async (CategoriaDTO dto, ICategoriaService categoriaService) =>
@@ -47,8 +51,10 @@ namespace WebAPI
                 }
             })
             .WithName("AddCategoria")
+            .RequireAuthorization()
             .Produces<CategoriaDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPut("/categorias", async (CategoriaDTO dto, ICategoriaService categoriaService) =>
@@ -70,6 +76,9 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateCategoria")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -86,7 +95,9 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteCategoria")
+            .RequireAuthorization()
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
         }

@@ -13,7 +13,9 @@ namespace WebAPI
                 return Results.Ok(dtos);
             })
             .WithName("GetAllUsuarios")
+            .RequireAuthorization()
             .Produces<List<UsuarioDTO>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapGet("/usuarios/{id}", async (Guid id, IUsuarioService usuarioService) =>
@@ -25,7 +27,9 @@ namespace WebAPI
                 return Results.Ok(dto);
             })
             .WithName("GetUsuario")
+            .RequireAuthorization()
             .Produces<UsuarioDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -42,6 +46,7 @@ namespace WebAPI
                 }
             })
             .WithName("AddInvestigador")
+            .AllowAnonymous()
             .Produces<UsuarioDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -59,20 +64,28 @@ namespace WebAPI
                 }
             })
             .WithName("AddLector")
+            .AllowAnonymous()
             .Produces<UsuarioDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-            app.MapPost("/usuarios/login", async (LoginRequestDTO request, IUsuarioService usuarioService) =>
+            app.MapPost("/usuarios/login", async (LoginRequestDTO request, IUsuarioService usuarioService, ITokenService tokenService) =>
             {
                 var user = await usuarioService.ValidarCredencialesAsync(request.Correo, request.Contrasenia);
                 if (user == null)
                     return Results.Unauthorized();
 
-                return Results.Ok(user);
+                var (token, expiracion) = tokenService.GenerarToken(user);
+                return Results.Ok(new AuthResponseDTO
+                {
+                    Token = token,
+                    Expiracion = expiracion,
+                    Usuario = user
+                });
             })
             .WithName("LoginUsuario")
-            .Produces<UsuarioDTO>(StatusCodes.Status200OK)
+            .AllowAnonymous()
+            .Produces<AuthResponseDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
         }

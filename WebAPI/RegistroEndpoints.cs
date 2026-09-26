@@ -13,7 +13,9 @@ namespace WebAPI
                 return Results.Ok(dtos);
             })
             .WithName("GetRegistrosByBestia")
+            .RequireAuthorization()
             .Produces<List<RegistroDTO>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapGet("/bestias/{idBestia}/registros/{nroRegistro:int}", async (Guid idBestia, int nroRegistro, IRegistroService registroService) =>
@@ -25,7 +27,9 @@ namespace WebAPI
                 return Results.Ok(dto);
             })
             .WithName("GetRegistro")
+            .RequireAuthorization()
             .Produces<RegistroDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -43,8 +47,10 @@ namespace WebAPI
                 }
             })
             .WithName("AddRegistro")
+            .RequireAuthorization()
             .Produces<RegistroDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPut("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, IRegistroService registroService) =>
@@ -64,7 +70,9 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateRegistro")
+            .RequireAuthorization()
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -78,7 +86,9 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteRegistro")
+            .RequireAuthorization()
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -91,7 +101,10 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("AprobarRegistro")
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
         }

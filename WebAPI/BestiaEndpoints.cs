@@ -16,7 +16,9 @@ namespace WebAPI
                 return Results.Ok(dto);
             })
             .WithName("GetBestia")
+            .RequireAuthorization()
             .Produces<BestiaDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -26,7 +28,9 @@ namespace WebAPI
                 return Results.Ok(dtos);
             })
             .WithName("GetAllBestias")
+            .RequireAuthorization()
             .Produces<List<BestiaDTO>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPost("/bestias", async (BestiaDTO dto, IBestiaService bestiaService) =>
@@ -42,8 +46,10 @@ namespace WebAPI
                 }
             })
             .WithName("AddBestia")
+            .RequireAuthorization()
             .Produces<BestiaDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPut("/bestias", async (BestiaDTO dto, IBestiaService bestiaService) =>
@@ -62,7 +68,9 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateBestia")
+            .RequireAuthorization()
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -76,7 +84,9 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteBestia")
+            .RequireAuthorization()
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
         }
