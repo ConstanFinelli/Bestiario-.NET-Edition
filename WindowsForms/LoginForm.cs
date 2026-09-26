@@ -27,19 +27,19 @@ namespace WindowsForms
                     loginButton.Enabled = false;
                     loginButton.Text = "Iniciando sesión...";
 
-                    UsuarioDTO? user = null;
+                    AuthResponseDTO? authResult = null;
                     try
                     {
-                        user = await UsuarioApiClient.LoginAsync(usernameTextBox.Text, passwordTextBox.Text);
+                        authResult = await UsuarioApiClient.LoginAsync(usernameTextBox.Text, passwordTextBox.Text);
                     }
                     catch
                     {
                         // En caso de fallo de red o que la api no esté lista, evaluar fallback admin
                     }
 
-                    if (user != null)
+                    if (authResult != null && authResult.Usuario != null)
                     {
-                        UsuarioLogueado = user;
+                        UsuarioLogueado = authResult.Usuario;
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                         return;
