@@ -1,0 +1,287 @@
+@page "/bestias/editar/{Id:guid}"
+@using DTOs
+@using API.Clients
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Editar bestia</PageTitle>
+
+<section class="mainContent">
+    @if (bestia != null)
+    {
+        <div class="header">
+            <a href="/bestias" class="returnButton">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" style="width: 14px; height: 14px; fill: currentColor; margin-right: 6px;">
+                    <path d="M73.4 297.4C60.9 309.9 60.9 330.2 73.4 342.7L233.4 502.7C245.9 515.2 266.2 515.2 278.7 502.7C291.2 490.2 291.2 469.9 278.7 457.4L173.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L173.3 288L278.7 182.6C291.2 170.1 291.2 149.8 278.7 137.3C266.2 124.8 245.9 124.8 233.4 137.3L73.4 297.3z"/>
+                </svg>
+                Volver
+            </a>
+            <h1>Editando @bestia.Nombre</h1>
+        </div>
+
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="notFound" style="margin-bottom: 1rem;">@feedbackMessage</div>
+        }
+
+        <section class="forms">
+            <aside class="infoBestia">
+                <div style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: #e5e5e5; border-radius: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="#a0aec0">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h3>Detalles de la bestia</h3>
+                    <ul>
+                        <li>Nombre: <strong>@bestia.Nombre</strong></li>
+                        <li>Peligrosidad: <strong>@bestia.Peligrosidad</strong></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3>Categorías</h3>
+                    <ul>
+                        @if (bestia.CategoriasNombres == null || !bestia.CategoriasNombres.Any())
+                        {
+                            <li>No tiene categorías definidas.</li>
+                        }
+                        else
+                        {
+                            @foreach (var cat in bestia.CategoriasNombres)
+                            {
+                                <li>
+                                    <span class="catBadge">@cat</span>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+
+                <div>
+                    <h3>Hábitats localizados</h3>
+                    <ul>
+                        <li>No hay hábitats registradas para esta bestia.</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <div class="formsFlex">
+                <div class="formButtons">
+                    <button type="button" class="changeButton @(activeTab == "formInfo" ? "activeButton" : "")" @onclick="@(() => activeTab = "formInfo")">
+                        Información general
+                    </button>
+                    <button type="button" class="changeButton @(activeTab == "formCategoria" ? "activeButton" : "")" @onclick="@(() => activeTab = "formCategoria")">
+                        Categorías
+                    </button>
+                    <button type="button" class="changeButton @(activeTab == "formHabitat" ? "activeButton" : "")" @onclick="@(() => activeTab = "formHabitat")">
+                        Habitats
+                    </button>
+                </div>
+
+                @if (activeTab == "formInfo")
+                {
+                    <form class="formEditar formInfo" @onsubmit="GuardarInfoGeneral" @onsubmit:preventDefault>
+                        <h1>Información general</h1>
+                        <label for="nombre" class="inputLabel">Nombre</label>
+                        <input type="text" id="nombre" class="inputForm" @bind="editNombre" required />
+
+                        <label for="peligrosidad" class="inputLabel">Peligrosidad</label>
+                        <select id="peligrosidad" class="inputForm" @bind="editPeligrosidad" required>
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+
+                        <button type="submit" class="submitButton" disabled="@isLoading">
+                            Guardar cambios
+                        </button>
+                    </form>
+                }
+                else if (activeTab == "formCategoria")
+                {
+                    <form class="formEditar formCategoria" @onsubmit="AgregarCategoria" @onsubmit:preventDefault>
+                        <h1>Asignar categoría a bestia</h1>
+                        <label class="inputLabel">Categoría a agregar:</label>
+                        <select class="inputForm" @bind="categoriaParaAgregarId">
+                            <option value="">-- Seleccionar categoría --</option>
+                            @foreach (var cat in categoriasDisponiblesParaAgregar)
+                            {
+                                <option value="@cat.Id">@cat.Nombre</option>
+                            }
+                        </select>
+                        <button type="submit" class="submitButton" disabled="@(string.IsNullOrEmpty(categoriaParaAgregarId) || isLoading)">
+                            Agregar categoría
+                        </button>
+                    </form>
+
+                    @if (bestia.CategoriasIds.Any())
+                    {
+                        <form class="formEditar formCategoria" style="margin-top: 20px;" @onsubmit="EliminarCategoria" @onsubmit:preventDefault>
+                            <h1>Eliminar categoría a bestia</h1>
+                            <label class="inputLabel">Categoría a eliminar:</label>
+                            <select class="inputForm" @bind="categoriaParaEliminarId">
+                                <option value="">-- Seleccionar categoría --</option>
+                                @foreach (var catId in bestia.CategoriasIds)
+                                {
+                                    var catObj = todasCategorias.FirstOrDefault(c => c.Id == catId);
+                                    var catName = catObj?.Nombre ?? catId.ToString();
+                                    <option value="@catId">@catName</option>
+                                }
+                            </select>
+                            <button type="submit" class="submitButton" style="background: linear-gradient(105deg, #ff7b7b, #e53935);" disabled="@(string.IsNullOrEmpty(categoriaParaEliminarId) || isLoading)">
+                                Eliminar categoría
+                            </button>
+                        </form>
+                    }
+                }
+                else if (activeTab == "formHabitat")
+                {
+                    <div class="formEditar">
+                        <h1>Habitats de la bestia</h1>
+                        <div class="notFound" style="margin: 20px 0;">
+                            Aún no implementado en .NET
+                        </div>
+                        <p style="color: #666; font-size: 1rem;">
+                            El módulo de mapeo y asignación de hábitats no se encuentra implementado en el backend actual.
+                        </p>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+    else if (isLoading)
+    {
+        <div class="notFound">Cargando bestia...</div>
+    }
+    else
+    {
+        <div class="notFound">No se encontró la bestia especificada.</div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private BestiaDTO? bestia;
+    private List<CategoriaDTO> todasCategorias = new();
+    private string activeTab = "formInfo";
+
+    private string editNombre = "";
+    private string editPeligrosidad = "Media";
+    private string categoriaParaAgregarId = "";
+    private string categoriaParaEliminarId = "";
+
+    private bool isLoading = true;
+    private string? feedbackMessage;
+
+    private IEnumerable<CategoriaDTO> categoriasDisponiblesParaAgregar =>
+        todasCategorias.Where(c => bestia != null && !bestia.CategoriasIds.Contains(c.Id));
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+
+            var cats = await CategoriaApiClient.GetAllAsync();
+            todasCategorias = cats?.ToList() ?? new List<CategoriaDTO>();
+
+            bestia = await BestiaApiClient.GetAsync(Id);
+            if (bestia != null)
+            {
+                editNombre = bestia.Nombre;
+                editPeligrosidad = bestia.Peligrosidad;
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar bestia: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task GuardarInfoGeneral()
+    {
+        if (bestia == null) return;
+
+        try
+        {
+            isLoading = true;
+            bestia.Nombre = editNombre.Trim();
+            bestia.Peligrosidad = editPeligrosidad;
+
+            await BestiaApiClient.UpdateAsync(bestia);
+            feedbackMessage = "Información general actualizada con éxito.";
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al actualizar: {ex.Message}";
+            isLoading = false;
+        }
+    }
+
+    private async Task AgregarCategoria()
+    {
+        if (bestia == null || !Guid.TryParse(categoriaParaAgregarId, out Guid catId)) return;
+
+        try
+        {
+            isLoading = true;
+            if (!bestia.CategoriasIds.Contains(catId))
+            {
+                bestia.CategoriasIds.Add(catId);
+                await BestiaApiClient.UpdateAsync(bestia);
+                feedbackMessage = "Categoría agregada exitosamente.";
+                categoriaParaAgregarId = "";
+                await CargarDatos();
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al agregar categoría: {ex.Message}";
+            isLoading = false;
+        }
+    }
+
+    private async Task EliminarCategoria()
+    {
+        if (bestia == null || !Guid.TryParse(categoriaParaEliminarId, out Guid catId)) return;
+
+        try
+        {
+            isLoading = true;
+            if (bestia.CategoriasIds.Contains(catId))
+            {
+                bestia.CategoriasIds.Remove(catId);
+                await BestiaApiClient.UpdateAsync(bestia);
+                feedbackMessage = "Categoría removida exitosamente.";
+                categoriaParaEliminarId = "";
+                await CargarDatos();
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar categoría: {ex.Message}";
+            isLoading = false;
+        }
+    }
+}

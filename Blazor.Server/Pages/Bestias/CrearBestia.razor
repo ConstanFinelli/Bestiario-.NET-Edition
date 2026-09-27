@@ -1,0 +1,93 @@
+@page "/bestias/nueva"
+@page "/bestias/crear"
+@using DTOs
+@using API.Clients
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Proponer Bestia</PageTitle>
+
+<section class="mainContent">
+    <h1>Proponer Nueva Bestia</h1>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="notFound" style="margin-bottom: 1rem;">@errorMessage</div>
+    }
+
+    <form class="formBestia" @onsubmit="GuardarBestia" @onsubmit:preventDefault>
+        <label for="nombre" class="inputLabel"><strong>Nombre:</strong></label><br>
+        <input type="text" id="nombre" class="inputText" placeholder="Ej: Dragón Carmesí" @bind="nombre" required><br><br>
+
+        <label for="peligrosidad" class="inputLabel"><strong>Peligrosidad:</strong></label><br>
+        <select id="peligrosidad" class="inputSelect" @bind="peligrosidad" required>
+            <option value="">-- Seleccionar nivel --</option>
+            <option value="Baja">Baja</option>
+            <option value="Media">Media</option>
+            <option value="Alta">Alta</option>
+        </select><br><br>
+
+        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px;">
+            <a href="/bestias" class="btnBestia">Cancelar</a>
+            <button type="submit" class="btnBestia" disabled="@isLoading">
+                @(isLoading ? "Guardando..." : "Continuar →")
+            </button>
+        </div>
+    </form>
+</section>
+
+@code {
+    private string nombre = "";
+    private string peligrosidad = "";
+    private string? errorMessage;
+    private bool isLoading = false;
+
+    protected override void OnInitialized()
+    {
+        if (!Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task GuardarBestia()
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            errorMessage = "El nombre es obligatorio.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(peligrosidad))
+        {
+            errorMessage = "Seleccione el nivel de peligrosidad.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var nueva = new BestiaDTO
+            {
+                Nombre = nombre.Trim(),
+                Peligrosidad = peligrosidad,
+                Estado = Auth.IsInvestigador ? "aprobado" : "pendiente",
+                CategoriasIds = new List<Guid>(),
+                CategoriasNombres = new List<string>()
+            };
+
+            await BestiaApiClient.AddAsync(nueva);
+            Navigation.NavigateTo("/bestias");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al crear bestia: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
