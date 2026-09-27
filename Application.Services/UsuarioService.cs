@@ -31,6 +31,12 @@ namespace Application.Services
 
         public async Task<UsuarioDTO> AddInvestigadorAsync(InvestigadorDTO dto)
         {
+            var existing = await usuarioRepository.GetByCorreoAsync(dto.Correo);
+            if (existing != null)
+            {
+                throw new ArgumentException("El correo ya se encuentra registrado.");
+            }
+
             var inv = new Investigador(
                 dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id,
                 dto.Correo,
@@ -49,6 +55,12 @@ namespace Application.Services
 
         public async Task<UsuarioDTO> AddLectorAsync(LectorDTO dto)
         {
+            var existing = await usuarioRepository.GetByCorreoAsync(dto.Correo);
+            if (existing != null)
+            {
+                throw new ArgumentException("El correo ya se encuentra registrado.");
+            }
+
             var lec = new Lector(
                 dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id,
                 dto.Correo,
