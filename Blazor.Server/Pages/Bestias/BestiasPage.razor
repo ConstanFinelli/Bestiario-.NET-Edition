@@ -198,6 +198,11 @@
             var result = await BestiaApiClient.GetAllAsync();
             bestias = result?.ToList() ?? new List<BestiaDTO>();
 
+            if (Auth.CurrentUser?.TipoUsuario == "Lector")
+            {
+                bestias = bestias.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
             if (bestias.Count > 0)
             {
                 selectedBestia = bestias[0];
