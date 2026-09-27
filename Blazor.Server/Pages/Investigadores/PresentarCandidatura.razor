@@ -1,0 +1,59 @@
+@page "/investigadores/candidatura"
+@page "/investigadores/postular"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Presentar Candidatura</PageTitle>
+
+<section class="mainContent">
+    <h1>Registrar Candidatura a Investigador</h1>
+
+    <div class="notFound" style="margin-bottom: 20px;">
+        Aún no implementado en .NET
+    </div>
+
+    @if (Auth.IsAuthenticated)
+    {
+        <form class="formBestia" @onsubmit="EnviarCandidatura" @onsubmit:preventDefault>
+            <label for="nombre" class="inputLabel"><strong>Nombre:</strong></label><br>
+            <input type="text" id="nombre" class="inputText" placeholder="Ej: Juan" @bind="nombre" required><br><br>
+
+            <label for="apellido" class="inputLabel"><strong>Apellido:</strong></label><br>
+            <input type="text" id="apellido" class="inputText" placeholder="Ej: Pérez" @bind="apellido" required><br><br>
+
+            <label for="dni" class="inputLabel"><strong>DNI:</strong></label><br>
+            <input type="text" id="dni" class="inputText" placeholder="Ej: 12345678" @bind="dni" required><br><br>
+
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
+                <a href="/" class="btnBestia">Cancelar</a>
+                <button type="submit" class="btnBestia">Guardar →</button>
+            </div>
+        </form>
+
+        @if (mostrarAviso)
+        {
+            <div class="notFound" style="margin-top: 20px;">
+                ⚠️ El flujo de aprobación de candidaturas a investigador aún no está habilitado en la API .NET.
+            </div>
+        }
+    }
+    else
+    {
+        <div class="notFound">Debes iniciar sesión para esta página.</div>
+        <div style="margin-top: 20px;">
+            <a href="/login" class="btnBestia">Iniciar sesión</a>
+        </div>
+    }
+</section>
+
+@code {
+    private string nombre = "";
+    private string apellido = "";
+    private string dni = "";
+    private bool mostrarAviso = false;
+
+    private void EnviarCandidatura()
+    {
+        mostrarAviso = true;
+    }
+}

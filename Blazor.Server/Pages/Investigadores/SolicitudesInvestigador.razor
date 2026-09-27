@@ -1,0 +1,32 @@
+@page "/investigadores/solicitudes"
+@page "/investigadores/candidaturas"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Candidaturas a Investigador</PageTitle>
+
+<section class="mainContent">
+    <h1>Candidaturas</h1>
+
+    <div class="notFound" style="margin-bottom: 20px;">
+        Aún no implementado en .NET
+    </div>
+
+    <section>
+        <div class="notFound">No se pudieron encontrar Candidaturas en el sistema actual.</div>
+    </section>
+
+    <div style="margin-top: 25px;">
+        <a href="/" class="btnBestia">Volver al inicio</a>
+    </div>
+</section>
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!Auth.IsAuthenticated || !Auth.IsInvestigador)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

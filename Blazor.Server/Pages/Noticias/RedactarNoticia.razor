@@ -1,0 +1,82 @@
+@page "/noticias/redactar"
+@page "/noticias/nueva"
+@using DTOs
+@using API.Clients
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Redactar noticia</PageTitle>
+
+<section class="mainContent">
+    <h2 style="font-size: 2rem; margin-bottom: 20px;">REDACTAR NOTICIA</h2>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="notFound" style="margin-bottom: 1rem;">@errorMessage</div>
+    }
+
+    <div class="formContainer">
+        <form class="formNoticia" @onsubmit="GuardarNoticia" @onsubmit:preventDefault>
+            <label for="titulo" class="inputLabel"><strong>Título</strong></label><br>
+            <input type="text" id="titulo" class="inputTitulo" placeholder="Ej: ¡Nuevo avistamiento!" @bind="titulo" required><br><br>
+
+            <label for="contenido" class="inputLabel"><strong>Contenido</strong></label><br>
+            <textarea id="contenido" class="inputContenido" placeholder="Insertar contenido de la noticia a comentar a los lectores." @bind="contenido" required></textarea><br><br>
+
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
+                <a href="/noticias" class="submitButton" style="text-decoration: none; display: inline-block; text-align: center; line-height: 2;">Cancelar</a>
+                <button type="submit" class="submitButton" disabled="@isLoading">
+                    @(isLoading ? "Publicando..." : "Continuar →")
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@code {
+    private string titulo = "";
+    private string contenido = "";
+    private string? errorMessage;
+    private bool isLoading = false;
+
+    protected override void OnInitialized()
+    {
+        if (!Auth.IsAuthenticated || !Auth.IsInvestigador)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task GuardarNoticia()
+    {
+        if (string.IsNullOrWhiteSpace(titulo) || string.IsNullOrWhiteSpace(contenido))
+        {
+            errorMessage = "Complete el título y el contenido.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var nueva = new NoticiaDTO
+            {
+                Titulo = titulo.Trim(),
+                Contenido = contenido.Trim(),
+                FechaPublicacion = DateTime.UtcNow
+            };
+
+            await NoticiaApiClient.AddAsync(nueva);
+            Navigation.NavigateTo("/noticias");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al publicar noticia: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

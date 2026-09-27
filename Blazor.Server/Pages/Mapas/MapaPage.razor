@@ -1,0 +1,65 @@
+@page "/mapa"
+@page "/mapas"
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Bestiario - Mapa</PageTitle>
+
+<div class="contenedorMapa">
+    <div id="map" class="mapa"></div>
+</div>
+
+<div class="contenedorOpciones">
+    <h1 class="tituloHabitat">Habitats de bestias</h1>
+
+    <div class="notFound" style="margin: 15px auto; width: 90%; padding: 12px; font-size: 1.1rem;">
+        Aún no implementado en .NET
+    </div>
+
+    <div class="contenedorHabitats">
+        <h2 class="unselectedText">
+            En este mapa interactivo se visualizarán las ubicaciones geográficas de las bestias enigmáticas registradas por la comunidad.
+        </h2>
+        <h2 class="unselectedText">
+            Estas ubicaciones son determinadas con testimonios y registros contrastados por investigadores.
+        </h2>
+        <h2 class="unselectedText">
+            El sistema de georreferenciación de hábitats estará disponible en una próxima actualización.
+        </h2>
+    </div>
+
+    <div class="btnMapa">
+        <a href="/">Volver</a>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("eval", @"
+                    if (typeof L !== 'undefined' && document.getElementById('map')) {
+                        var map = L.map('map', {
+                            maxBounds: [[-90, -180], [90, 180]],
+                            maxBoundsViscosity: 1,
+                            maxZoom: 8,
+                            minZoom: 2
+                        }).setView([20, 0], 2);
+
+                        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
+                            attribution: 'Tiles &copy; Esri',
+                            noWrap: true,
+                            bounds: [[-90, -180], [90, 180]]
+                        }).addTo(map);
+                    }
+                ");
+            }
+            catch
+            {
+            }
+        }
+    }
+}

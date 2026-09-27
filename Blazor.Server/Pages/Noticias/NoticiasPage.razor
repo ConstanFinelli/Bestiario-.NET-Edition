@@ -1,178 +1,89 @@
 @page "/noticias"
+@using DTOs
+@using API.Clients
 @inject NavigationManager Navigation
 @inject AuthService Auth
 
-<PageTitle>NoticiaLista</PageTitle>
+<PageTitle>Bestiario - Noticias</PageTitle>
 
-<div class="win-form" style="width: 820px;">
-    <!-- Barra de Título Windows -->
-    <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
-            <span class="oi oi-window text-primary"></span>
-            <span>NoticiaLista</span>
+<section class="mainContent">
+    <h2 style="font-size: 2rem; margin-bottom: 20px;">NOTICIAS</h2>
+
+    @if (!string.IsNullOrEmpty(feedbackMessage))
+    {
+        <div class="notFound" style="margin-bottom: 1rem;">@feedbackMessage</div>
+    }
+
+    @if (Auth.IsInvestigador)
+    {
+        <div style="margin-bottom: 20px;">
+            <a class="btnAgregar" href="/noticias/redactar">+ Redactar nueva noticia</a>
         </div>
-    </div>
+    }
 
-    <!-- MenuStrip de Navegación -->
-    <div class="win-menustrip">
-        <NavLink href="/" class="win-menu-item">
-            Inicio
-        </NavLink>
-        <NavLink href="/categorias" class="win-menu-item">
-            Categorias
-        </NavLink>
-        <NavLink href="/noticias" class="win-menu-item active">
-            Noticias
-        </NavLink>
-        <NavLink href="/bestias" class="win-menu-item">
-            Bestias
-        </NavLink>
-        <NavLink href="/registros" class="win-menu-item">
-            Registros
-        </NavLink>
-        <div class="ms-auto">
-            <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 6px;" @onclick="CargarNoticias" disabled="@isLoading">
-                Refrescar
-            </button>
+    @if (isLoading)
+    {
+        <div class="notFound">Cargando noticias...</div>
+    }
+    else if (noticias == null || !noticias.Any())
+    {
+        <div class="notFound">
+            No hay noticias cargadas por el momento.
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="newsContainer">
+            @foreach (var noticia in noticias)
+            {
+                <article class="new">
+                    <div class="newContainer">
+                        <h2>@noticia.Titulo</h2>
+                        <span class="newInfo">
+                            publicado @noticia.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")
+                        </span>
+                        <p class="newContent">
+                            @noticia.Contenido
+                        </p>
 
-    <!-- Contenido del Formulario -->
-    <div class="win-form-content">
-        @if (!string.IsNullOrEmpty(feedbackMessage))
-        {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
-                @feedbackMessage
-            </div>
-        }
-
-        <!-- Grilla DataGridView -->
-        <div class="win-grid-container" style="height: 280px;">
-            <table class="win-grid">
-                <thead>
-                    <tr>
-                        <th class="win-grid-row-header-th"></th>
-                        <th style="width: 130px;">ID</th>
-                        <th style="width: 180px;">Título</th>
-                        <th style="width: 140px;">Fecha Publicacion</th>
-                        <th>Contenido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (isLoading)
-                    {
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
-                                Cargando noticias...
-                            </td>
-                        </tr>
-                    }
-                    else if (noticias == null || !noticias.Any())
-                    {
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
-                                No hay noticias disponibles.
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        @foreach (var not in noticias)
+                        @if (Auth.IsInvestigador)
                         {
-                            bool isSelected = selectedNoticia?.Id == not.Id;
-                            <tr class="@(isSelected ? "selected" : "")" 
-                                @onclick="() => SeleccionarFila(not)"
-                                @ondblclick="AbrirModalActualizar">
-                                <td class="win-grid-row-header">
-                                    @(isSelected ? "▶" : "")
-                                </td>
-                                <td>@not.Id</td>
-                                <td>@not.Titulo</td>
-                                <td>@not.FechaPublicacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
-                                <td>@not.Contenido</td>
-                            </tr>
+                            <button type="button" class="btnEliminarNoticia" @onclick="() => AbrirConfirmarEliminar(noticia)">
+                                Eliminar
+                            </button>
                         }
-                    }
-                </tbody>
-            </table>
+                    </div>
+                </article>
+            }
         </div>
+    }
+</section>
 
-        <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
-        <div class="win-btn-action-bar">
-            <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedNoticia == null || isLoading)">
-                Eliminar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedNoticia == null || isLoading)">
-                Actualizar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
-                Agregar
-            </button>
+<!-- Modal Confirmación Eliminación -->
+<div class="modal-container @(isModalEliminarVisible ? "is-visible" : "")">
+    <div class="modal-content">
+        <h2 id="modal-titulo">ELIMINAR NOTICIA</h2>
+        <div id="modal-cuerpo" style="font-size: 1.2rem; text-align: center;">
+            ¿Estás seguro que deseas eliminar la noticia <strong>@noticiaAEliminar?.Titulo</strong>?
         </div>
-    </div>
-
-    <!-- Barra de Estado Inferior -->
-    <div class="win-statusbar">
-        <span>@(noticias?.Count ?? 0) elemento(s) cargado(s)</span>
-        <span>@(selectedNoticia != null ? $"Seleccionado: {selectedNoticia.Titulo}" : "Ningún elemento seleccionado")</span>
+        <div class="modalButtons">
+            <button type="button" class="closeButton" @onclick="CerrarModalEliminar">Cancelar</button>
+            <button type="button" class="deleteButton" @onclick="ConfirmarEliminar">Eliminar</button>
+        </div>
     </div>
 </div>
 
-<!-- Modal Detalle (Estilo Ventana Diálogo Windows) -->
-<NoticiaModal IsOpen="@isModalOpen" 
-              Mode="@modalMode" 
-              Noticia="@noticiaParaEditar" 
-              OnSaved="@OnNoticiaGuardada" 
-              OnCancel="@CerrarModal" />
-
-<!-- Diálogo MessageBox Confirmación -->
-<ConfirmModal IsOpen="@isConfirmDeleteOpen"
-              Title="Confirmar eliminación"
-              Message="¿Está seguro que desea eliminar la noticia?"
-              ConfirmButtonText="Sí"
-              OnConfirm="@EliminarNoticiaConfirmada"
-              OnCancel="@(() => isConfirmDeleteOpen = false)" />
-
-@implements IDisposable
-
 @code {
     private List<NoticiaDTO> noticias = new();
-    private NoticiaDTO? selectedNoticia;
-    private NoticiaDTO noticiaParaEditar = new();
-    private FormMode modalMode = FormMode.Add;
-
     private bool isLoading = true;
-    private bool isModalOpen = false;
-    private bool isConfirmDeleteOpen = false;
-
     private string? feedbackMessage;
-    private bool isFeedbackError = false;
+
+    private bool isModalEliminarVisible = false;
+    private NoticiaDTO? noticiaAEliminar;
 
     protected override async Task OnInitializedAsync()
     {
-        Auth.OnChange += HandleAuthStateChanged;
-
-        if (Auth.IsAuthenticated)
-        {
-            await CargarNoticias();
-        }
-    }
-
-    private async void HandleAuthStateChanged()
-    {
-        if (Auth.IsAuthenticated && (noticias == null || !noticias.Any()))
-        {
-            await InvokeAsync(async () =>
-            {
-                await CargarNoticias();
-                StateHasChanged();
-            });
-        }
-    }
-
-    public void Dispose()
-    {
-        Auth.OnChange -= HandleAuthStateChanged;
+        await CargarNoticias();
     }
 
     private async Task CargarNoticias()
@@ -181,20 +92,12 @@
         {
             isLoading = true;
             feedbackMessage = null;
-            selectedNoticia = null;
-
             var result = await NoticiaApiClient.GetAllAsync();
-            noticias = result?.ToList() ?? new List<NoticiaDTO>();
-
-            if (noticias.Count > 0)
-            {
-                selectedNoticia = noticias[0];
-            }
+            noticias = result?.OrderByDescending(n => n.FechaPublicacion).ToList() ?? new List<NoticiaDTO>();
         }
         catch (Exception ex)
         {
             feedbackMessage = $"Error al cargar noticias: {ex.Message}";
-            isFeedbackError = true;
         }
         finally
         {
@@ -202,86 +105,34 @@
         }
     }
 
-    private void SeleccionarFila(NoticiaDTO n)
+    private void AbrirConfirmarEliminar(NoticiaDTO n)
     {
-        selectedNoticia = n;
+        noticiaAEliminar = n;
+        isModalEliminarVisible = true;
     }
 
-    private void AbrirModalAgregar()
+    private void CerrarModalEliminar()
     {
-        modalMode = FormMode.Add;
-        noticiaParaEditar = new NoticiaDTO();
-        isModalOpen = true;
+        isModalEliminarVisible = false;
+        noticiaAEliminar = null;
     }
 
-    private async Task AbrirModalActualizar()
+    private async Task ConfirmarEliminar()
     {
-        if (selectedNoticia == null) return;
+        if (noticiaAEliminar == null) return;
 
         try
         {
+            isModalEliminarVisible = false;
             isLoading = true;
-            var fresca = await NoticiaApiClient.GetAsync(selectedNoticia.Id);
-            noticiaParaEditar = new NoticiaDTO
-            {
-                Id = fresca.Id,
-                Titulo = fresca.Titulo,
-                Contenido = fresca.Contenido,
-                FechaPublicacion = fresca.FechaPublicacion
-            };
-            modalMode = FormMode.Update;
-            isModalOpen = true;
-        }
-        catch (Exception ex)
-        {
-            feedbackMessage = $"Error al obtener datos: {ex.Message}";
-            isFeedbackError = true;
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    private void CerrarModal()
-    {
-        isModalOpen = false;
-    }
-
-    private async Task OnNoticiaGuardada()
-    {
-        isModalOpen = false;
-        feedbackMessage = "Operación completada con éxito.";
-        isFeedbackError = false;
-        await CargarNoticias();
-    }
-
-    private void AbrirModalEliminar()
-    {
-        if (selectedNoticia != null)
-        {
-            isConfirmDeleteOpen = true;
-        }
-    }
-
-    private async Task EliminarNoticiaConfirmada()
-    {
-        if (selectedNoticia == null) return;
-
-        try
-        {
-            isConfirmDeleteOpen = false;
-            isLoading = true;
-            await NoticiaApiClient.DeleteAsync(selectedNoticia.Id);
-            feedbackMessage = $"Noticia eliminada.";
-            isFeedbackError = false;
-            selectedNoticia = null;
+            await NoticiaApiClient.DeleteAsync(noticiaAEliminar.Id);
+            feedbackMessage = $"Noticia '{noticiaAEliminar.Titulo}' eliminada.";
+            noticiaAEliminar = null;
             await CargarNoticias();
         }
         catch (Exception ex)
         {
             feedbackMessage = $"Error al eliminar noticia: {ex.Message}";
-            isFeedbackError = true;
             isLoading = false;
         }
     }

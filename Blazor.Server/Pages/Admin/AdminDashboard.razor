@@ -1,0 +1,358 @@
+@page "/admin"
+@page "/categorias"
+@using DTOs
+@using API.Clients
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Admin Dashboard</PageTitle>
+
+<div class="adminLayout">
+    <aside class="dashboardMenu">
+        <h2>Menu de Administrador</h2>
+        <button type="button" class="dashboardLink @(crud == "categorias" ? "activeLink" : "")" @onclick="@(() => CambiarSeccion("categorias"))">
+            Categorías
+        </button>
+        <button type="button" class="dashboardLink @(crud == "habitats" ? "activeLink" : "")" @onclick="@(() => CambiarSeccion("habitats"))">
+            Habitats
+        </button>
+        <button type="button" class="dashboardLink @(crud == "usuarios" ? "activeLink" : "")" @onclick="@(() => CambiarSeccion("usuarios"))">
+            Usuarios
+        </button>
+        <button type="button" class="dashboardLink @(crud == "tiposEvidencia" ? "activeLink" : "")" @onclick="@(() => CambiarSeccion("tiposEvidencia"))">
+            Tipos de evidencia
+        </button>
+    </aside>
+
+    <main class="adminContent">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="notFound" style="margin-bottom: 1rem;">@feedbackMessage</div>
+        }
+
+        @if (crud == null)
+        {
+            <h2>Bienvenido al menú de Admin</h2>
+            <p>Seleccione una opción para gestionar en el menú de la izquierda.</p>
+        }
+        else if (crud == "categorias")
+        {
+            <h2>Gestionar categorías</h2>
+            <div class="adminForms">
+                <section class="formAdmin">
+                    <h1>Lista de categorías</h1>
+                    @if (isLoading)
+                    {
+                        <p>Cargando categorías...</p>
+                    }
+                    else if (categorias != null && categorias.Any())
+                    {
+                        <ul class="adminList">
+                            @foreach (var cat in categorias)
+                            {
+                                <li class="listItem">
+                                    <div class="itemInfo">
+                                        <span class="itemTitle">@cat.Nombre <small>(ID: @cat.Id.ToString().Substring(0, 8)...)</small></span>
+                                        <span class="itemDesc">@cat.Descripcion</span>
+                                    </div>
+                                    <button type="button" class="deleteItem" @onclick="() => EliminarCategoria(cat.Id)">
+                                        Eliminar
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No hay categorías registradas en el Bestiario.</p>
+                    }
+                </section>
+
+                <div class="formsFlex">
+                    <form class="formAdmin formCrear" @onsubmit="CrearCategoria" @onsubmit:preventDefault>
+                        <h1>Crear categoría</h1>
+                        <label for="nombreCat" class="inputLabel">Nombre</label>
+                        <input type="text" id="nombreCat" class="inputForm" placeholder="Ingresar nombre de la categoría..." @bind="nuevoNombreCat" required />
+
+                        <label for="descCat" class="inputLabel">Descripción</label>
+                        <input type="text" id="descCat" class="inputForm" placeholder="Ingresar descripción de la categoría..." @bind="nuevaDescCat" required />
+
+                        <button type="submit" class="submitButton" disabled="@isLoading">Crear</button>
+                    </form>
+
+                    @if (categorias != null && categorias.Any())
+                    {
+                        <form class="formAdmin formActualizar" @onsubmit="ActualizarCategoria" @onsubmit:preventDefault>
+                            <h1>Actualizar categoría</h1>
+                            <label class="inputLabel">Seleccionar:</label>
+                            <select class="inputForm" @onchange="OnCategoriaSeleccionadaParaEditar">
+                                <option value="">-- Seleccionar categoría --</option>
+                                @foreach (var cat in categorias)
+                                {
+                                    <option value="@cat.Id">@cat.Nombre</option>
+                                }
+                            </select>
+
+                            <label for="editNombreCat" class="inputLabel">Nombre</label>
+                            <input type="text" id="editNombreCat" class="inputForm" placeholder="Nombre..." @bind="editNombreCat" required />
+
+                            <label for="editDescCat" class="inputLabel">Descripción</label>
+                            <input type="text" id="editDescCat" class="inputForm" placeholder="Descripción..." @bind="editDescCat" required />
+
+                            <button type="submit" class="submitButton" disabled="@(categoriaSeleccionadaId == Guid.Empty || isLoading)">Actualizar</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+        else if (crud == "usuarios")
+        {
+            <h2>Gestionar usuarios</h2>
+            <div class="adminForms">
+                <section class="formAdmin">
+                    <h1>Lista de usuarios</h1>
+                    @if (isLoading)
+                    {
+                        <p>Cargando usuarios...</p>
+                    }
+                    else if (usuarios != null && usuarios.Any())
+                    {
+                        <ul class="adminList">
+                            @foreach (var user in usuarios)
+                            {
+                                <li class="listItem">
+                                    <div class="itemInfo">
+                                        <span class="itemTitle">@user.Correo <small>(Tipo: @user.TipoUsuario)</small></span>
+                                        <span class="itemDesc">ID: @user.Id</span>
+                                    </div>
+                                    <button type="button" class="deleteItem" @onclick="() => EliminarUsuario(user.Id)">
+                                        Eliminar
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No hay lectores registrados en el Bestiario.</p>
+                    }
+                </section>
+
+                <div class="formsFlex">
+                    <form class="formAdmin formCrear" @onsubmit="CrearUsuario" @onsubmit:preventDefault>
+                        <h1>Crear lector</h1>
+                        <label for="correoUser" class="inputLabel">Correo electrónico</label>
+                        <input type="email" id="correoUser" class="inputForm" placeholder="Ingresar correo de usuario..." @bind="nuevoCorreoUser" required />
+
+                        <label for="passUser" class="inputLabel">Contraseña</label>
+                        <input type="password" id="passUser" class="inputForm" placeholder="Ingresar contraseña..." @bind="nuevoPassUser" required />
+
+                        <button type="submit" class="submitButton" disabled="@isLoading">Crear</button>
+                    </form>
+                </div>
+            </div>
+        }
+        else if (crud == "habitats")
+        {
+            <h2>Gestionar habitats</h2>
+            <div class="notFound" style="margin: 20px 0;">
+                Aún no implementado en .NET
+            </div>
+            <p>El módulo de administración de hábitats estará disponible en una próxima versión del sistema.</p>
+        }
+        else if (crud == "tiposEvidencia")
+        {
+            <h2>Gestionar tipos de evidencia</h2>
+            <div class="notFound" style="margin: 20px 0;">
+                Aún no implementado en .NET
+            </div>
+            <p>El módulo de administración de tipos de evidencia multimedia estará disponible en una próxima versión.</p>
+        }
+    </main>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "crud")]
+    public string? CrudParam { get; set; }
+
+    private string? crud = "categorias";
+    private List<CategoriaDTO> categorias = new();
+    private List<UsuarioDTO> usuarios = new();
+    private bool isLoading = false;
+    private string? feedbackMessage;
+
+    // Crear categoría
+    private string nuevoNombreCat = "";
+    private string nuevaDescCat = "";
+
+    // Actualizar categoría
+    private Guid categoriaSeleccionadaId = Guid.Empty;
+    private string editNombreCat = "";
+    private string editDescCat = "";
+
+    // Crear usuario
+    private string nuevoCorreoUser = "";
+    private string nuevoPassUser = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated || !Auth.IsInvestigador)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(CrudParam))
+        {
+            crud = CrudParam;
+        }
+
+        await CargarDatosSeccion();
+    }
+
+    private async Task CambiarSeccion(string seccion)
+    {
+        crud = seccion;
+        feedbackMessage = null;
+        await CargarDatosSeccion();
+    }
+
+    private async Task CargarDatosSeccion()
+    {
+        try
+        {
+            isLoading = true;
+            if (crud == "categorias")
+            {
+                var cats = await CategoriaApiClient.GetAllAsync();
+                categorias = cats?.ToList() ?? new List<CategoriaDTO>();
+            }
+            else if (crud == "usuarios")
+            {
+                var users = await UsuarioApiClient.GetAllAsync();
+                usuarios = users?.ToList() ?? new List<UsuarioDTO>();
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar datos: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CrearCategoria()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoNombreCat)) return;
+
+        try
+        {
+            isLoading = true;
+            await CategoriaApiClient.AddAsync(new CategoriaDTO
+            {
+                Nombre = nuevoNombreCat.Trim(),
+                Descripcion = nuevaDescCat.Trim()
+            });
+            nuevoNombreCat = "";
+            nuevaDescCat = "";
+            feedbackMessage = "Categoría creada con éxito.";
+            await CargarDatosSeccion();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al crear categoría: {ex.Message}";
+            isLoading = false;
+        }
+    }
+
+    private void OnCategoriaSeleccionadaParaEditar(ChangeEventArgs e)
+    {
+        if (Guid.TryParse(e.Value?.ToString(), out Guid id))
+        {
+            categoriaSeleccionadaId = id;
+            var cat = categorias.FirstOrDefault(c => c.Id == id);
+            if (cat != null)
+            {
+                editNombreCat = cat.Nombre;
+                editDescCat = cat.Descripcion;
+            }
+        }
+        else
+        {
+            categoriaSeleccionadaId = Guid.Empty;
+            editNombreCat = "";
+            editDescCat = "";
+        }
+    }
+
+    private async Task ActualizarCategoria()
+    {
+        if (categoriaSeleccionadaId == Guid.Empty || string.IsNullOrWhiteSpace(editNombreCat)) return;
+
+        try
+        {
+            isLoading = true;
+            await CategoriaApiClient.UpdateAsync(new CategoriaDTO
+            {
+                Id = categoriaSeleccionadaId,
+                Nombre = editNombreCat.Trim(),
+                Descripcion = editDescCat.Trim()
+            });
+            feedbackMessage = "Categoría actualizada con éxito.";
+            await CargarDatosSeccion();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al actualizar categoría: {ex.Message}";
+            isLoading = false;
+        }
+    }
+
+    private async Task EliminarCategoria(Guid id)
+    {
+        try
+        {
+            isLoading = true;
+            await CategoriaApiClient.DeleteAsync(id);
+            feedbackMessage = "Categoría eliminada.";
+            await CargarDatosSeccion();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar categoría: {ex.Message}";
+            isLoading = false;
+        }
+    }
+
+    private async Task CrearUsuario()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoCorreoUser) || string.IsNullOrWhiteSpace(nuevoPassUser)) return;
+
+        try
+        {
+            isLoading = true;
+            await UsuarioApiClient.AddLectorAsync(new LectorDTO
+            {
+                Correo = nuevoCorreoUser.Trim(),
+                Contrasenia = nuevoPassUser,
+                RecibirNotificaciones = true
+            });
+            nuevoCorreoUser = "";
+            nuevoPassUser = "";
+            feedbackMessage = "Lector creado con éxito.";
+            await CargarDatosSeccion();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al crear usuario: {ex.Message}";
+            isLoading = false;
+        }
+    }
+
+    private void EliminarUsuario(Guid id)
+    {
+        feedbackMessage = "La eliminación de usuarios aún no está disponible en la API.";
+    }
+}
