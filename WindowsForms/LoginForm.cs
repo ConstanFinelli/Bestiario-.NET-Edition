@@ -120,5 +120,18 @@ namespace WindowsForms
         private void passwordTextBox_TextChanged(object sender, EventArgs e)
         {
         }
+
+        private void registerLectorLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using var regForm = new RegistroLectorForm();
+            if (regForm.ShowDialog(this) == DialogResult.OK)
+            {
+                if (UsuarioLogueado != null)
+                {
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+            }
+        }
     }
 }
