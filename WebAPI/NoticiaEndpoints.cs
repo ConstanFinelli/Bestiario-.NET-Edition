@@ -19,9 +19,8 @@ namespace WebAPI
                 return Results.Ok(dto);
             })
             .WithName("GetNoticia")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<NoticiaDTO>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -32,9 +31,8 @@ namespace WebAPI
                 return Results.Ok(dtos);
             })
             .WithName("GetAllNoticias")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<List<NoticiaDTO>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPost("/noticias", async (NoticiaDTO dto, INoticiaService noticiaService) =>

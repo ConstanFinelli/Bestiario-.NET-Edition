@@ -179,17 +179,24 @@ else
         {
             isLoading = true;
             bestia = await BestiaApiClient.GetAsync(BestiaId);
-
-            var registros = await RegistroApiClient.GetByBestiaAsync(BestiaId);
-            if (registros != null && registros.Any())
+            if (bestia != null && (!Auth.IsAuthenticated || Auth.IsLector) && !bestia.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
             {
-                // Si es lector, filtrar solo aprobados
-                if (!Auth.IsAuthenticated || Auth.IsLector)
-                {
-                    registros = registros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
-                }
+                bestia = null;
+            }
 
-                ultimoRegistro = registros.OrderByDescending(r => r.NroRegistro).FirstOrDefault();
+            if (bestia != null)
+            {
+                var registros = await RegistroApiClient.GetByBestiaAsync(BestiaId);
+                if (registros != null && registros.Any())
+                {
+                    // Si es invitado o lector, filtrar solo registros aprobados
+                    if (!Auth.IsAuthenticated || Auth.IsLector)
+                    {
+                        registros = registros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+
+                    ultimoRegistro = registros.OrderByDescending(r => r.NroRegistro).FirstOrDefault();
+                }
             }
         }
         catch
