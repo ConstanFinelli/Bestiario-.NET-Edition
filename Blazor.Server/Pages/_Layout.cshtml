@@ -1,16 +1,40 @@
-﻿@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web
 @namespace Blazor.Server.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bestiario</title>
     <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link href="css/site.css" rel="stylesheet" />
-    <link href="Blazor.Server.styles.css" rel="stylesheet" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Aubrey&family=Bad+Script&family=MedievalSharp&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Third-party CSS (Swiper & Leaflet) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Bestiario CSS Stylesheets -->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <link rel="stylesheet" href="css/bestias.css" />
+    <link rel="stylesheet" href="css/nuevaBestia.css" />
+    <link rel="stylesheet" href="css/editarBestia.css" />
+    <link rel="stylesheet" href="css/registro.css" />
+    <link rel="stylesheet" href="css/registros.css" />
+    <link rel="stylesheet" href="css/noticias.css" />
+    <link rel="stylesheet" href="css/redactarNoticia.css" />
+    <link rel="stylesheet" href="css/login.css" />
+    <link rel="stylesheet" href="css/mapa.css" />
+    <link rel="stylesheet" href="css/adminDashboard.css" />
+    <link rel="stylesheet" href="Blazor.Server.styles.css" />
+
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
@@ -18,15 +42,18 @@
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
+            Ha ocurrido un error. La aplicación puede no responder hasta que se recargue.
         </environment>
         <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
+            Ha ocurrido una excepción no controlada. Consulte las herramientas de desarrollo del navegador.
         </environment>
-        <a href="" class="reload">Reload</a>
+        <a href="" class="reload">Recargar</a>
         <a class="dismiss">🗙</a>
     </div>
 
+    <!-- Third-party JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

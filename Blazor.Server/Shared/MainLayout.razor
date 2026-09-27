@@ -3,61 +3,64 @@
 @inject NavigationManager Navigation
 @implements IDisposable
 
-<div class="desktop-container">
-    <!-- Ventana Principal que contiene el Sistema -->
-    <div class="desktop-work-area">
-        @Body
-    </div>
+@if (IsBarePage)
+{
+    @Body
+}
+else
+{
+    <nav>
+        <NavLink class="navTitle" href="/">Bestiario</NavLink>
+        <NavLink class="navLink" href="/bestias">Bestias</NavLink>
+        <NavLink class="navLink" href="/mapa">Mapa</NavLink>
+        <NavLink class="navLink" href="/noticias">Noticias</NavLink>
 
-    <!-- Barra de Tareas Inferior (Estilo Windows) -->
-    <div class="desktop-taskbar">
-        <div class="d-flex align-items-center gap-2 me-auto">
-            @if (Auth.IsAuthenticated)
+        @if (Auth.IsAuthenticated)
+        {
+            @if (Auth.IsInvestigador)
             {
-                <NavLink href="/" class="btn btn-sm btn-light border d-flex align-items-center gap-1 shadow-sm px-2">
-                    <span class="oi oi-grid-four-up text-primary"></span>
-                    <strong>Bestiario .NET</strong>
-                </NavLink>
+                <NavLink class="navLink" href="/admin">Admin</NavLink>
+                <NavLink class="navLink" href="/investigadores/solicitudes">Candidaturas</NavLink>
             }
-            else
+            else if (Auth.IsLector)
             {
-                <span class="btn btn-sm btn-light border d-flex align-items-center gap-1 px-2 text-muted" style="cursor: not-allowed;">
-                    <span class="oi oi-lock-locked text-warning"></span>
-                    <strong>Bestiario .NET (Bloqueado)</strong>
-                </span>
-            }
-            <span class="text-secondary small ms-2">Edición Blazor Server (.NET 8)</span>
-        </div>
-
-        <div class="d-flex align-items-center gap-3">
-            <span class="badge bg-light text-dark border">
-                <span class="oi oi-hard-drive me-1 text-success"></span> API: localhost:5076
-            </span>
-
-            @if (Auth.IsAuthenticated)
-            {
-                <span class="badge bg-primary">
-                    <span class="oi oi-person me-1"></span> @Auth.Username
-                </span>
-                <button class="btn btn-outline-danger btn-sm py-0 px-2" style="font-size: 11px;" @onclick="CerrarSesion">
-                    Cerrar sesión
-                </button>
-            }
-            else
-            {
-                <span class="text-muted small">
-                    <span class="oi oi-shield me-1"></span> Inicio de sesión requerido
-                </span>
+                <NavLink class="navLink" href="/investigadores/candidatura">Volverse Investigador</NavLink>
             }
 
-            <span class="text-muted small">
-                @DateTime.Now.ToString("HH:mm")
-            </span>
-        </div>
-    </div>
-</div>
+            <button type="button" class="logInOut" @onclick="CerrarSesion">Cerrar sesión</button>
+        }
+        else
+        {
+            <button type="button" class="logInOut" @onclick="IrALogin">Iniciar Sesion</button>
+        }
+    </nav>
+
+    @Body
+
+    <footer>
+        <p>© 2026 Bestiario S.A. Todos los derechos reservados.</p>
+    </footer>
+}
 
 @code {
+    private bool IsBarePage
+    {
+        get
+        {
+            var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
+            int queryIndex = relativePath.IndexOf('?');
+            if (queryIndex >= 0)
+            {
+                relativePath = relativePath.Substring(0, queryIndex);
+            }
+
+            return relativePath.Equals("login", StringComparison.OrdinalIgnoreCase) ||
+                   relativePath.Equals("register", StringComparison.OrdinalIgnoreCase) ||
+                   relativePath.StartsWith("auth/", StringComparison.OrdinalIgnoreCase) ||
+                   relativePath.Equals("mapa", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     protected override void OnInitialized()
     {
         Auth.OnChange += OnAuthStateChanged;
@@ -68,40 +71,12 @@
         if (firstRender)
         {
             await Auth.InitializeAsync();
-            VerificarAutenticacion();
-        }
-    }
-
-    protected override void OnParametersSet()
-    {
-        VerificarAutenticacion();
-    }
-
-    private void VerificarAutenticacion()
-    {
-        if (Auth.IsInitializing) return;
-
-        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
-        int queryIndex = relativePath.IndexOf('?');
-        if (queryIndex >= 0)
-        {
-            relativePath = relativePath.Substring(0, queryIndex);
-        }
-
-        // Si no está autenticado y no está en la página de login, redirigir obligatoriamente a /login
-        if (!Auth.IsAuthenticated && !relativePath.Equals("login", StringComparison.OrdinalIgnoreCase))
-        {
-            Navigation.NavigateTo("/login");
         }
     }
 
     private void OnAuthStateChanged()
     {
-        InvokeAsync(() =>
-        {
-            VerificarAutenticacion();
-            StateHasChanged();
-        });
+        InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
@@ -109,9 +84,14 @@
         Auth.OnChange -= OnAuthStateChanged;
     }
 
-    private void CerrarSesion()
+    private void IrALogin()
     {
-        Auth.Logout();
         Navigation.NavigateTo("/login");
+    }
+
+    private async Task CerrarSesion()
+    {
+        await Auth.LogoutAsync();
+        Navigation.NavigateTo("/");
     }
 }
