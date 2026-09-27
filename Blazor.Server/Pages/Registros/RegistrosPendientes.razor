@@ -1,0 +1,162 @@
+@page "/bestias/{BestiaId:guid}/registros-pendientes"
+@page "/registros/pendientes/{BestiaId:guid}"
+@page "/registros/pendientes"
+@using DTOs
+@using API.Clients
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Registros pendientes</PageTitle>
+
+<section class="mainContent">
+    <h1>Registros pendientes</h1>
+
+    @if (bestia != null)
+    {
+        <h2>Bestia: @bestia.Nombre</h2>
+    }
+
+    @if (!string.IsNullOrEmpty(feedbackMessage))
+    {
+        <div class="notFound" style="margin-bottom: 1rem;">@feedbackMessage</div>
+    }
+
+    @if (isLoading)
+    {
+        <div class="notFound">Cargando registros pendientes...</div>
+    }
+    else if (registrosPendientes == null || !registrosPendientes.Any())
+    {
+        <div class="notFound">No hay registros pendientes para esta bestia.</div>
+    }
+    else
+    {
+        <table class="tablaRegistros">
+            <thead>
+                <tr>
+                    <th>N° Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var reg in registrosPendientes)
+                {
+                    <tr>
+                        <td>#@reg.NroRegistro - Publicado por: @(reg.CorreoPublicador ?? "Anónimo")</td>
+                        <td class="acciones">
+                            <a href="/bestias/@reg.IdBestia/registro" class="btnExaminar">Examinar</a>
+
+                            @if (Auth.IsInvestigador)
+                            {
+                                <button type="button" class="btnAceptar" @onclick="() => AprobarRegistro(reg)">
+                                    Aceptar
+                                </button>
+                                <button type="button" class="btnRechazar" @onclick="() => RechazarRegistro(reg)">
+                                    Rechazar
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div style="margin-top: 25px;">
+        <a href="/bestias" class="btnBestia">Volver a Bestias</a>
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public Guid? BestiaId { get; set; }
+
+    private BestiaDTO? bestia;
+    private List<RegistroDTO> registrosPendientes = new();
+    private bool isLoading = true;
+    private string? feedbackMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+
+            if (BestiaId.HasValue && BestiaId.Value != Guid.Empty)
+            {
+                bestia = await BestiaApiClient.GetAsync(BestiaId.Value);
+                var regs = await RegistroApiClient.GetByBestiaAsync(BestiaId.Value);
+                registrosPendientes = regs?.Where(r => r.Estado == "pendiente").ToList() ?? new List<RegistroDTO>();
+            }
+            else
+            {
+                var beasts = await BestiaApiClient.GetAllAsync();
+                registrosPendientes = new List<RegistroDTO>();
+                if (beasts != null)
+                {
+                    foreach (var b in beasts)
+                    {
+                        var regs = await RegistroApiClient.GetByBestiaAsync(b.Id);
+                        if (regs != null)
+                        {
+                            registrosPendientes.AddRange(regs.Where(r => r.Estado == "pendiente"));
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar registros: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task AprobarRegistro(RegistroDTO reg)
+    {
+        try
+        {
+            isLoading = true;
+            var investigadorId = Auth.CurrentUser?.Id ?? Guid.Parse("99999999-9999-9999-9999-999999999999");
+            await RegistroApiClient.AprobarAsync(reg.IdBestia, reg.NroRegistro, investigadorId);
+            feedbackMessage = $"Registro #{reg.NroRegistro} aprobado con éxito.";
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al aprobar registro: {ex.Message}";
+            isLoading = false;
+        }
+    }
+
+    private async Task RechazarRegistro(RegistroDTO reg)
+    {
+        try
+        {
+            isLoading = true;
+            await RegistroApiClient.DeleteAsync(reg.IdBestia, reg.NroRegistro);
+            feedbackMessage = $"Registro #{reg.NroRegistro} rechazado y eliminado.";
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al rechazar registro: {ex.Message}";
+            isLoading = false;
+        }
+    }
+}

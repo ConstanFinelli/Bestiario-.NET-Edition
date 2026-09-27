@@ -1,0 +1,209 @@
+@page "/bestias/{BestiaId:guid}/registro"
+@page "/registros/{BestiaId:guid}"
+@using DTOs
+@using API.Clients
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Registro de bestia</PageTitle>
+
+@if (bestia != null)
+{
+    <section class="mainContent registroPage">
+        <div class="registroContent">
+            <section>
+                <h1>@bestia.Nombre</h1>
+
+                @if (ultimoRegistro != null && ultimoRegistro.Contenidos.Any())
+                {
+                    @foreach (var cont in ultimoRegistro.Contenidos)
+                    {
+                        <article class="entrada">
+                            <h2>@cont.Titulo</h2>
+                            <p>@cont.Contenido</p>
+                        </article>
+                    }
+                }
+                else
+                {
+                    <article class="entrada">
+                        <h2>Introducción</h2>
+                        <p>No se ha registrado una introducción para esta bestia aún.</p>
+                    </article>
+                    <article class="entrada">
+                        <h2>Descripción</h2>
+                        <p>Detalles sobre su morfología, comportamiento y hábitos.</p>
+                    </article>
+                    <article class="entrada">
+                        <h2>Historia</h2>
+                        <p>Relatos y crónicas ancestrales transmitidas a través de los siglos.</p>
+                    </article>
+                    <article class="entrada">
+                        <h2>Resumen</h2>
+                        <p>Sin observaciones adicionales registradas.</p>
+                    </article>
+                }
+
+                <h2 id="tituloEvidencias" style="margin-top: 30px;">Evidencias</h2>
+                <div class="notFound" style="margin-bottom: 15px; font-size: 1.1rem; padding: 10px;">
+                    Aún no implementado en .NET
+                </div>
+
+                @if (Auth.IsAuthenticated)
+                {
+                    <button type="button" class="btnAgregar" style="margin-top: 10px;" @onclick="MostrarEvidenciaNoImplementada">
+                        Proponer nueva evidencia
+                    </button>
+                    @if (mostrarMsgEvidencia)
+                    {
+                        <div class="notFound" style="margin-top: 10px;">
+                            ⚠️ El módulo de subida de evidencias multimedia aún no está implementado en el backend.
+                        </div>
+                    }
+                }
+            </section>
+
+            <aside class="infoBestia">
+                <div style="width: 100%; height: 220px; display: flex; align-items: center; justify-content: center; background: #e5e5e5; border-radius: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="#a0aec0">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h3>Detalles de la bestia</h3>
+                    <ul>
+                        <li>Nombre: <strong>@bestia.Nombre</strong></li>
+                        <li>Peligrosidad: <strong>@bestia.Peligrosidad</strong></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3>Categorías</h3>
+                    <ul>
+                        @if (bestia.CategoriasNombres == null || !bestia.CategoriasNombres.Any())
+                        {
+                            <li>No tiene categorías definidas.</li>
+                        }
+                        else
+                        {
+                            @foreach (var cat in bestia.CategoriasNombres)
+                            {
+                                <li><span class="catBadge">@cat</span></li>
+                            }
+                        }
+                    </ul>
+                </div>
+
+                <div>
+                    <h3>Hábitats localizados</h3>
+                    <ul>
+                        <li>No hay hábitats registradas para esta bestia.</li>
+                    </ul>
+                </div>
+
+                @if (ultimoRegistro != null)
+                {
+                    <div>
+                        <h3>Detalles de registro</h3>
+                        <ul>
+                            <li>Publicado por: <strong>@(ultimoRegistro.CorreoPublicador ?? "Anónimo")</strong></li>
+                            <li>Último cambio: <strong>@(ultimoRegistro.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "Pendiente")</strong></li>
+                            <li>N° Registro: <strong>#@ultimoRegistro.NroRegistro</strong></li>
+                        </ul>
+                    </div>
+                }
+
+                <div>
+                    <h3>Ver ubicaciones conocidas</h3>
+                    <a href="/mapa" class="btnBestia" style="display: block; text-align: center; text-decoration: none;">
+                        Ver en Mapa
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section id="comentarios" class="comentarios mainContent">
+        <h2 style="text-align: center;">Comentarios</h2>
+        <div class="notFound" style="margin: 10px auto; max-width: 500px; padding: 10px;">
+            Aún no implementado en .NET
+        </div>
+
+        <div class="anotherRegistros" style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px;">
+            @if (Auth.IsAuthenticated)
+            {
+                <a class="btnAgregar" href="/bestias/@bestia.Id/registros/nuevo">
+                    Proponer nuevo registro
+                </a>
+            }
+            <a class="btnBestia" href="/bestias">
+                Volver a Bestias
+            </a>
+        </div>
+    </section>
+}
+else if (isLoading)
+{
+    <section class="mainContent">
+        <div class="notFound">Cargando registro de la bestia...</div>
+    </section>
+}
+else
+{
+    <section class="mainContent">
+        <div class="notFound">Bestia no encontrada.</div>
+        <div style="margin-top: 20px;">
+            <a href="/bestias" class="btnBestia">Volver a Bestias</a>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public Guid BestiaId { get; set; }
+
+    private BestiaDTO? bestia;
+    private RegistroDTO? ultimoRegistro;
+    private bool isLoading = true;
+    private bool mostrarMsgEvidencia = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            isLoading = true;
+            bestia = await BestiaApiClient.GetAsync(BestiaId);
+
+            var registros = await RegistroApiClient.GetByBestiaAsync(BestiaId);
+            if (registros != null && registros.Any())
+            {
+                // Si es lector, filtrar solo aprobados
+                if (!Auth.IsAuthenticated || Auth.IsLector)
+                {
+                    registros = registros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+
+                ultimoRegistro = registros.OrderByDescending(r => r.NroRegistro).FirstOrDefault();
+            }
+        }
+        catch
+        {
+            bestia = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void MostrarEvidenciaNoImplementada()
+    {
+        mostrarMsgEvidencia = true;
+    }
+}

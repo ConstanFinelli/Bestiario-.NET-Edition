@@ -1,0 +1,186 @@
+@page "/bestias/{BestiaId:guid}/registros/nuevo"
+@page "/registros/nuevo/{BestiaId:guid}"
+@using DTOs
+@using API.Clients
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Bestiario - Actualización de bestia</PageTitle>
+
+@if (bestia != null)
+{
+    <form @onsubmit="EnviarRegistro" @onsubmit:preventDefault>
+        <section class="mainContent registroPage">
+            <div class="registroContent">
+                <section>
+                    <h1>@bestia.Nombre</h1>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="notFound" style="margin-bottom: 1rem;">@errorMessage</div>
+                    }
+
+                    <article class="entrada">
+                        <h2>Introducción</h2>
+                        <textarea class="win-textarea" style="width: 100%; min-height: 120px; font-family: inherit; font-size: 1.1rem; padding: 10px;" @bind="introduccion" placeholder="Escriba la introducción..." required></textarea>
+                    </article>
+
+                    <article class="entrada">
+                        <h2>Descripción</h2>
+                        <textarea class="win-textarea" style="width: 100%; min-height: 120px; font-family: inherit; font-size: 1.1rem; padding: 10px;" @bind="descripcion" placeholder="Describa la criatura..." required></textarea>
+                    </article>
+
+                    <article class="entrada">
+                        <h2>Historia</h2>
+                        <textarea class="win-textarea" style="width: 100%; min-height: 120px; font-family: inherit; font-size: 1.1rem; padding: 10px;" @bind="historia" placeholder="Historia y testimonios..." required></textarea>
+                    </article>
+
+                    <article class="entrada">
+                        <h2>Resumen</h2>
+                        <textarea class="win-textarea" style="width: 100%; min-height: 120px; font-family: inherit; font-size: 1.1rem; padding: 10px;" @bind="resumen" placeholder="Conclusiones o resumen final..." required></textarea>
+                    </article>
+                </section>
+
+                <aside class="infoBestia">
+                    <div style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: #e5e5e5; border-radius: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="#a0aec0">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>Detalles de la bestia</h3>
+                        <ul>
+                            <li>Nombre: <strong>@bestia.Nombre</strong></li>
+                            <li>Peligrosidad: <strong>@bestia.Peligrosidad</strong></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3>Categorías</h3>
+                        <ul>
+                            @if (bestia.CategoriasNombres == null || !bestia.CategoriasNombres.Any())
+                            {
+                                <li>No tiene categorías definidas.</li>
+                            }
+                            else
+                            {
+                                @foreach (var cat in bestia.CategoriasNombres)
+                                {
+                                    <li><span class="catBadge">@cat</span></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3>Hábitats localizados</h3>
+                        <ul>
+                            <li>No hay hábitats registradas para esta bestia.</li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="mainContent evidenciasContent" style="display: flex; justify-content: center; gap: 20px; padding: 25px 0;">
+            <a href="/bestias/@bestia.Id/registro" class="btnBestia" style="line-height: 2;">Cancelar</a>
+            <button type="submit" class="btnRegistro" disabled="@isLoading">
+                @(isLoading ? "Enviando registro..." : "Enviar registro")
+            </button>
+        </section>
+    </form>
+}
+else if (isLoading)
+{
+    <section class="mainContent">
+        <div class="notFound">Cargando bestia...</div>
+    </section>
+}
+else
+{
+    <section class="mainContent">
+        <div class="notFound">Bestia no encontrada.</div>
+        <div style="margin-top: 20px;">
+            <a href="/bestias" class="btnBestia">Volver a Bestias</a>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public Guid BestiaId { get; set; }
+
+    private BestiaDTO? bestia;
+    private string introduccion = "";
+    private string descripcion = "";
+    private string historia = "";
+    private string resumen = "";
+
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            bestia = await BestiaApiClient.GetAsync(BestiaId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar bestia: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task EnviarRegistro()
+    {
+        if (bestia == null) return;
+
+        if (string.IsNullOrWhiteSpace(introduccion) || string.IsNullOrWhiteSpace(descripcion))
+        {
+            errorMessage = "Complete al menos Introducción y Descripción.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var nuevo = new RegistroDTO
+            {
+                IdBestia = bestia.Id,
+                Estado = Auth.IsInvestigador ? "aprobado" : "pendiente",
+                IdUsuarioPublicador = Auth.CurrentUser?.Id ?? Guid.Empty,
+                CorreoPublicador = Auth.CurrentUser?.Correo ?? Auth.Username,
+                FechaAprobacion = Auth.IsInvestigador ? DateTime.UtcNow : null,
+                Contenidos = new List<ContenidoRegistroDTO>
+                {
+                    new ContenidoRegistroDTO { IdBestia = bestia.Id, NroContenido = 1, Titulo = "Introducción", Contenido = introduccion.Trim() },
+                    new ContenidoRegistroDTO { IdBestia = bestia.Id, NroContenido = 2, Titulo = "Descripción", Contenido = descripcion.Trim() },
+                    new ContenidoRegistroDTO { IdBestia = bestia.Id, NroContenido = 3, Titulo = "Historia", Contenido = historia.Trim() },
+                    new ContenidoRegistroDTO { IdBestia = bestia.Id, NroContenido = 4, Titulo = "Resumen", Contenido = resumen.Trim() }
+                }
+            };
+
+            await RegistroApiClient.AddAsync(nuevo);
+            Navigation.NavigateTo($"/bestias/{bestia.Id}/registro");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al enviar registro: {ex.Message}";
+            isLoading = false;
+        }
+    }
+}
