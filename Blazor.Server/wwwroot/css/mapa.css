@@ -1,0 +1,156 @@
+html,
+body {
+  font-family: "MedievalSharp", cursive;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #8e6e53;
+}
+
+.contenedorMapa {
+  width: 75%;
+  height: 100vh;
+  float: right;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f3e5ab;
+}
+
+.mapa {
+  width: 100%;
+  height: 100%;
+  background-color: #f3e5ab;
+}
+
+.leaflet-tile-pane {
+  filter: invert(1) sepia(1.8) saturate(1.7);
+}
+
+.leaflet-marker-pane,
+.leaflet-popup-pane,
+.leaflet-tooltip-pane,
+.leaflet-control-container {
+  filter: none !important;
+}
+
+.leaflet-marker-icon{
+	filter: brightness(0.9) sepia(1) saturate(5) hue-rotate(10deg);
+}
+
+.leaflet-container {
+  background: #f3e5ab !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out{
+	background-color: #4b3621 !important;
+	color: #f3e5ab !important;
+	border-bottom: 1px solid #70543f !important;
+}
+
+.leaflet-control-zoom{
+	border-radius: 20px !important;	
+	overflow: hidden;
+}
+
+.leaflet-tooltip {
+  border-radius: 15px !important;
+  background: linear-gradient(
+    90deg,
+    #4b3621 0%,
+    #5d4037 50%,
+    #4b3621 100%
+  ) !important;
+}
+.contenedorOpciones {
+  width: 25%;
+  height: 100vh;
+  float: left;
+  background-color: #4b3621;
+  box-sizing: border-box;
+  padding: 20px;
+  overflow: hidden;
+  color: #f3e5ab;
+  font-family: 'Georgia', serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contenedorHabitats {
+  width: 90%;
+  height: 90%;
+  background-color: #f3e5ab;
+  border-radius: 20px;
+  padding: 5px;
+  overflow: auto;
+}
+
+.HabitatCard {
+  width: 85%;
+  height: auto;
+  margin: 10px auto;
+  background-color: #f3e5ab;
+  border: 5px solid #4b3621;	
+  border-radius: 0.5rem;
+  cursor:pointer;
+  overflow: hidden;
+}
+
+.HabitatCard:hover{
+  background-color: rgba(196, 164, 132, 0.4); 
+  transition: 0.3s;
+}
+
+
+.nombreHabitat {
+  background-color: #4b3621;
+  padding: 5px;
+  margin: 0px;
+  font-size: 1.2rem;
+  color: #f3e5ab;
+  text-align: center;
+}
+
+.HabitatCard h2 {
+  padding: 0px 5px;
+  font-size: 1rem;
+  color: #4b3621;
+}
+
+.btnMapa{
+	height: auto;
+	cursor: pointer;
+	margin: 25px auto;
+	padding: 10px;
+	border-radius: 6px;
+	color: #f3e5ab;
+	font-size: 1.6rem;
+	background: var(--primary-button);
+	text-align: center;
+}
+
+.btnMapa:hoover{
+	background: var(--primary-button-hover);
+}
+
+.btnMapa a{
+	text-decoration: none;
+	color: black;
+}
+
+.unselectedText{
+  padding: 5px;
+  margin: 0px;
+  font-size: 1.2rem;
+  color: #4b3621;
+  text-align: left;
+  hyphens: auto; 
+  font-size: 1.1rem;
+
+}

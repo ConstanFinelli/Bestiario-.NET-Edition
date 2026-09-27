@@ -1,0 +1,208 @@
+:root{
+    --primary-color: #8E6E53;
+    --secondary-color: #F4F1EA;
+    --third-color: rgb(201, 201, 202);
+    --font-color: #2C3E50;
+    --primary-button: linear-gradient(105deg, #d9bd62, #c49623);
+    --primary-button-hover: linear-gradient(135deg, #E5C158, #C9960C);
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.mainContent{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 5vh;
+    min-height: 100vh;
+    padding: 3vh 3vw;
+    text-align: center;
+    background-color: var(--secondary-color);
+    margin: 0 6vw;
+}
+
+body{
+    background-color: var(--third-color);
+    color: var(--font-color);
+}
+
+footer {
+	width: 100vw;
+	height: 7vh;
+	background-color: var(--primary-color);
+	text-align: center;
+	padding: 15px 0;
+	font-size: 1.6rem;
+	color: white;
+}
+
+.notFound {
+    color: #92400e;
+    font-size: 1.8rem;
+    font-weight: 500;
+    padding: 1.5rem;
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.notFound::before {
+    content: "⚠️";
+    font-size: 2rem;
+    filter: sepia(1) saturate(5);
+}
+
+h1, h2, h3, h4{
+	font-family: "MedievalSharp", cursive;
+	line-height: 2lh;
+	font-weight: 600;
+}
+
+.dniCandidatura{
+	font-family: "MedievalSharp", cursive;
+	line-height: 2lh;
+	font-weight: 900;
+}
+
+.dniCandidatura span{
+	font-weight: 100;
+}
+
+
+.btnAgregar{
+	padding: 0.75rem 1.75rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    background: rgba(245, 245, 66,0.075);
+    color: var(--font-color);
+	font-weight: 600;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btnAgregar:hover{
+	transform: scale(1.01);
+	filter: brightness(1.2);
+}
+
+.btnAceptar {
+    background: linear-gradient(105deg, #7fd37f, #4CAF50);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btnRechazar {
+    background: linear-gradient(105deg, #ff7b7b, #e53935);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btnAceptar:hover { transform: scale(1.05); }
+.btnRechazar:hover { transform: scale(1.05); }
+
+.mapaButton:hover{
+	transform: scale(1.02); 
+    filter: brightness(1.1); 
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); 
+}
+
+.tituloHabitat{
+	text-align: center;
+	font-size: 1.6rem;
+}
+
+.modal-container {
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+	position: fixed;
+	z-index: 1000;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-container.is-visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+.modal-content {
+	background-color: var(--third-color);
+	margin: 15% auto;
+	padding: 25px;
+	width: 50%;
+	height: fit-content;
+	border-radius: 12px;
+	position: relative;
+	z-index: 1001;
+	display: flex;
+	flex-direction: column;
+	border: 3px solid var(--primary-color);
+	gap: 15px;
+	align-items: center;
+}
+
+#modal-titulo {
+	margin: 0;
+	padding: 0;
+}
+
+#modal-cuerpo {
+	font-size: 1.6rem;
+}
+
+.modalButtons {
+	width: 100%;
+	height: fit-content;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.modalButtons button, .modalButtons a {
+	padding: 0.7rem 1rem;
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var(--font-color);
+	height: fit-content;
+	border: none;
+	border-radius: 6px;
+	text-decoration: none;
+	cursor: pointer;
+	display: inline-block;
+	text-align: center;
+}
+
+.closeButton {
+	background: var(--primary-button);
+}
+
+.deleteButton {
+	background: linear-gradient(105deg, #ff7b7b, #e53935);
+}
+
+.modalButtons button:hover, .modalButtons a:hover {
+	transform: scale(1.05);
+}

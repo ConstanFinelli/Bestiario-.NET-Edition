@@ -1,0 +1,42 @@
+.tablaRegistros {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: rgba(245, 245, 66,0.075);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tablaRegistros th, .tablaRegistros td {
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.tablaRegistros th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.acciones {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.btnExaminar {
+    background: var(--primary-button);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btnExaminar:hover {
+    background: var(--primary-button-hover);
+    transform: scale(1.02);
+}

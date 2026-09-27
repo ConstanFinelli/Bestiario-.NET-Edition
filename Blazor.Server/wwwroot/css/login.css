@@ -1,0 +1,271 @@
+:root{
+	--primary-color: #8E6E53;
+    --secondary-color: #F4F1EA;
+    --button-color: rgb(201, 201, 202);
+    --font-color: #2C3E50;
+}
+
+*{
+	margin: 0;
+	padding: 0;
+}
+
+.logBody{
+    background-color: var(--primary-color);
+    display:flex;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.logForm{
+	padding: 7vh 5vw;
+    background-color: var(--secondary-color);
+    display:flex;
+    flex-direction: column;
+    width: 35vw;
+    min-height: 25vh;
+    max-height: fit-content;   
+    justify-content: center;
+    align-items: center;
+    border-radius: 4%;
+    gap: 35px;
+    font-size: 1.6rem;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.262);
+    color: var(--font-color);
+}
+
+.logInputs{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+}
+
+.extraFields {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+}
+
+.logInput{
+    position: relative;
+    width: 100%;
+}
+
+.logInput input{
+    padding: 20px 20px 20px 10px;
+    font-size: 1.2rem;
+    display: block;
+    width: 100%;
+	box-sizing: border-box;
+    outline: none;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid gray;
+}
+
+.logInput label{
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    transition: ease 0.4s;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+.logInput input:focus~label, .logInput input:not(:placeholder-shown)~label{
+    top: -1.2vh;
+    font-size: 1rem;
+    color: var(--primary-color);
+    display: block;
+    visibility: visible;
+}
+
+.logInputCheckbox {
+    display: flex;
+    gap: 10px; 
+    margin-top: 10px;
+}
+
+.logInputCheckbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color); 
+    cursor: pointer;
+    margin-top:4px;
+    
+}
+
+.logInputCheckbox label {
+    position: static; 
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.logSubmitContainer{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-around;
+	width: 100%;
+	gap: 5px;
+}
+
+.logSubmit{
+    height: 6vh;
+    width: 100%;
+    font-size: 1.4rem;
+    background-image: linear-gradient(105deg, #d9bd62, #c49623);
+    outline: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: filter 0.3s ease-in-out;
+}
+
+.logSubmit:hover{
+    filter: brightness(0.9);
+    transform: scale(1.02);
+}
+
+.otherMsg{
+    font-size: 1rem;
+    color: gray;
+    cursor: pointer;
+}
+
+.otherMsgs{
+    display:flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+ul{
+	list-style: none;
+}
+
+.logContainerHeaderText{
+	font-size: 2.1rem;
+	font-weight: 500;
+	color: white;
+}
+
+.logContainerHeader{
+	padding-bottom: 10px;
+	width: 100%;
+	text-align: center;
+}
+
+.linkButton {
+    all: unset; /* Resetea absolutamente todos los estilos por defecto del botón */
+    display: block; /* Lo ponemos como block para que ocupe su propia línea */
+    cursor: pointer;
+    
+    /* Estilos de texto para que parezca un link */
+    color: #666; /* Gris, o el color que uses en tus otros links */
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: 1rem;
+    
+    /* Alineación */
+    text-align: left; 
+    margin-bottom: 10px; /* Espacio con el link de abajo */
+    width: fit-content; /* Para que el área de clic solo sea el texto */
+}
+
+.linkButton:hover {
+    color: #333; /* Oscurece un poco al pasar el mouse */
+}
+
+/* Reseteo extra por si acaso el navegador insiste */
+.linkButton:focus, .linkButton:active {
+    outline: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+.successBox {
+    background-color: #d4edda; /* Verde claro */
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 5px 0;
+    list-style: none;
+}
+
+/* Texto del mensaje de éxito */
+.successMsg {
+    color: #155724; /* Verde oscuro para legibilidad */
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center;
+    list-style-type: none; /* Quita el punto de la lista */
+}
+
+/* Ajuste por si usas <ul> dentro */
+.successBox ul {
+    margin: 0;
+    padding: 0;
+}
+
+/* Contenedor de mensajes de ERROR */
+.errorBox {
+    background-color: #f8d7da; /* Rojo/Rosado claro */
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 5px 0;
+    list-style: none;
+}
+
+/* Texto del mensaje de ERROR */
+.errorMsg {
+    color: #721c24; /* Rojo oscuro para legibilidad */
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center;
+    list-style-type: none; /* Quita el punto de la lista */
+}
+
+/* Ajuste por si usas <ul> dentro */
+.errorBox ul {
+    margin: 0;
+    padding: 0;
+}
+
+.backButton{
+    height: 6vh;
+    width: 100%;
+    font-size: 1.4rem;
+    outline: none;
+    border: 2px solid var(--primary-color);
+	box-sizing: border-box;
+    border-radius: 6px;
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+    transition: filter 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.backButton:hover{
+    filter: brightness(0.9);
+    transform: scale(1.02);
+}
+
+.backButton svg{
+	height: 22px;
+	width: 26px;
+}
+
+.logDiv{
+	display: flex;
+	flex-direction: column;
+}
