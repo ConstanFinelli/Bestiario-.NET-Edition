@@ -1,5 +1,6 @@
 using Application.Services;
 using DTOs;
+using System.Security.Claims;
 
 namespace WebAPI
 {
@@ -7,9 +8,13 @@ namespace WebAPI
     {
         public static void MapRegistroEndpoints(this WebApplication app)
         {
-            app.MapGet("/bestias/{idBestia}/registros", async (Guid idBestia, IRegistroService registroService) =>
+            app.MapGet("/bestias/{idBestia}/registros", async (Guid idBestia, ClaimsPrincipal user, IRegistroService registroService) =>
             {
                 var dtos = await registroService.GetByBestiaAsync(idBestia);
+                if (user.IsInRole("Lector"))
+                {
+                    dtos = dtos.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                }
                 return Results.Ok(dtos);
             })
             .WithName("GetRegistrosByBestia")
@@ -18,10 +23,13 @@ namespace WebAPI
             .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
-            app.MapGet("/bestias/{idBestia}/registros/{nroRegistro:int}", async (Guid idBestia, int nroRegistro, IRegistroService registroService) =>
+            app.MapGet("/bestias/{idBestia}/registros/{nroRegistro:int}", async (Guid idBestia, int nroRegistro, ClaimsPrincipal user, IRegistroService registroService) =>
             {
                 var dto = await registroService.GetAsync(idBestia, nroRegistro);
                 if (dto == null)
+                    return Results.NotFound();
+
+                if (user.IsInRole("Lector") && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
                     return Results.NotFound();
 
                 return Results.Ok(dto);

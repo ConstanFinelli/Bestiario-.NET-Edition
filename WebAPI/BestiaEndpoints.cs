@@ -1,5 +1,6 @@
 using Application.Services;
 using DTOs;
+using System.Security.Claims;
 
 namespace WebAPI
 {
@@ -7,10 +8,13 @@ namespace WebAPI
     {
         public static void MapBestiaEndpoints(this WebApplication app)
         {
-            app.MapGet("/bestias/{id}", async (Guid id, IBestiaService bestiaService) =>
+            app.MapGet("/bestias/{id}", async (Guid id, ClaimsPrincipal user, IBestiaService bestiaService) =>
             {
                 var dto = await bestiaService.GetAsync(id);
                 if (dto == null)
+                    return Results.NotFound();
+
+                if (user.IsInRole("Lector") && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
                     return Results.NotFound();
 
                 return Results.Ok(dto);
@@ -22,9 +26,13 @@ namespace WebAPI
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
-            app.MapGet("/bestias", async (IBestiaService bestiaService) =>
+            app.MapGet("/bestias", async (ClaimsPrincipal user, IBestiaService bestiaService) =>
             {
                 var dtos = await bestiaService.GetAllAsync();
+                if (user.IsInRole("Lector"))
+                {
+                    dtos = dtos.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                }
                 return Results.Ok(dtos);
             })
             .WithName("GetAllBestias")
