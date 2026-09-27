@@ -159,6 +159,11 @@ namespace WindowsForms
                 this.bestiasDataGridView.DataSource = null;
 
                 var result = await BestiaApiClient.GetAllAsync();
+                if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+                {
+                    result = result?.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+
                 var list = result?.Select(b => new BestiaVM
                 {
                     Id = b.Id,

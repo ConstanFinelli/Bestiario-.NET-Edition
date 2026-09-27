@@ -107,6 +107,10 @@ namespace WindowsForms
             try
             {
                 var beasts = await BestiaApiClient.GetAllAsync();
+                if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+                {
+                    beasts = beasts?.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                }
                 bestias = beasts?.ToList() ?? new List<BestiaDTO>();
 
                 this.bestiasComboBox.Items.Clear();
@@ -149,6 +153,11 @@ namespace WindowsForms
                     }
                 }
 
+                if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+                {
+                    todosRegistros = todosRegistros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+
                 AplicarFiltro();
             }
             catch (Exception ex)
@@ -170,6 +179,11 @@ namespace WindowsForms
             if (filtroId != Guid.Empty)
             {
                 filtrados = filtrados.Where(r => r.IdBestia == filtroId);
+            }
+
+            if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+            {
+                filtrados = filtrados.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase));
             }
 
             var vmList = filtrados.Select(r => new RegistroVM
