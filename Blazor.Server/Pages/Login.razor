@@ -2,18 +2,18 @@
 @inject AuthService Auth
 @inject NavigationManager Navigation
 
-<PageTitle>Iniciar sesión</PageTitle>
+<PageTitle>@(esRegistroLector ? "Crear cuenta de Lector" : "Iniciar sesión")</PageTitle>
 
 <div class="win-form" style="width: 450px; margin-top: 40px;">
     <!-- Barra de Título Windows -->
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
-            <span class="oi oi-key text-primary" style="font-size: 11px;"></span>
-            <span>Iniciar sesión</span>
+            <span class="oi @(esRegistroLector ? "oi-person" : "oi-key") text-primary" style="font-size: 11px;"></span>
+            <span>@(esRegistroLector ? "Registro de Lector" : "Iniciar sesión")</span>
         </div>
     </div>
 
-    <!-- Contenido del Formulario de Login -->
+    <!-- Contenido del Formulario -->
     <div class="win-form-content" style="padding: 20px 30px;">
         @if (!string.IsNullOrEmpty(errorMessage))
         {
@@ -21,32 +21,99 @@
                 <span class="oi oi-warning me-1"></span> @errorMessage
             </div>
         }
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="text-center mb-3" style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 6px 12px; font-size: 11px; border-radius: 2px;">
+                <span class="oi oi-check me-1"></span> @successMessage
+            </div>
+        }
 
-        <div class="text-center mb-1">
-            <label class="win-label fw-bold">Nombre de usuario</label>
-        </div>
-        <div class="text-center mb-3">
-            <input type="text" class="win-textbox text-center @(usernameInvalido ? "win-field-error" : "")" 
-                   style="width: 300px;" @bind="username" @onkeydown="HandleKeyDown" autofocus />
-        </div>
+        @if (!esRegistroLector)
+        {
+            <!-- Formulario de Inicio de Sesión -->
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Nombre de usuario o correo</label>
+            </div>
+            <div class="text-center mb-3">
+                <input type="text" class="win-textbox text-center @(usernameInvalido ? "win-field-error" : "")" 
+                       style="width: 300px;" @bind="username" @onkeydown="HandleKeyDown" autofocus />
+            </div>
 
-        <div class="text-center mb-1">
-            <label class="win-label fw-bold">Contraseña</label>
-        </div>
-        <div class="text-center mb-4">
-            <input type="password" class="win-textbox text-center @(passwordInvalido ? "win-field-error" : "")" 
-                   style="width: 300px;" @bind="password" @onkeydown="HandleKeyDown" />
-        </div>
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Contraseña</label>
+            </div>
+            <div class="text-center mb-4">
+                <input type="password" class="win-textbox text-center @(passwordInvalido ? "win-field-error" : "")" 
+                       style="width: 300px;" @bind="password" @onkeydown="HandleKeyDown" />
+            </div>
 
-        <!-- Botones de Acción: Cancelar a la izquierda, Iniciar sesión a la derecha -->
-        <div class="d-flex justify-content-between px-3">
-            <button type="button" class="win-btn" style="min-width: 120px;" @onclick="Limpiar" disabled="@isLoading">
-                Cancelar
-            </button>
-            <button type="button" class="win-btn" style="min-width: 120px;" @onclick="IniciarSesion" disabled="@isLoading">
-                @(isLoading ? "Iniciando..." : "Iniciar sesión")
-            </button>
-        </div>
+            <!-- Botones de Acción: Cancelar e Iniciar sesión -->
+            <div class="d-flex justify-content-between px-3 mb-3">
+                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="Limpiar" disabled="@isLoading">
+                    Cancelar
+                </button>
+                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="IniciarSesion" disabled="@isLoading">
+                    @(isLoading ? "Iniciando..." : "Iniciar sesión")
+                </button>
+            </div>
+
+            <!-- Opción para registrarse como Lector antes de comenzar -->
+            <div class="text-center pt-2" style="border-top: 1px solid #e0e0e0;">
+                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="MostrarRegistroLector">
+                    ¿No tienes una cuenta? Registrarse como Lector
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Formulario de Registro de Lector -->
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Correo electrónico</label>
+            </div>
+            <div class="text-center mb-3">
+                <input type="email" class="win-textbox text-center @(regCorreoInvalido ? "win-field-error" : "")" 
+                       style="width: 300px;" @bind="regCorreo" placeholder="ejemplo@correo.com" autofocus />
+            </div>
+
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Contraseña</label>
+            </div>
+            <div class="text-center mb-3">
+                <input type="password" class="win-textbox text-center @(regPasswordInvalido ? "win-field-error" : "")" 
+                       style="width: 300px;" @bind="regPassword" />
+            </div>
+
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Confirmar contraseña</label>
+            </div>
+            <div class="text-center mb-3">
+                <input type="password" class="win-textbox text-center @(regConfirmInvalido ? "win-field-error" : "")" 
+                       style="width: 300px;" @bind="regConfirmPassword" />
+            </div>
+
+            <div class="text-center mb-4">
+                <label style="cursor: pointer; font-size: 11px;">
+                    <input type="checkbox" @bind="regRecibirNotificaciones" style="vertical-align: middle; margin-right: 4px;" />
+                    Recibir notificaciones del Bestiario
+                </label>
+            </div>
+
+            <!-- Botones de Acción de Registro -->
+            <div class="d-flex justify-content-between px-3 mb-3">
+                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="VolverALogin" disabled="@isLoading">
+                    Volver
+                </button>
+                <button type="button" class="win-btn" style="min-width: 140px;" @onclick="RegistrarLector" disabled="@isLoading">
+                    @(isLoading ? "Creando cuenta..." : "Crear y Entrar")
+                </button>
+            </div>
+
+            <div class="text-center pt-2" style="border-top: 1px solid #e0e0e0;">
+                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="VolverALogin">
+                    ¿Ya tienes una cuenta? Iniciar sesión
+                </a>
+            </div>
+        }
     </div>
 </div>
 
@@ -54,15 +121,54 @@
     private string username = "admin";
     private string password = "password";
     private string? errorMessage;
+    private string? successMessage;
     private bool isLoading = false;
     private bool usernameInvalido = false;
     private bool passwordInvalido = false;
+
+    // Variables de Registro de Lector
+    private bool esRegistroLector = false;
+    private string regCorreo = "";
+    private string regPassword = "";
+    private string regConfirmPassword = "";
+    private bool regRecibirNotificaciones = true;
+    private bool regCorreoInvalido = false;
+    private bool regPasswordInvalido = false;
+    private bool regConfirmInvalido = false;
+
+    private void MostrarRegistroLector()
+    {
+        esRegistroLector = true;
+        errorMessage = null;
+        successMessage = null;
+        regCorreo = "";
+        regPassword = "";
+        regConfirmPassword = "";
+        regRecibirNotificaciones = true;
+        regCorreoInvalido = false;
+        regPasswordInvalido = false;
+        regConfirmInvalido = false;
+    }
+
+    private void VolverALogin()
+    {
+        esRegistroLector = false;
+        errorMessage = null;
+        successMessage = null;
+    }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            await IniciarSesion();
+            if (esRegistroLector)
+            {
+                await RegistrarLector();
+            }
+            else
+            {
+                await IniciarSesion();
+            }
         }
     }
 
@@ -98,6 +204,55 @@
                 errorMessage = "Usuario o contraseña incorrectos.";
                 password = "";
             }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task RegistrarLector()
+    {
+        regCorreoInvalido = string.IsNullOrWhiteSpace(regCorreo) || !regCorreo.Contains("@");
+        regPasswordInvalido = string.IsNullOrWhiteSpace(regPassword);
+        regConfirmInvalido = string.IsNullOrWhiteSpace(regConfirmPassword) || regPassword != regConfirmPassword;
+
+        if (regCorreoInvalido)
+        {
+            errorMessage = "Ingrese un correo electrónico válido.";
+            return;
+        }
+
+        if (regPasswordInvalido)
+        {
+            errorMessage = "La contraseña es requerida.";
+            return;
+        }
+
+        if (regConfirmInvalido)
+        {
+            errorMessage = "Las contraseñas no coinciden.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            bool ok = await Auth.RegistrarLectorAsync(regCorreo.Trim(), regPassword, regRecibirNotificaciones);
+            if (ok)
+            {
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = "No se pudo registrar la cuenta. Verifique los datos ingresados.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
         }
         finally
         {
