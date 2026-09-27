@@ -22,6 +22,7 @@ namespace WindowsForms
         {
             InitializeComponent();
             ConfigurarColumnas();
+            AppTheme.ApplyFormTheme(this);
         }
 
         public RegistroLista(Guid idBestia) : this()

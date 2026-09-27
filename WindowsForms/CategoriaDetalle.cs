@@ -1,4 +1,4 @@
-﻿using DTOs;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,7 +18,7 @@ namespace WindowsForms
 
     public partial class CategoriaDetalle : Form
     {
-        private CategoriaDTO categoria;
+        private CategoriaDTO categoria = null!;
         private FormMode mode;
 
         public CategoriaDTO Categoria
@@ -46,6 +46,7 @@ namespace WindowsForms
         public CategoriaDetalle()
         {
             InitializeComponent();
+            AppTheme.ApplyFormTheme(this);
         }
 
         public CategoriaDetalle(FormMode mode, CategoriaDTO categoria) : this()

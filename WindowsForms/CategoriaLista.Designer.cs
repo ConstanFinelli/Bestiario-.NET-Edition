@@ -1,4 +1,4 @@
-﻿namespace WindowsForms
+namespace WindowsForms
 {
     partial class CategoriaLista
     {
@@ -53,36 +53,36 @@
             // 
             // agregarButton
             // 
-            agregarButton.Location = new Point(691, 300);
+            agregarButton.Location = new Point(685, 296);
             agregarButton.Margin = new Padding(2, 1, 2, 1);
             agregarButton.Name = "agregarButton";
-            agregarButton.Size = new Size(81, 22);
+            agregarButton.Size = new Size(95, 28);
             agregarButton.TabIndex = 1;
-            agregarButton.Text = "Agregar";
+            agregarButton.Text = "➕ Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
             // 
             // eliminarButton
             // 
             eliminarButton.Enabled = false;
-            eliminarButton.Location = new Point(506, 300);
+            eliminarButton.Location = new Point(475, 296);
             eliminarButton.Margin = new Padding(2, 1, 2, 1);
             eliminarButton.Name = "eliminarButton";
-            eliminarButton.Size = new Size(81, 22);
+            eliminarButton.Size = new Size(95, 28);
             eliminarButton.TabIndex = 2;
-            eliminarButton.Text = "Eliminar";
+            eliminarButton.Text = "🗑️ Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
             // 
             // actualizarButton
             // 
             actualizarButton.Enabled = false;
-            actualizarButton.Location = new Point(598, 300);
+            actualizarButton.Location = new Point(580, 296);
             actualizarButton.Margin = new Padding(2, 1, 2, 1);
             actualizarButton.Name = "actualizarButton";
-            actualizarButton.Size = new Size(81, 22);
+            actualizarButton.Size = new Size(95, 28);
             actualizarButton.TabIndex = 3;
-            actualizarButton.Text = "Actualizar";
+            actualizarButton.Text = "✏️ Editar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
             // 
@@ -97,8 +97,10 @@
             Controls.Add(categoriasDataGridView);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Margin = new Padding(2, 1, 2, 1);
+            MaximizeBox = false;
             Name = "CategoriaLista";
-            Text = "Categorias";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Bestiario - Categorías";
             Load += Categorias_Load;
             ((System.ComponentModel.ISupportInitialize)categoriasDataGridView).EndInit();
             ResumeLayout(false);

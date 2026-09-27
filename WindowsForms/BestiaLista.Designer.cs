@@ -54,42 +54,42 @@ namespace WindowsForms
             verRegistrosButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             verRegistrosButton.Location = new Point(12, 355);
             verRegistrosButton.Name = "verRegistrosButton";
-            verRegistrosButton.Size = new Size(130, 26);
+            verRegistrosButton.Size = new Size(130, 28);
             verRegistrosButton.TabIndex = 4;
-            verRegistrosButton.Text = "Ver Registros";
+            verRegistrosButton.Text = "📜 Ver Registros";
             verRegistrosButton.UseVisualStyleBackColor = true;
             verRegistrosButton.Click += verRegistrosButton_Click;
             // 
             // eliminarButton
             // 
             eliminarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            eliminarButton.Location = new Point(516, 355);
+            eliminarButton.Location = new Point(480, 355);
             eliminarButton.Name = "eliminarButton";
-            eliminarButton.Size = new Size(80, 26);
+            eliminarButton.Size = new Size(95, 28);
             eliminarButton.TabIndex = 1;
-            eliminarButton.Text = "Eliminar";
+            eliminarButton.Text = "🗑️ Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
             // 
             // actualizarButton
             // 
             actualizarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            actualizarButton.Location = new Point(602, 355);
+            actualizarButton.Location = new Point(585, 355);
             actualizarButton.Name = "actualizarButton";
-            actualizarButton.Size = new Size(80, 26);
+            actualizarButton.Size = new Size(95, 28);
             actualizarButton.TabIndex = 2;
-            actualizarButton.Text = "Actualizar";
+            actualizarButton.Text = "✏️ Editar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
             // 
             // agregarButton
             // 
             agregarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            agregarButton.Location = new Point(688, 355);
+            agregarButton.Location = new Point(690, 355);
             agregarButton.Name = "agregarButton";
-            agregarButton.Size = new Size(84, 26);
+            agregarButton.Size = new Size(95, 28);
             agregarButton.TabIndex = 3;
-            agregarButton.Text = "Agregar";
+            agregarButton.Text = "➕ Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
             // 
@@ -97,7 +97,7 @@ namespace WindowsForms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(784, 395);
+            ClientSize = new Size(795, 395);
             Controls.Add(verRegistrosButton);
             Controls.Add(agregarButton);
             Controls.Add(actualizarButton);
@@ -107,7 +107,7 @@ namespace WindowsForms
             MaximizeBox = false;
             Name = "BestiaLista";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Bestias";
+            Text = "Bestiario - Catálogo de Bestias";
             Load += Bestias_Load;
             ((System.ComponentModel.ISupportInitialize)bestiasDataGridView).EndInit();
             ResumeLayout(false);

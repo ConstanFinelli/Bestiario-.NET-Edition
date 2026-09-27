@@ -14,7 +14,7 @@ namespace WindowsForms
 {
     public partial class RegistroDetalle : Form
     {
-        private RegistroDTO registro;
+        private RegistroDTO registro = null!;
         private FormMode mode;
         private List<BestiaDTO> bestias = new();
         private BindingList<ContenidoRegistroDTO> contenidosBindingList = new();
@@ -39,6 +39,7 @@ namespace WindowsForms
         {
             InitializeComponent();
             ConfigurarColumnasContenidos();
+            AppTheme.ApplyFormTheme(this);
         }
 
         public RegistroDetalle(FormMode mode, RegistroDTO registro, List<BestiaDTO> bestias) : this()

@@ -12,6 +12,7 @@ namespace WindowsForms
         public LoginForm()
         {
             InitializeComponent();
+            AppTheme.ApplyFormTheme(this);
         }
 
         private void LoginForm_Load(object sender, EventArgs e)

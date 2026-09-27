@@ -14,7 +14,7 @@ namespace WindowsForms
 {
     public partial class BestiaDetalle : Form
     {
-        private BestiaDTO bestia;
+        private BestiaDTO bestia = null!;
         private FormMode mode;
         private List<CategoriaDTO> categoriasDisponibles = new();
 
@@ -38,6 +38,7 @@ namespace WindowsForms
         {
             InitializeComponent();
             ConfigurarCombos();
+            AppTheme.ApplyFormTheme(this);
         }
 
         public BestiaDetalle(FormMode mode, BestiaDTO bestia) : this()

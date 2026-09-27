@@ -47,32 +47,35 @@ namespace WindowsForms
             // eliminarButton
             // 
             eliminarButton.Location = new Point(520, 348);
+            // eliminarButton
+            // 
+            eliminarButton.Location = new Point(475, 348);
             eliminarButton.Name = "eliminarButton";
-            eliminarButton.Size = new Size(75, 23);
+            eliminarButton.Size = new Size(95, 28);
             eliminarButton.TabIndex = 3;
-            eliminarButton.Text = "Eliminar";
+            eliminarButton.Text = "🗑️ Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
             // 
-            // agregarButton
-            // 
-            agregarButton.Location = new Point(682, 348);
-            agregarButton.Name = "agregarButton";
-            agregarButton.Size = new Size(75, 23);
-            agregarButton.TabIndex = 4;
-            agregarButton.Text = "Agregar";
-            agregarButton.UseVisualStyleBackColor = true;
-            agregarButton.Click += agregarButton_Click;
-            // 
             // actualizarButton
             // 
-            actualizarButton.Location = new Point(601, 348);
+            actualizarButton.Location = new Point(580, 348);
             actualizarButton.Name = "actualizarButton";
-            actualizarButton.Size = new Size(75, 23);
+            actualizarButton.Size = new Size(95, 28);
             actualizarButton.TabIndex = 5;
-            actualizarButton.Text = "Actualizar";
+            actualizarButton.Text = "✏️ Editar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
+            // 
+            // agregarButton
+            // 
+            agregarButton.Location = new Point(685, 348);
+            agregarButton.Name = "agregarButton";
+            agregarButton.Size = new Size(95, 28);
+            agregarButton.TabIndex = 4;
+            agregarButton.Text = "➕ Redactar";
+            agregarButton.UseVisualStyleBackColor = true;
+            agregarButton.Click += agregarButton_Click;
             // 
             // NoticiaLista
             // 
@@ -84,8 +87,10 @@ namespace WindowsForms
             Controls.Add(eliminarButton);
             Controls.Add(noticiaGridView);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "NoticiaLista";
-            Text = "NoticiaLista";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Bestiario - Noticias";
             Load += NoticiaLista_Load;
             ((System.ComponentModel.ISupportInitialize)noticiaGridView).EndInit();
             ResumeLayout(false);

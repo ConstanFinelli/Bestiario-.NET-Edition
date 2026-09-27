@@ -15,9 +15,10 @@ namespace WindowsForms
         public NoticiaDetalle()
         {
             InitializeComponent();
+            AppTheme.ApplyFormTheme(this);
         }
 
-        private NoticiaDTO noticia;
+        private NoticiaDTO noticia = null!;
         private FormMode mode;
 
         public NoticiaDTO Noticia

@@ -18,6 +18,7 @@ namespace WindowsForms
         {
             InitializeComponent();
             ConfigurarColumnas();
+            AppTheme.ApplyFormTheme(this);
         }
 
         private void ConfigurarColumnas()

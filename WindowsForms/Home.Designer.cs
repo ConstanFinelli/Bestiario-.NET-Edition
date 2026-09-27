@@ -87,7 +87,7 @@ namespace WindowsForms
             // 
             // cardPanel
             // 
-            cardPanel.BackColor = Color.White;
+            cardPanel.BackColor = Color.FromArgb(250, 248, 245);
             cardPanel.BorderStyle = BorderStyle.FixedSingle;
             cardPanel.Controls.Add(iconPictureBox);
             cardPanel.Controls.Add(titleLabel);
@@ -96,14 +96,14 @@ namespace WindowsForms
             cardPanel.Controls.Add(noticiasButton);
             cardPanel.Controls.Add(bestiasButton);
             cardPanel.Controls.Add(registrosButton);
-            cardPanel.Location = new Point(63, 60);
+            cardPanel.Location = new Point(40, 50);
             cardPanel.Name = "cardPanel";
-            cardPanel.Size = new Size(480, 220);
+            cardPanel.Size = new Size(560, 250);
             cardPanel.TabIndex = 1;
             // 
             // iconPictureBox
             // 
-            iconPictureBox.Location = new Point(216, 16);
+            iconPictureBox.Location = new Point(256, 16);
             iconPictureBox.Name = "iconPictureBox";
             iconPictureBox.Size = new Size(48, 48);
             iconPictureBox.TabIndex = 0;
@@ -112,66 +112,67 @@ namespace WindowsForms
             // 
             // titleLabel
             // 
-            titleLabel.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            titleLabel.Location = new Point(10, 72);
+            titleLabel.Font = new Font("Georgia", 14F, FontStyle.Bold);
+            titleLabel.ForeColor = Color.FromArgb(44, 62, 80);
+            titleLabel.Location = new Point(10, 70);
             titleLabel.Name = "titleLabel";
-            titleLabel.Size = new Size(460, 25);
+            titleLabel.Size = new Size(540, 26);
             titleLabel.TabIndex = 1;
-            titleLabel.Text = "Bestiario - .NET Edition";
+            titleLabel.Text = "Bestiario - Edición de Escritorio";
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // subtitleLabel
             // 
-            subtitleLabel.Font = new Font("Segoe UI", 9F);
+            subtitleLabel.Font = new Font("Segoe UI", 9.5F);
             subtitleLabel.ForeColor = Color.FromArgb(85, 85, 85);
-            subtitleLabel.Location = new Point(10, 102);
+            subtitleLabel.Location = new Point(15, 100);
             subtitleLabel.Name = "subtitleLabel";
-            subtitleLabel.Size = new Size(460, 36);
+            subtitleLabel.Size = new Size(530, 48);
             subtitleLabel.TabIndex = 2;
-            subtitleLabel.Text = "Seleccione una opción del menú superior para comenzar a gestionar el catálogo del bestiario.";
+            subtitleLabel.Text = "¿Quiénes somos? En Bestiario nos dedicamos a recopilar, clasificar y registrar información sobre criaturas enigmáticas y fenómenos misteriosos.";
             subtitleLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // categoriasButton
             // 
-            categoriasButton.Font = new Font("Segoe UI", 9F);
-            categoriasButton.Location = new Point(25, 155);
+            categoriasButton.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            categoriasButton.Location = new Point(30, 175);
             categoriasButton.Name = "categoriasButton";
-            categoriasButton.Size = new Size(100, 28);
+            categoriasButton.Size = new Size(115, 34);
             categoriasButton.TabIndex = 3;
-            categoriasButton.Text = "Categorias";
+            categoriasButton.Text = "📜 Categorías";
             categoriasButton.UseVisualStyleBackColor = true;
             categoriasButton.Click += CategoriasToolStripMenuItem_Click;
             // 
             // noticiasButton
             // 
-            noticiasButton.Font = new Font("Segoe UI", 9F);
-            noticiasButton.Location = new Point(135, 155);
+            noticiasButton.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            noticiasButton.Location = new Point(160, 175);
             noticiasButton.Name = "noticiasButton";
-            noticiasButton.Size = new Size(100, 28);
+            noticiasButton.Size = new Size(115, 34);
             noticiasButton.TabIndex = 4;
-            noticiasButton.Text = "Noticias";
+            noticiasButton.Text = "📰 Noticias";
             noticiasButton.UseVisualStyleBackColor = true;
             noticiasButton.Click += NoticiasToolStripMenuItem_Click;
             // 
             // bestiasButton
             // 
-            bestiasButton.Font = new Font("Segoe UI", 9F);
-            bestiasButton.Location = new Point(245, 155);
+            bestiasButton.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            bestiasButton.Location = new Point(290, 175);
             bestiasButton.Name = "bestiasButton";
-            bestiasButton.Size = new Size(100, 28);
+            bestiasButton.Size = new Size(115, 34);
             bestiasButton.TabIndex = 5;
-            bestiasButton.Text = "Bestias";
+            bestiasButton.Text = "🐉 Bestias";
             bestiasButton.UseVisualStyleBackColor = true;
             bestiasButton.Click += BestiasToolStripMenuItem_Click;
             // 
             // registrosButton
             // 
-            registrosButton.Font = new Font("Segoe UI", 9F);
-            registrosButton.Location = new Point(355, 155);
+            registrosButton.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            registrosButton.Location = new Point(420, 175);
             registrosButton.Name = "registrosButton";
-            registrosButton.Size = new Size(100, 28);
+            registrosButton.Size = new Size(115, 34);
             registrosButton.TabIndex = 6;
-            registrosButton.Text = "Registros";
+            registrosButton.Text = "📋 Registros";
             registrosButton.UseVisualStyleBackColor = true;
             registrosButton.Click += RegistrosToolStripMenuItem_Click;
             // 
@@ -179,7 +180,7 @@ namespace WindowsForms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(606, 343);
+            ClientSize = new Size(644, 340);
             Controls.Add(cardPanel);
             Controls.Add(menuStrip1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -188,7 +189,7 @@ namespace WindowsForms
             MaximizeBox = false;
             Name = "Home";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Windows Forms";
+            Text = "Bestiario - Edición de Escritorio";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             cardPanel.ResumeLayout(false);

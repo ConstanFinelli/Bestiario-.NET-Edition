@@ -101,33 +101,33 @@ namespace WindowsForms
             // eliminarButton
             // 
             eliminarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            eliminarButton.Location = new Point(540, 360);
+            eliminarButton.Location = new Point(510, 358);
             eliminarButton.Name = "eliminarButton";
-            eliminarButton.Size = new Size(80, 26);
+            eliminarButton.Size = new Size(95, 28);
             eliminarButton.TabIndex = 3;
-            eliminarButton.Text = "Eliminar";
+            eliminarButton.Text = "🗑️ Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
             // 
             // actualizarButton
             // 
             actualizarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            actualizarButton.Location = new Point(626, 360);
+            actualizarButton.Location = new Point(612, 358);
             actualizarButton.Name = "actualizarButton";
-            actualizarButton.Size = new Size(100, 26);
+            actualizarButton.Size = new Size(105, 28);
             actualizarButton.TabIndex = 4;
-            actualizarButton.Text = "Ver / Editar";
+            actualizarButton.Text = "✏️ Ver / Editar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
             // 
             // agregarButton
             // 
             agregarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            agregarButton.Location = new Point(732, 360);
+            agregarButton.Location = new Point(724, 358);
             agregarButton.Name = "agregarButton";
-            agregarButton.Size = new Size(90, 26);
+            agregarButton.Size = new Size(98, 28);
             agregarButton.TabIndex = 5;
-            agregarButton.Text = "Agregar";
+            agregarButton.Text = "➕ Nuevo";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
             // 
@@ -146,7 +146,7 @@ namespace WindowsForms
             MaximizeBox = false;
             Name = "RegistroLista";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Registros de Bestias";
+            Text = "Bestiario - Registros de Avistamientos";
             Load += RegistroLista_Load;
             filtroPanel.ResumeLayout(false);
             filtroPanel.PerformLayout();

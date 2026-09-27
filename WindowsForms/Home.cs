@@ -16,6 +16,7 @@ namespace WindowsForms
         public Home()
         {
             InitializeComponent();
+            AppTheme.ApplyFormTheme(this);
         }
 
         private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -46,10 +47,10 @@ namespace WindowsForms
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Color azul libro idéntico al icono web (#0d6efd)
-            using var blueBrush = new SolidBrush(Color.FromArgb(13, 110, 253));
+            // Tomo medieval encuadernado en cuero marrón (#8E6E53) con ribetes dorados
+            using var leatherBrush = new SolidBrush(AppTheme.Primary);
 
-            // Cuerpo del libro con esquinas suavemente redondeadas
+            // Cubierta del libro con esquinas suavemente redondeadas
             var bookRect = new Rectangle(6, 4, 36, 40);
             using var path = new GraphicsPath();
             int radius = 4;
@@ -58,10 +59,14 @@ namespace WindowsForms
             path.AddArc(bookRect.Right - radius * 2, bookRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
             path.AddArc(bookRect.X, bookRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
             path.CloseFigure();
-            e.Graphics.FillPath(blueBrush, path);
+            e.Graphics.FillPath(leatherBrush, path);
 
-            // Cinta de marcador blanca
-            using var whiteBrush = new SolidBrush(Color.White);
+            // Borde exterior dorado
+            using var goldPen = new Pen(AppTheme.GoldLight, 1.5f);
+            e.Graphics.DrawPath(goldPen, path);
+
+            // Cinta marcapáginas dorada/ámbar
+            using var ribbonBrush = new SolidBrush(AppTheme.Gold);
             Point[] ribbon = {
                 new Point(20, 4),
                 new Point(28, 4),
@@ -69,11 +74,11 @@ namespace WindowsForms
                 new Point(24, 14),
                 new Point(20, 18)
             };
-            e.Graphics.FillPolygon(whiteBrush, ribbon);
+            e.Graphics.FillPolygon(ribbonBrush, ribbon);
 
-            // Pliegue inferior de páginas
-            using var pagePen = new Pen(Color.White, 2.5f);
-            e.Graphics.DrawLine(pagePen, 10, 36, 38, 36);
+            // Hojas pergamino inferiores
+            using var parchmentPen = new Pen(AppTheme.Secondary, 2.5f);
+            e.Graphics.DrawLine(parchmentPen, 10, 36, 38, 36);
         }
     }
 }
