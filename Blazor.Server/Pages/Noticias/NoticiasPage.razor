@@ -82,7 +82,7 @@
                             bool isSelected = selectedNoticia?.Id == not.Id;
                             <tr class="@(isSelected ? "selected" : "")" 
                                 @onclick="() => SeleccionarFila(not)"
-                                @ondblclick="AbrirModalActualizar">
+                                @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
                                 <td class="win-grid-row-header">
                                     @(isSelected ? "▶" : "")
                                 </td>
@@ -97,18 +97,21 @@
             </table>
         </div>
 
-        <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
-        <div class="win-btn-action-bar">
-            <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedNoticia == null || isLoading)">
-                Eliminar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedNoticia == null || isLoading)">
-                Actualizar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
-                Agregar
-            </button>
-        </div>
+        @if (Auth.EsInvestigador)
+        {
+            <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
+            <div class="win-btn-action-bar">
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedNoticia == null || isLoading)">
+                    Eliminar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedNoticia == null || isLoading)">
+                    Actualizar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                    Agregar
+                </button>
+            </div>
+        }
     </div>
 
     <!-- Barra de Estado Inferior -->
@@ -151,23 +154,16 @@
     protected override async Task OnInitializedAsync()
     {
         Auth.OnChange += HandleAuthStateChanged;
-
-        if (Auth.IsAuthenticated)
-        {
-            await CargarNoticias();
-        }
+        await CargarNoticias();
     }
 
     private async void HandleAuthStateChanged()
     {
-        if (Auth.IsAuthenticated && (noticias == null || !noticias.Any()))
+        await InvokeAsync(async () =>
         {
-            await InvokeAsync(async () =>
-            {
-                await CargarNoticias();
-                StateHasChanged();
-            });
-        }
+            await CargarNoticias();
+            StateHasChanged();
+        });
     }
 
     public void Dispose()

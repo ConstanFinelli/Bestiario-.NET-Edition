@@ -295,12 +295,21 @@ namespace WindowsForms
 
         private void HabilitarControles()
         {
-            aceptarButton.Enabled = true;
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            aceptarButton.Visible = esInvestigador;
+            aceptarButton.Enabled = esInvestigador;
             cancelarButton.Enabled = true;
-            bestiaComboBox.Enabled = Mode == FormMode.Add;
-            estadoComboBox.Enabled = true;
-            agregarContenidoButton.Enabled = true;
-            quitarContenidoButton.Enabled = true;
+            cancelarButton.Text = esInvestigador ? "Cancelar" : "Cerrar";
+            bestiaComboBox.Enabled = esInvestigador && Mode == FormMode.Add;
+            estadoComboBox.Enabled = esInvestigador;
+            agregarContenidoButton.Enabled = esInvestigador;
+            quitarContenidoButton.Enabled = esInvestigador;
+            nuevoTituloTextBox.Enabled = esInvestigador;
+            nuevoContenidoTextBox.Enabled = esInvestigador;
+            if (!esInvestigador)
+            {
+                this.Text = "Detalle de Registro";
+            }
         }
 
         private class BestiaComboItem

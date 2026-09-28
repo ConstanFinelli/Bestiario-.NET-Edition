@@ -36,6 +36,8 @@ namespace WindowsForms
             passwordTextBox = new TextBox();
             errorProvider = new ErrorProvider(components);
             cancelButton = new Button();
+            registerLinkLabel = new LinkLabel();
+            guestLinkLabel = new LinkLabel();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
             // 
@@ -98,11 +100,35 @@ namespace WindowsForms
             cancelButton.UseVisualStyleBackColor = true;
             cancelButton.Click += cancelButton_Click;
             // 
+            // registerLinkLabel
+            // 
+            registerLinkLabel.AutoSize = true;
+            registerLinkLabel.Location = new Point(74, 190);
+            registerLinkLabel.Name = "registerLinkLabel";
+            registerLinkLabel.Size = new Size(130, 15);
+            registerLinkLabel.TabIndex = 6;
+            registerLinkLabel.TabStop = true;
+            registerLinkLabel.Text = "Registrarse como Lector";
+            registerLinkLabel.LinkClicked += registerLinkLabel_LinkClicked;
+            // 
+            // guestLinkLabel
+            // 
+            guestLinkLabel.AutoSize = true;
+            guestLinkLabel.Location = new Point(235, 190);
+            guestLinkLabel.Name = "guestLinkLabel";
+            guestLinkLabel.Size = new Size(139, 15);
+            guestLinkLabel.TabIndex = 7;
+            guestLinkLabel.TabStop = true;
+            guestLinkLabel.Text = "Continuar como invitado";
+            guestLinkLabel.LinkClicked += guestLinkLabel_LinkClicked;
+            // 
             // LoginForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(450, 189);
+            ClientSize = new Size(450, 220);
+            Controls.Add(guestLinkLabel);
+            Controls.Add(registerLinkLabel);
             Controls.Add(cancelButton);
             Controls.Add(passwordTextBox);
             Controls.Add(usernameTextBox);
@@ -126,5 +152,7 @@ namespace WindowsForms
         private TextBox passwordTextBox;
         private ErrorProvider errorProvider;
         private Button cancelButton;
+        private LinkLabel registerLinkLabel;
+        private LinkLabel guestLinkLabel;
     }
 }

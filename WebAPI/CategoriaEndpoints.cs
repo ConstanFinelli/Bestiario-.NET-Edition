@@ -19,9 +19,8 @@ namespace WebAPI
                 return Results.Ok(dto);
             })
             .WithName("GetCategoria")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<CategoriaDTO>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -32,9 +31,8 @@ namespace WebAPI
                 return Results.Ok(dtos);
             })
             .WithName("GetAllCategorias")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<List<CategoriaDTO>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPost("/categorias", async (CategoriaDTO dto, ICategoriaService categoriaService) =>

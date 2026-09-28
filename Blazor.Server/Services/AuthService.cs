@@ -16,6 +16,9 @@ namespace Blazor.Server.Services
         public string? Token { get; private set; }
         public DateTime? Expiracion { get; private set; }
         public string? Username => CurrentUser?.Correo ?? _legacyUsername;
+        public bool EsInvestigador => IsAuthenticated && (CurrentUser is InvestigadorDTO || CurrentUser?.TipoUsuario == "Investigador");
+        public bool EsLector => IsAuthenticated && (CurrentUser is LectorDTO || CurrentUser?.TipoUsuario == "Lector");
+        public bool EsInvitado => !IsAuthenticated;
         private string? _legacyUsername;
         private bool _isInitialized = false;
 

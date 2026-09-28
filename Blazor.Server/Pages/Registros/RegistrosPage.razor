@@ -128,21 +128,30 @@
 
         <!-- Botones de Acción -->
         <div class="win-btn-action-bar">
-            @if (selectedRegistro != null && selectedRegistro.Estado == "pendiente")
+            @if (Auth.EsInvestigador && selectedRegistro != null && selectedRegistro.Estado == "pendiente")
             {
                 <button class="win-btn btn-success me-auto" style="border-color: #2e6b2e;" @onclick="AprobarRegistroSeleccionado" disabled="@isLoading">
                     ✔ Aprobar Registro
                 </button>
             }
-            <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedRegistro == null || isLoading)">
-                Eliminar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedRegistro == null || isLoading)">
-                Ver / Editar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
-                Agregar
-            </button>
+            @if (Auth.EsInvestigador)
+            {
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedRegistro == null || isLoading)">
+                    Eliminar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedRegistro == null || isLoading)">
+                    Ver / Editar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                    Agregar
+                </button>
+            }
+            else
+            {
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedRegistro == null || isLoading)">
+                    Ver Detalle
+                </button>
+            }
         </div>
     </div>
 
@@ -200,22 +209,16 @@
             selectedFiltroBestiaId = BestiaId.Value;
         }
 
-        if (Auth.IsAuthenticated)
-        {
-            await CargarDatos();
-        }
+        await CargarDatos();
     }
 
     private async void HandleAuthStateChanged()
     {
-        if (Auth.IsAuthenticated && (bestias == null || !bestias.Any()))
+        await InvokeAsync(async () =>
         {
-            await InvokeAsync(async () =>
-            {
-                await CargarDatos();
-                StateHasChanged();
-            });
-        }
+            await CargarDatos();
+            StateHasChanged();
+        });
     }
 
     public void Dispose()
@@ -233,7 +236,7 @@
 
             var beastsResult = await BestiaApiClient.GetAllAsync();
             bestias = beastsResult?.ToList() ?? new List<BestiaDTO>();
-            if (Auth.CurrentUser?.TipoUsuario == "Lector")
+            if (!Auth.EsInvestigador)
             {
                 bestias = bestias.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
             }
@@ -250,7 +253,7 @@
                 }
             }
 
-            if (Auth.CurrentUser?.TipoUsuario == "Lector")
+            if (!Auth.EsInvestigador)
             {
                 todosRegistros = todosRegistros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
             }

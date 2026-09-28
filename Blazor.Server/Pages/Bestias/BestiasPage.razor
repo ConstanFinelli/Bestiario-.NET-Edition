@@ -83,7 +83,7 @@
                             bool isSelected = selectedBestia?.Id == b.Id;
                             <tr class="@(isSelected ? "selected" : "")" 
                                 @onclick="() => SeleccionarFila(b)"
-                                @ondblclick="AbrirModalActualizar">
+                                @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
                                 <td class="win-grid-row-header">
                                     @(isSelected ? "▶" : "")
                                 </td>
@@ -111,15 +111,18 @@
                     Ver Registros (@selectedBestia.Nombre)
                 </button>
             }
-            <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedBestia == null || isLoading)">
-                Eliminar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedBestia == null || isLoading)">
-                Actualizar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
-                Agregar
-            </button>
+            @if (Auth.EsInvestigador)
+            {
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedBestia == null || isLoading)">
+                    Eliminar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedBestia == null || isLoading)">
+                    Actualizar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                    Agregar
+                </button>
+            }
         </div>
     </div>
 
@@ -163,23 +166,16 @@
     protected override async Task OnInitializedAsync()
     {
         Auth.OnChange += HandleAuthStateChanged;
-
-        if (Auth.IsAuthenticated)
-        {
-            await CargarBestias();
-        }
+        await CargarBestias();
     }
 
     private async void HandleAuthStateChanged()
     {
-        if (Auth.IsAuthenticated && (bestias == null || !bestias.Any()))
+        await InvokeAsync(async () =>
         {
-            await InvokeAsync(async () =>
-            {
-                await CargarBestias();
-                StateHasChanged();
-            });
-        }
+            await CargarBestias();
+            StateHasChanged();
+        });
     }
 
     public void Dispose()
@@ -198,7 +194,7 @@
             var result = await BestiaApiClient.GetAllAsync();
             bestias = result?.ToList() ?? new List<BestiaDTO>();
 
-            if (Auth.CurrentUser?.TipoUsuario == "Lector")
+            if (!Auth.EsInvestigador)
             {
                 bestias = bestias.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
             }

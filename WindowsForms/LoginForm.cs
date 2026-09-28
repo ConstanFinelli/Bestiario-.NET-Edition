@@ -64,6 +64,24 @@ namespace WindowsForms
             this.Close();
         }
 
+        private void registerLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using var regForm = new RegistroLectorForm();
+            if (regForm.ShowDialog() == DialogResult.OK)
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+        }
+
+        private void guestLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            UsuarioLogueado = null;
+            BaseApiClient.ClearAuthToken();
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+
         private bool ValidateInput()
         {
             errorProvider.SetError(usernameTextBox, string.Empty);

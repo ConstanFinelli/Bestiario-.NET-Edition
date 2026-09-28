@@ -12,20 +12,10 @@
     <!-- Barra de Tareas Inferior (Estilo Windows) -->
     <div class="desktop-taskbar">
         <div class="d-flex align-items-center gap-2 me-auto">
-            @if (Auth.IsAuthenticated)
-            {
-                <NavLink href="/" class="btn btn-sm btn-light border d-flex align-items-center gap-1 shadow-sm px-2">
-                    <span class="oi oi-grid-four-up text-primary"></span>
-                    <strong>Bestiario .NET</strong>
-                </NavLink>
-            }
-            else
-            {
-                <span class="btn btn-sm btn-light border d-flex align-items-center gap-1 px-2 text-muted" style="cursor: not-allowed;">
-                    <span class="oi oi-lock-locked text-warning"></span>
-                    <strong>Bestiario .NET (Bloqueado)</strong>
-                </span>
-            }
+            <NavLink href="/" class="btn btn-sm btn-light border d-flex align-items-center gap-1 shadow-sm px-2">
+                <span class="oi oi-grid-four-up text-primary"></span>
+                <strong>Bestiario .NET</strong>
+            </NavLink>
             <span class="text-secondary small ms-2">Edición Blazor Server (.NET 8)</span>
         </div>
 
@@ -45,9 +35,12 @@
             }
             else
             {
-                <span class="text-muted small">
-                    <span class="oi oi-shield me-1"></span> Inicio de sesión requerido
+                <span class="badge bg-secondary">
+                    <span class="oi oi-person me-1"></span> Modo Invitado
                 </span>
+                <NavLink href="/login" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size: 11px;">
+                    Iniciar sesión
+                </NavLink>
             }
 
             <span class="text-muted small">
@@ -79,20 +72,7 @@
 
     private void VerificarAutenticacion()
     {
-        if (Auth.IsInitializing) return;
-
-        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
-        int queryIndex = relativePath.IndexOf('?');
-        if (queryIndex >= 0)
-        {
-            relativePath = relativePath.Substring(0, queryIndex);
-        }
-
-        // Si no está autenticado y no está en la página de login, redirigir obligatoriamente a /login
-        if (!Auth.IsAuthenticated && !relativePath.Equals("login", StringComparison.OrdinalIgnoreCase))
-        {
-            Navigation.NavigateTo("/login");
-        }
+        // Se permite acceso público a las vistas en Modo Invitado
     }
 
     private void OnAuthStateChanged()

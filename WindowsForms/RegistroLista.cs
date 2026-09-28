@@ -107,7 +107,8 @@ namespace WindowsForms
             try
             {
                 var beasts = await BestiaApiClient.GetAllAsync();
-                if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+                if (!esInvestigador)
                 {
                     beasts = beasts?.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
                 }
@@ -153,7 +154,8 @@ namespace WindowsForms
                     }
                 }
 
-                if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+                if (!esInvestigador)
                 {
                     todosRegistros = todosRegistros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
                 }
@@ -181,7 +183,8 @@ namespace WindowsForms
                 filtrados = filtrados.Where(r => r.IdBestia == filtroId);
             }
 
-            if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            if (!esInvestigador)
             {
                 filtrados = filtrados.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase));
             }
@@ -220,11 +223,13 @@ namespace WindowsForms
 
         private void ActualizarEstadoBotones()
         {
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
             bool hayFilas = this.registrosDataGridView.SelectedRows.Count > 0;
-            this.eliminarButton.Enabled = hayFilas;
+            this.eliminarButton.Enabled = esInvestigador && hayFilas;
             this.actualizarButton.Enabled = hayFilas;
+            this.actualizarButton.Text = esInvestigador ? "Ver / Editar" : "Ver Detalle";
 
-            if (hayFilas)
+            if (hayFilas && esInvestigador)
             {
                 var vm = (RegistroVM)registrosDataGridView.SelectedRows[0].DataBoundItem;
                 this.aprobarButton.Enabled = vm.Estado == "pendiente";
@@ -346,7 +351,8 @@ namespace WindowsForms
 
         private void HabilitarControles()
         {
-            agregarButton.Enabled = true;
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            agregarButton.Enabled = esInvestigador;
             registrosDataGridView.Enabled = true;
             bestiasComboBox.Enabled = true;
             ActualizarEstadoBotones();

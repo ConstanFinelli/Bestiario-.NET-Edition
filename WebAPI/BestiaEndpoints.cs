@@ -14,31 +14,31 @@ namespace WebAPI
                 if (dto == null)
                     return Results.NotFound();
 
-                if (user.IsInRole("Lector") && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
+                bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
+                if (!esInvestigador && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
                     return Results.NotFound();
 
                 return Results.Ok(dto);
             })
             .WithName("GetBestia")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<BestiaDTO>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
             app.MapGet("/bestias", async (ClaimsPrincipal user, IBestiaService bestiaService) =>
             {
                 var dtos = await bestiaService.GetAllAsync();
-                if (user.IsInRole("Lector"))
+                bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
+                if (!esInvestigador)
                 {
                     dtos = dtos.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
                 }
                 return Results.Ok(dtos);
             })
             .WithName("GetAllBestias")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<List<BestiaDTO>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapPost("/bestias", async (BestiaDTO dto, IBestiaService bestiaService) =>

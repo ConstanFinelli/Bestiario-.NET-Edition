@@ -81,7 +81,7 @@
                             bool isSelected = selectedCategoria?.Id == cat.Id;
                             <tr class="@(isSelected ? "selected" : "")" 
                                 @onclick="() => SeleccionarFila(cat)"
-                                @ondblclick="AbrirModalActualizar">
+                                @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
                                 <td class="win-grid-row-header">
                                     @(isSelected ? "▶" : "")
                                 </td>
@@ -95,18 +95,21 @@
             </table>
         </div>
 
-        <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
-        <div class="win-btn-action-bar">
-            <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedCategoria == null || isLoading)">
-                Eliminar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedCategoria == null || isLoading)">
-                Actualizar
-            </button>
-            <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
-                Agregar
-            </button>
-        </div>
+        @if (Auth.EsInvestigador)
+        {
+            <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
+            <div class="win-btn-action-bar">
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedCategoria == null || isLoading)">
+                    Eliminar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedCategoria == null || isLoading)">
+                    Actualizar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                    Agregar
+                </button>
+            </div>
+        }
     </div>
 
     <!-- Barra de Estado Inferior -->
@@ -149,23 +152,16 @@
     protected override async Task OnInitializedAsync()
     {
         Auth.OnChange += HandleAuthStateChanged;
-
-        if (Auth.IsAuthenticated)
-        {
-            await CargarCategorias();
-        }
+        await CargarCategorias();
     }
 
     private async void HandleAuthStateChanged()
     {
-        if (Auth.IsAuthenticated && (categorias == null || !categorias.Any()))
+        await InvokeAsync(async () =>
         {
-            await InvokeAsync(async () =>
-            {
-                await CargarCategorias();
-                StateHasChanged();
-            });
-        }
+            await CargarCategorias();
+            StateHasChanged();
+        });
     }
 
     public void Dispose()

@@ -11,16 +11,16 @@ namespace WebAPI
             app.MapGet("/bestias/{idBestia}/registros", async (Guid idBestia, ClaimsPrincipal user, IRegistroService registroService) =>
             {
                 var dtos = await registroService.GetByBestiaAsync(idBestia);
-                if (user.IsInRole("Lector"))
+                bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
+                if (!esInvestigador)
                 {
                     dtos = dtos.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
                 }
                 return Results.Ok(dtos);
             })
             .WithName("GetRegistrosByBestia")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<List<RegistroDTO>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
             app.MapGet("/bestias/{idBestia}/registros/{nroRegistro:int}", async (Guid idBestia, int nroRegistro, ClaimsPrincipal user, IRegistroService registroService) =>
@@ -29,15 +29,15 @@ namespace WebAPI
                 if (dto == null)
                     return Results.NotFound();
 
-                if (user.IsInRole("Lector") && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
+                bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
+                if (!esInvestigador && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
                     return Results.NotFound();
 
                 return Results.Ok(dto);
             })
             .WithName("GetRegistro")
-            .RequireAuthorization()
+            .AllowAnonymous()
             .Produces<RegistroDTO>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 

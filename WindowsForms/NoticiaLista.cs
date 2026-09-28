@@ -144,8 +144,9 @@ namespace WindowsForms
 
                 this.noticiaGridView.DataSource = noticias;
 
-                bool canUpdate = actualizarButton.Tag is bool updatePermission ? updatePermission : true;
-                bool canDelete = eliminarButton.Tag is bool deletePermission ? deletePermission : true;
+                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+                bool canUpdate = esInvestigador && (actualizarButton.Tag is bool updatePermission ? updatePermission : true);
+                bool canDelete = esInvestigador && (eliminarButton.Tag is bool deletePermission ? deletePermission : true);
 
                 if (this.noticiaGridView.Rows.Count > 0)
                 {
@@ -156,8 +157,8 @@ namespace WindowsForms
                 }
                 else
                 {
-                    if (canDelete) this.eliminarButton.Enabled = false;
-                    if (canUpdate) this.actualizarButton.Enabled = false;
+                    this.eliminarButton.Enabled = false;
+                    this.actualizarButton.Enabled = false;
                 }
             }
             catch (Exception ex)
@@ -188,7 +189,8 @@ namespace WindowsForms
 
         private void HabilitarControles()
         {
-            agregarButton.Enabled = true;
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            agregarButton.Enabled = esInvestigador;
             noticiaGridView.Enabled = true;
         }
     }
