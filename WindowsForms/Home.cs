@@ -1,84 +1,240 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DTOs;
+using API.Clients;
 
 namespace WindowsForms
 {
     public partial class Home : Form
     {
+        private Image? beastBgImage;
+
         public Home()
         {
             InitializeComponent();
+            LoadBackgroundImage();
             AppTheme.ApplyFormTheme(this);
         }
 
-        private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Home_Load(object? sender, EventArgs e)
         {
-            CategoriaLista categoriasForm = new CategoriaLista();
-            categoriasForm.ShowDialog();
+            ActualizarEstadoNavbar();
+            _ = CargarNoticiasAsync();
         }
 
-        private void NoticiasToolStripMenuItem_Click(object sender, EventArgs e)
+        private void LoadBackgroundImage()
         {
-            NoticiaLista noticiasForm = new NoticiaLista();
-            noticiasForm.ShowDialog();
+            try
+            {
+                string localRes = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "beast-bg.jpg");
+                if (File.Exists(localRes))
+                {
+                    beastBgImage = Image.FromFile(localRes);
+                    return;
+                }
+
+                string docsPath = Path.Combine(Directory.GetCurrentDirectory(), "docsJava", "public", "beast-bg.jpg");
+                if (File.Exists(docsPath))
+                {
+                    beastBgImage = Image.FromFile(docsPath);
+                    return;
+                }
+
+                string blazorPath = Path.Combine(Directory.GetCurrentDirectory(), "Blazor.Server", "wwwroot", "public", "beast-bg.jpg");
+                if (File.Exists(blazorPath))
+                {
+                    beastBgImage = Image.FromFile(blazorPath);
+                }
+            }
+            catch
+            {
+                beastBgImage = null;
+            }
         }
 
-        private void BestiasToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AboutUsPanel_Paint(object? sender, PaintEventArgs e)
         {
-            BestiaLista bestiasForm = new BestiaLista();
-            bestiasForm.ShowDialog();
+            var g = e.Graphics;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            if (beastBgImage != null)
+            {
+                g.DrawImage(beastBgImage, 0, 0, aboutUsPanel.Width, aboutUsPanel.Height);
+            }
+            else
+            {
+                using var fallbackBrush = new SolidBrush(Color.FromArgb(30, 25, 20));
+                g.FillRectangle(fallbackBrush, 0, 0, aboutUsPanel.Width, aboutUsPanel.Height);
+            }
+
+            // Capa de tinte semitransparente oscuro (rgba(0,0,0,0.5)) idéntica a home.css (.aboutUs::after)
+            using var tintBrush = new SolidBrush(Color.FromArgb(130, 0, 0, 0));
+            g.FillRectangle(tintBrush, 0, 0, aboutUsPanel.Width, aboutUsPanel.Height);
         }
 
-        private void RegistrosToolStripMenuItem_Click(object sender, EventArgs e)
+        public void ActualizarEstadoNavbar()
         {
-            RegistroLista registrosForm = new RegistroLista();
-            registrosForm.ShowDialog();
+            if (LoginForm.UsuarioLogueado != null)
+            {
+                var user = LoginForm.UsuarioLogueado;
+                string rol = user is InvestigadorDTO || user.TipoUsuario == "Investigador" ? "Investigador" : "Lector";
+                userStatusLabel.Text = $"👤 {user.Correo} ({rol})";
+                userStatusLabel.Visible = true;
+
+                authButton.Text = "Cerrar sesión";
+                authButton.BackColor = AppTheme.Danger;
+                authButton.ForeColor = Color.White;
+
+                navCandidaturaBtn.Visible = rol == "Lector";
+                navAdminBtn.Visible = rol == "Investigador";
+            }
+            else
+            {
+                userStatusLabel.Visible = false;
+                authButton.Text = "Iniciar sesión";
+                authButton.BackColor = AppTheme.GoldLight;
+                authButton.ForeColor = AppTheme.TextColor;
+
+                navCandidaturaBtn.Visible = false;
+                navAdminBtn.Visible = false;
+            }
         }
 
-        private void IconPictureBox_Paint(object? sender, PaintEventArgs e)
+        private void AuthButton_Click(object? sender, EventArgs e)
         {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            if (LoginForm.UsuarioLogueado == null)
+            {
+                using var login = new LoginForm();
+                if (login.ShowDialog(this) == DialogResult.OK)
+                {
+                    ActualizarEstadoNavbar();
+                }
+            }
+            else
+            {
+                LoginForm.UsuarioLogueado = null;
+                ActualizarEstadoNavbar();
+                MessageBox.Show("Has cerrado sesión exitosamente.", "Sesión cerrada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
 
-            // Tomo medieval encuadernado en cuero marrón (#8E6E53) con ribetes dorados
-            using var leatherBrush = new SolidBrush(AppTheme.Primary);
+        public void RefreshNews()
+        {
+            _ = CargarNoticiasAsync();
+        }
 
-            // Cubierta del libro con esquinas suavemente redondeadas
-            var bookRect = new Rectangle(6, 4, 36, 40);
-            using var path = new GraphicsPath();
-            int radius = 4;
-            path.AddArc(bookRect.X, bookRect.Y, radius * 2, radius * 2, 180, 90);
-            path.AddArc(bookRect.Right - radius * 2, bookRect.Y, radius * 2, radius * 2, 270, 90);
-            path.AddArc(bookRect.Right - radius * 2, bookRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
-            path.AddArc(bookRect.X, bookRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
-            path.CloseFigure();
-            e.Graphics.FillPath(leatherBrush, path);
+        private async Task CargarNoticiasAsync()
+        {
+            try
+            {
+                newsFlowPanel.Controls.Clear();
 
-            // Borde exterior dorado
-            using var goldPen = new Pen(AppTheme.GoldLight, 1.5f);
-            e.Graphics.DrawPath(goldPen, path);
+                Label loadingLabel = new Label
+                {
+                    Text = "Cargando noticias...",
+                    Font = new Font("Segoe UI", 9.5F, FontStyle.Italic),
+                    ForeColor = AppTheme.TextColor,
+                    AutoSize = true,
+                    Margin = new Padding(15)
+                };
+                newsFlowPanel.Controls.Add(loadingLabel);
 
-            // Cinta marcapáginas dorada/ámbar
-            using var ribbonBrush = new SolidBrush(AppTheme.Gold);
-            Point[] ribbon = {
-                new Point(20, 4),
-                new Point(28, 4),
-                new Point(28, 18),
-                new Point(24, 14),
-                new Point(20, 18)
+                var noticias = await NoticiaApiClient.GetAllAsync();
+                var list = noticias?.OrderByDescending(n => n.FechaPublicacion).ToList();
+
+                newsFlowPanel.Controls.Clear();
+
+                if (list != null && list.Count > 0)
+                {
+                    foreach (var noticia in list)
+                    {
+                        var card = CreateNewsCard(noticia);
+                        newsFlowPanel.Controls.Add(card);
+                    }
+                }
+                else
+                {
+                    Label emptyLabel = new Label
+                    {
+                        Text = "No hay noticias registradas por el momento.",
+                        Font = new Font("Segoe UI", 9.5F, FontStyle.Italic),
+                        ForeColor = Color.DimGray,
+                        AutoSize = true,
+                        Margin = new Padding(15)
+                    };
+                    newsFlowPanel.Controls.Add(emptyLabel);
+                }
+            }
+            catch
+            {
+                newsFlowPanel.Controls.Clear();
+                Label errLabel = new Label
+                {
+                    Text = "No se pudieron cargar las noticias del servidor.",
+                    Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+                    ForeColor = AppTheme.Danger,
+                    AutoSize = true,
+                    Margin = new Padding(15)
+                };
+                newsFlowPanel.Controls.Add(errLabel);
+            }
+        }
+
+        private Panel CreateNewsCard(NoticiaDTO noticia)
+        {
+            Panel card = new Panel
+            {
+                Width = newsFlowPanel.Width - 30,
+                AutoSize = true,
+                MinimumSize = new Size(newsFlowPanel.Width - 30, 110),
+                BackColor = Color.FromArgb(250, 248, 245),
+                BorderStyle = BorderStyle.FixedSingle,
+                Margin = new Padding(0, 0, 0, 14),
+                Padding = new Padding(12)
             };
-            e.Graphics.FillPolygon(ribbonBrush, ribbon);
 
-            // Hojas pergamino inferiores
-            using var parchmentPen = new Pen(AppTheme.Secondary, 2.5f);
-            e.Graphics.DrawLine(parchmentPen, 10, 36, 38, 36);
+            Label titleLabel = new Label
+            {
+                Text = noticia.Titulo,
+                Font = new Font("Georgia", 11F, FontStyle.Bold),
+                ForeColor = AppTheme.TextColor,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                MaximumSize = new Size(card.Width - 24, 0),
+                Margin = new Padding(0, 0, 0, 4)
+            };
+
+            Label dateLabel = new Label
+            {
+                Text = $"publicado {noticia.FechaPublicacion:dd/MM/yyyy HH:mm}",
+                Font = new Font("Segoe UI", 8F),
+                ForeColor = Color.Gray,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 8)
+            };
+
+            Label contentLabel = new Label
+            {
+                Text = noticia.Contenido,
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = AppTheme.TextColor,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                MaximumSize = new Size(card.Width - 24, 0)
+            };
+
+            card.Controls.Add(contentLabel);
+            card.Controls.Add(dateLabel);
+            card.Controls.Add(titleLabel);
+
+            return card;
         }
     }
 }

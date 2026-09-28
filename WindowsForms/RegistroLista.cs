@@ -182,7 +182,8 @@ namespace WindowsForms
                 filtrados = filtrados.Where(r => r.IdBestia == filtroId);
             }
 
-            if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            if (!esInvestigador)
             {
                 filtrados = filtrados.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase));
             }
@@ -221,11 +222,17 @@ namespace WindowsForms
 
         private void ActualizarEstadoBotones()
         {
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
             bool hayFilas = this.registrosDataGridView.SelectedRows.Count > 0;
-            this.eliminarButton.Enabled = hayFilas;
+
+            this.agregarButton.Visible = esInvestigador;
+            this.eliminarButton.Visible = esInvestigador;
+            this.aprobarButton.Visible = esInvestigador;
+
+            this.eliminarButton.Enabled = esInvestigador && hayFilas;
             this.actualizarButton.Enabled = hayFilas;
 
-            if (hayFilas)
+            if (hayFilas && esInvestigador)
             {
                 var vm = (RegistroVM)registrosDataGridView.SelectedRows[0].DataBoundItem;
                 this.aprobarButton.Enabled = vm.Estado == "pendiente";

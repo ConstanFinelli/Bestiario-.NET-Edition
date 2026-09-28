@@ -176,7 +176,11 @@ namespace WindowsForms
 
         private void HabilitarControles()
         {
-            agregarButton.Enabled = true;
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            agregarButton.Visible = esInvestigador;
+            actualizarButton.Visible = esInvestigador;
+            eliminarButton.Visible = esInvestigador;
+            agregarButton.Enabled = esInvestigador;
             categoriasDataGridView.Enabled = true;
         }
 

@@ -9,15 +9,7 @@ namespace WindowsForms
         {
 
             ApplicationConfiguration.Initialize();
-            LoginForm login = new LoginForm();
-            if (login.ShowDialog() == DialogResult.OK)
-            {
-                Application.Run(new Home());
-            }
-            else
-            {
-                Application.Exit();
-            }
+            Application.Run(new Home());
         }
     }
 }

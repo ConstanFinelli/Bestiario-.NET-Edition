@@ -160,7 +160,8 @@ namespace WindowsForms
                 this.bestiasDataGridView.DataSource = null;
 
                 var result = await BestiaApiClient.GetAllAsync();
-                if (LoginForm.UsuarioLogueado?.TipoUsuario == "Lector")
+                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+                if (!esInvestigador)
                 {
                     result = result?.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
                 }
@@ -181,8 +182,8 @@ namespace WindowsForms
                 if (this.bestiasDataGridView.Rows.Count > 0)
                 {
                     this.bestiasDataGridView.Rows[0].Selected = true;
-                    this.eliminarButton.Enabled = true;
-                    this.actualizarButton.Enabled = true;
+                    this.eliminarButton.Enabled = esInvestigador;
+                    this.actualizarButton.Enabled = esInvestigador;
                     this.verRegistrosButton.Enabled = true;
                 }
                 else
@@ -227,12 +228,16 @@ namespace WindowsForms
 
         private void HabilitarControles()
         {
-            agregarButton.Enabled = true;
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            agregarButton.Visible = esInvestigador;
+            actualizarButton.Visible = esInvestigador;
+            eliminarButton.Visible = esInvestigador;
+            agregarButton.Enabled = esInvestigador;
             bestiasDataGridView.Enabled = true;
             if (bestiasDataGridView.Rows.Count > 0)
             {
-                actualizarButton.Enabled = true;
-                eliminarButton.Enabled = true;
+                actualizarButton.Enabled = esInvestigador;
+                eliminarButton.Enabled = esInvestigador;
                 verRegistrosButton.Enabled = true;
             }
         }
