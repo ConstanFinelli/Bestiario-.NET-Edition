@@ -28,14 +28,7 @@ namespace WindowsForms
                     loginButton.Text = "Iniciando sesión...";
 
                     AuthResponseDTO? authResult = null;
-                    try
-                    {
-                        authResult = await UsuarioApiClient.LoginAsync(usernameTextBox.Text, passwordTextBox.Text);
-                    }
-                    catch
-                    {
-                        // En caso de fallo de red o que la api no esté lista, evaluar fallback admin
-                    }
+                    authResult = await UsuarioApiClient.LoginAsync(usernameTextBox.Text, passwordTextBox.Text);
 
                     if (authResult != null && authResult.Usuario != null)
                     {
@@ -44,25 +37,10 @@ namespace WindowsForms
                         this.Close();
                         return;
                     }
-
-                    bool fallbackAdmin = usernameTextBox.Text == "admin" && passwordTextBox.Text == "password";
-                    if (fallbackAdmin)
-                    {
-                        UsuarioLogueado = new InvestigadorDTO
-                        {
-                            Id = Guid.Parse("99999999-9999-9999-9999-999999999999"),
-                            Correo = "admin@bestiario.com",
-                            Nombre = "Admin",
-                            Apellido = "Investigador",
-                            Dni = "12345678"
-                        };
-                        this.DialogResult = DialogResult.OK;
-                        this.Close();
-                    }
-                    else
+                    else 
                     {
                         MessageBox.Show("Usuario o contraseña incorrectos.", "Error de autenticación",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                         passwordTextBox.Clear();
                         passwordTextBox.Focus();
                     }
@@ -119,19 +97,6 @@ namespace WindowsForms
 
         private void passwordTextBox_TextChanged(object sender, EventArgs e)
         {
-        }
-
-        private void registerLectorLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            using var regForm = new RegistroLectorForm();
-            if (regForm.ShowDialog(this) == DialogResult.OK)
-            {
-                if (UsuarioLogueado != null)
-                {
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
-            }
         }
     }
 }

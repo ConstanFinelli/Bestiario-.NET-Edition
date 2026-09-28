@@ -36,7 +36,6 @@ namespace WindowsForms
             passwordTextBox = new TextBox();
             errorProvider = new ErrorProvider(components);
             cancelButton = new Button();
-            registerLectorLinkLabel = new LinkLabel();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
             // 
@@ -74,7 +73,7 @@ namespace WindowsForms
             usernameTextBox.Name = "usernameTextBox";
             usernameTextBox.Size = new Size(300, 23);
             usernameTextBox.TabIndex = 3;
-            usernameTextBox.Text = "admin";
+            usernameTextBox.Text = "admin@bestiario.com";
             // 
             // passwordTextBox
             // 
@@ -99,24 +98,11 @@ namespace WindowsForms
             cancelButton.UseVisualStyleBackColor = true;
             cancelButton.Click += cancelButton_Click;
             // 
-            // registerLectorLinkLabel
-            // 
-            registerLectorLinkLabel.AutoSize = true;
-            registerLectorLinkLabel.LinkColor = Color.FromArgb(0, 102, 204);
-            registerLectorLinkLabel.Location = new Point(115, 192);
-            registerLectorLinkLabel.Name = "registerLectorLinkLabel";
-            registerLectorLinkLabel.Size = new Size(224, 15);
-            registerLectorLinkLabel.TabIndex = 6;
-            registerLectorLinkLabel.TabStop = true;
-            registerLectorLinkLabel.Text = "¿No tienes cuenta? Registrarse como Lector";
-            registerLectorLinkLabel.LinkClicked += registerLectorLinkLabel_LinkClicked;
-            // 
             // LoginForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(450, 225);
-            Controls.Add(registerLectorLinkLabel);
+            ClientSize = new Size(450, 189);
             Controls.Add(cancelButton);
             Controls.Add(passwordTextBox);
             Controls.Add(usernameTextBox);
@@ -124,7 +110,6 @@ namespace WindowsForms
             Controls.Add(usernameLabel);
             Controls.Add(loginButton);
             Name = "LoginForm";
-            StartPosition = FormStartPosition.CenterScreen;
             Text = "Iniciar sesión";
             Load += LoginForm_Load;
             ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
@@ -141,6 +126,5 @@ namespace WindowsForms
         private TextBox passwordTextBox;
         private ErrorProvider errorProvider;
         private Button cancelButton;
-        private LinkLabel registerLectorLinkLabel;
     }
 }
