@@ -36,6 +36,7 @@ namespace WindowsForms
             passwordTextBox = new TextBox();
             errorProvider = new ErrorProvider(components);
             cancelButton = new Button();
+            registerLectorLinkLabel = new LinkLabel();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
             // 
