@@ -88,6 +88,70 @@ namespace WebAPI
             .Produces<AuthResponseDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
+
+            app.MapPut("/usuarios/investigadores", async (InvestigadorDTO dto, IUsuarioService usuarioService) =>
+            {
+                try
+                {
+                    var found = await usuarioService.UpdateAsync(dto);
+                    if (!found)
+                        return Results.NotFound();
+
+                    return Results.NoContent();
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
+            })
+            .WithName("UpdateInvestigador")
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+
+            app.MapPut("/usuarios/lectores", async (LectorDTO dto, IUsuarioService usuarioService) =>
+            {
+                try
+                {
+                    var found = await usuarioService.UpdateAsync(dto);
+                    if (!found)
+                        return Results.NotFound();
+
+                    return Results.NoContent();
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
+            })
+            .WithName("UpdateLector")
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+
+            app.MapDelete("/usuarios/{id}", async (Guid id, IUsuarioService usuarioService) =>
+            {
+                var deleted = await usuarioService.DeleteAsync(id);
+                if (!deleted)
+                    return Results.NotFound();
+
+                return Results.NoContent();
+            })
+            .WithName("DeleteUsuario")
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
         }
     }
 }

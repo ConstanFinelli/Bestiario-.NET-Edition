@@ -1,7 +1,12 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace DTOs
 {
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+    [JsonDerivedType(typeof(UsuarioDTO), "Usuario")]
+    [JsonDerivedType(typeof(InvestigadorDTO), "Investigador")]
+    [JsonDerivedType(typeof(LectorDTO), "Lector")]
     public class UsuarioDTO
     {
         public Guid Id { get; set; }

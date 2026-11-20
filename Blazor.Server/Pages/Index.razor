@@ -38,6 +38,12 @@
         <NavLink href="/comentarios" class="win-menu-item">
             Comentarios
         </NavLink>
+        @if (Auth.EsInvestigador)
+        {
+            <NavLink href="/usuarios" class="win-menu-item">
+                Usuarios
+            </NavLink>
+        }
         <div class="ms-auto d-flex align-items-center gap-2">
             @if (Auth.IsAuthenticated)
             {
@@ -91,6 +97,12 @@
                 <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/comentarios"))">
                     Comentarios
                 </button>
+                @if (Auth.EsInvestigador)
+                {
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/usuarios"))">
+                        Usuarios
+                    </button>
+                }
             </div>
         </div>
     </div>

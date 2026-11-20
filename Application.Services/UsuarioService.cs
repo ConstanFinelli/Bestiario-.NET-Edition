@@ -76,17 +76,40 @@ namespace Application.Services
 
         public async Task<bool> UpdateAsync(UsuarioDTO dto)
         {
+            var existing = await usuarioRepository.GetAsync(dto.Id);
+            if (existing == null)
+                return false;
+
+            var existingByCorreo = await usuarioRepository.GetByCorreoAsync(dto.Correo);
+            if (existingByCorreo != null && existingByCorreo.Id != dto.Id)
+            {
+                throw new ArgumentException("El correo ya se encuentra registrado.");
+            }
+
+            string contrasenia = string.IsNullOrWhiteSpace(dto.Contrasenia)
+                ? existing.Contrasenia
+                : dto.Contrasenia;
+
             Usuario usuario;
             if (dto is InvestigadorDTO invDto)
             {
                 usuario = new Investigador(
                     invDto.Id,
                     invDto.Correo,
-                    invDto.Contrasenia ?? "",
+                    contrasenia,
                     invDto.Dni,
                     invDto.Nombre,
                     invDto.Apellido,
                     invDto.RecibirNotificaciones
+                );
+            }
+            else if (dto is LectorDTO || existing is Lector)
+            {
+                usuario = new Lector(
+                    dto.Id,
+                    dto.Correo,
+                    contrasenia,
+                    dto.RecibirNotificaciones
                 );
             }
             else
@@ -94,7 +117,7 @@ namespace Application.Services
                 usuario = new Usuario(
                     dto.Id,
                     dto.Correo,
-                    dto.Contrasenia ?? "",
+                    contrasenia,
                     dto.RecibirNotificaciones
                 );
             }

@@ -1,3 +1,5 @@
+@inject AuthService Auth
+
 <div class="win-menustrip">
     <NavLink href="/" class="win-menu-item" Match="NavLinkMatch.All">
         Inicio
@@ -26,6 +28,12 @@
     <NavLink href="/comentarios" class="win-menu-item">
         Comentarios
     </NavLink>
+    @if (Auth.EsInvestigador)
+    {
+        <NavLink href="/usuarios" class="win-menu-item">
+            Usuarios
+        </NavLink>
+    }
     @if (OnRefresh.HasDelegate)
     {
         <div class="ms-auto">

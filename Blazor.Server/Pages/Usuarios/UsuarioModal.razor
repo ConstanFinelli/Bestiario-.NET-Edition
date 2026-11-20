@@ -1,0 +1,233 @@
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 440px;">
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-person text-primary" style="font-size: 11px;"></span>
+                    <span>Usuario</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel" disabled="@isSaving">✕</button>
+                </div>
+            </div>
+
+            <div class="win-form-content" style="padding: 18px 24px;">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="win-error-msg mb-2">
+                        <span class="oi oi-warning me-1"></span> @errorMessage
+                    </div>
+                }
+
+                @if (Mode == FormMode.Update)
+                {
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4"><label class="win-label">Id:</label></div>
+                        <div class="col-8"><input type="text" class="win-textbox w-100" value="@Usuario.Id" readonly /></div>
+                    </div>
+                }
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">Tipo:</label></div>
+                    <div class="col-8">
+                        <select class="win-textbox w-100" value="@tipoSeleccionado" @onchange="OnTipoChanged" disabled="@(isSaving || Mode == FormMode.Update)">
+                            <option value="Investigador">Investigador</option>
+                            <option value="Lector">Lector</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">Correo:</label></div>
+                    <div class="col-8">
+                        <input type="email" class="win-textbox w-100 @(correoInvalido ? "win-field-error" : "")"
+                               @bind="correo" maxlength="100" disabled="@isSaving" />
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">Contraseña:</label></div>
+                    <div class="col-8">
+                        <input type="password" class="win-textbox w-100 @(passwordInvalida ? "win-field-error" : "")"
+                               placeholder="@(Mode == FormMode.Update ? "(Dejar vacío para mantener)" : "")"
+                               @bind="contrasenia" maxlength="100" disabled="@isSaving" />
+                    </div>
+                </div>
+
+                @if (tipoSeleccionado == "Investigador")
+                {
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4"><label class="win-label">DNI:</label></div>
+                        <div class="col-8">
+                            <input type="text" class="win-textbox w-100 @(dniInvalido ? "win-field-error" : "")"
+                                   @bind="dni" maxlength="20" disabled="@isSaving" />
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4"><label class="win-label">Nombre:</label></div>
+                        <div class="col-8">
+                            <input type="text" class="win-textbox w-100 @(nombreInvalido ? "win-field-error" : "")"
+                                   @bind="nombre" maxlength="50" disabled="@isSaving" />
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4"><label class="win-label">Apellido:</label></div>
+                        <div class="col-8">
+                            <input type="text" class="win-textbox w-100 @(apellidoInvalido ? "win-field-error" : "")"
+                                   @bind="apellido" maxlength="50" disabled="@isSaving" />
+                        </div>
+                    </div>
+                }
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-4"></div>
+                    <div class="col-8">
+                        <label style="font-size: 11px; cursor: pointer;">
+                            <input type="checkbox" @bind="recibirNotificaciones" disabled="@isSaving" style="vertical-align: middle; margin-right: 4px;" />
+                            Recibir notificaciones
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
+                    <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Aceptar")
+                    </button>
+                    <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Add;
+    [Parameter] public UsuarioDTO Usuario { get; set; } = new InvestigadorDTO();
+
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private string tipoSeleccionado = "Investigador";
+    private string correo = string.Empty;
+    private string contrasenia = string.Empty;
+    private string dni = string.Empty;
+    private string nombre = string.Empty;
+    private string apellido = string.Empty;
+    private bool recibirNotificaciones = true;
+
+    private bool isSaving = false;
+    private string? errorMessage;
+    private bool correoInvalido, passwordInvalida, dniInvalido, nombreInvalido, apellidoInvalido;
+
+    protected override void OnParametersSet()
+    {
+        errorMessage = null;
+        correoInvalido = passwordInvalida = dniInvalido = nombreInvalido = apellidoInvalido = false;
+
+        if (Usuario is InvestigadorDTO inv)
+        {
+            tipoSeleccionado = "Investigador";
+            correo = inv.Correo;
+            dni = inv.Dni;
+            nombre = inv.Nombre;
+            apellido = inv.Apellido;
+            recibirNotificaciones = inv.RecibirNotificaciones;
+        }
+        else if (Usuario != null)
+        {
+            tipoSeleccionado = Usuario.TipoUsuario == "Investigador" ? "Investigador" : "Lector";
+            correo = Usuario.Correo;
+            dni = string.Empty;
+            nombre = string.Empty;
+            apellido = string.Empty;
+            recibirNotificaciones = Usuario.RecibirNotificaciones;
+        }
+        contrasenia = string.Empty;
+    }
+
+    private void OnTipoChanged(ChangeEventArgs e)
+    {
+        tipoSeleccionado = e.Value?.ToString() ?? "Investigador";
+    }
+
+    private bool ValidateInput()
+    {
+        correoInvalido = string.IsNullOrWhiteSpace(correo) || !correo.Contains("@");
+        passwordInvalida = Mode == FormMode.Add && string.IsNullOrWhiteSpace(contrasenia);
+        dniInvalido = tipoSeleccionado == "Investigador" && string.IsNullOrWhiteSpace(dni);
+        nombreInvalido = tipoSeleccionado == "Investigador" && string.IsNullOrWhiteSpace(nombre);
+        apellidoInvalido = tipoSeleccionado == "Investigador" && string.IsNullOrWhiteSpace(apellido);
+
+        if (correoInvalido) { errorMessage = "Ingrese un correo electrónico válido."; return false; }
+        if (passwordInvalida) { errorMessage = "La contraseña es requerida."; return false; }
+        if (dniInvalido) { errorMessage = "El DNI es requerido."; return false; }
+        if (nombreInvalido) { errorMessage = "El nombre es requerido."; return false; }
+        if (apellidoInvalido) { errorMessage = "El apellido es requerido."; return false; }
+
+        errorMessage = null;
+        return true;
+    }
+
+    private async Task Save()
+    {
+        if (!ValidateInput()) return;
+
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+
+            if (tipoSeleccionado == "Investigador")
+            {
+                var invDto = new InvestigadorDTO
+                {
+                    Id = Mode == FormMode.Update ? Usuario.Id : Guid.Empty,
+                    Correo = correo.Trim(),
+                    Contrasenia = string.IsNullOrWhiteSpace(contrasenia) ? null : contrasenia,
+                    RecibirNotificaciones = recibirNotificaciones,
+                    Dni = dni.Trim(),
+                    Nombre = nombre.Trim(),
+                    Apellido = apellido.Trim()
+                };
+
+                if (Mode == FormMode.Add)
+                    await UsuarioApiClient.AddInvestigadorAsync(invDto);
+                else
+                    await UsuarioApiClient.UpdateInvestigadorAsync(invDto);
+            }
+            else
+            {
+                var lecDto = new LectorDTO
+                {
+                    Id = Mode == FormMode.Update ? Usuario.Id : Guid.Empty,
+                    Correo = correo.Trim(),
+                    Contrasenia = string.IsNullOrWhiteSpace(contrasenia) ? null : contrasenia,
+                    RecibirNotificaciones = recibirNotificaciones
+                };
+
+                if (Mode == FormMode.Add)
+                    await UsuarioApiClient.AddLectorAsync(lecDto);
+                else
+                    await UsuarioApiClient.UpdateLectorAsync(lecDto);
+            }
+
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar usuario: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task Cancel() => await OnCancel.InvokeAsync();
+}

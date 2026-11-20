@@ -37,6 +37,7 @@ namespace WindowsForms
             tiposEvidenciaToolStripMenuItem = new ToolStripMenuItem();
             evidenciasToolStripMenuItem = new ToolStripMenuItem();
             comentariosToolStripMenuItem = new ToolStripMenuItem();
+            usuariosToolStripMenuItem = new ToolStripMenuItem();
             cardPanel = new Panel();
             iconPictureBox = new PictureBox();
             titleLabel = new Label();
@@ -49,6 +50,7 @@ namespace WindowsForms
             tiposEvidenciaButton = new Button();
             evidenciasButton = new Button();
             comentariosButton = new Button();
+            usuariosButton = new Button();
             menuStrip1.SuspendLayout();
             cardPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)iconPictureBox).BeginInit();
@@ -57,11 +59,11 @@ namespace WindowsForms
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(32, 32);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem, comentariosToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem, comentariosToolStripMenuItem, usuariosToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(3, 1, 0, 1);
-            menuStrip1.Size = new Size(606, 24);
+            menuStrip1.Size = new Size(646, 24);
             menuStrip1.TabIndex = 0;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -121,6 +123,13 @@ namespace WindowsForms
             comentariosToolStripMenuItem.Text = "Comentarios";
             comentariosToolStripMenuItem.Click += ComentariosToolStripMenuItem_Click;
             // 
+            // usuariosToolStripMenuItem
+            // 
+            usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
+            usuariosToolStripMenuItem.Size = new Size(65, 22);
+            usuariosToolStripMenuItem.Text = "Usuarios";
+            usuariosToolStripMenuItem.Click += UsuariosToolStripMenuItem_Click;
+            // 
             // cardPanel
             // 
             cardPanel.BackColor = Color.White;
@@ -136,9 +145,10 @@ namespace WindowsForms
             cardPanel.Controls.Add(tiposEvidenciaButton);
             cardPanel.Controls.Add(evidenciasButton);
             cardPanel.Controls.Add(comentariosButton);
+            cardPanel.Controls.Add(usuariosButton);
             cardPanel.Location = new Point(43, 50);
             cardPanel.Name = "cardPanel";
-            cardPanel.Size = new Size(560, 275);
+            cardPanel.Size = new Size(560, 290);
             cardPanel.TabIndex = 1;
             // 
             // iconPictureBox
@@ -259,11 +269,22 @@ namespace WindowsForms
             comentariosButton.UseVisualStyleBackColor = true;
             comentariosButton.Click += ComentariosToolStripMenuItem_Click;
             // 
+            // usuariosButton
+            // 
+            usuariosButton.Font = new Font("Segoe UI", 9F);
+            usuariosButton.Location = new Point(25, 230);
+            usuariosButton.Name = "usuariosButton";
+            usuariosButton.Size = new Size(120, 28);
+            usuariosButton.TabIndex = 11;
+            usuariosButton.Text = "Usuarios";
+            usuariosButton.UseVisualStyleBackColor = true;
+            usuariosButton.Click += UsuariosToolStripMenuItem_Click;
+            // 
             // Home
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(646, 370);
+            ClientSize = new Size(646, 385);
             Controls.Add(cardPanel);
             Controls.Add(menuStrip1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -292,6 +313,7 @@ namespace WindowsForms
         private ToolStripMenuItem tiposEvidenciaToolStripMenuItem;
         private ToolStripMenuItem evidenciasToolStripMenuItem;
         private ToolStripMenuItem comentariosToolStripMenuItem;
+        private ToolStripMenuItem usuariosToolStripMenuItem;
         private Panel cardPanel;
         private PictureBox iconPictureBox;
         private Label titleLabel;
@@ -304,5 +326,6 @@ namespace WindowsForms
         private Button tiposEvidenciaButton;
         private Button evidenciasButton;
         private Button comentariosButton;
+        private Button usuariosButton;
     }
 }

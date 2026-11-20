@@ -160,5 +160,74 @@ namespace API.Clients
                 throw new Exception($"Timeout al autenticar usuario: {ex.Message}", ex);
             }
         }
+
+        public static async Task UpdateInvestigadorAsync(InvestigadorDTO investigador)
+        {
+            try
+            {
+                using var client = await CreateHttpClientAsync();
+                HttpResponseMessage response = await client.PutAsJsonAsync("usuarios/investigadores", investigador);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error al actualizar investigador con Id {investigador.Id}. Status: {response.StatusCode}, Detalle: {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Error de conexión al actualizar investigador: {ex.Message}", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new Exception($"Timeout al actualizar investigador: {ex.Message}", ex);
+            }
+        }
+
+        public static async Task UpdateLectorAsync(LectorDTO lector)
+        {
+            try
+            {
+                using var client = await CreateHttpClientAsync();
+                HttpResponseMessage response = await client.PutAsJsonAsync("usuarios/lectores", lector);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error al actualizar lector con Id {lector.Id}. Status: {response.StatusCode}, Detalle: {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Error de conexión al actualizar lector: {ex.Message}", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new Exception($"Timeout al actualizar lector: {ex.Message}", ex);
+            }
+        }
+
+        public static async Task DeleteAsync(Guid id)
+        {
+            try
+            {
+                using var client = await CreateHttpClientAsync();
+                HttpResponseMessage response = await client.DeleteAsync("usuarios/" + id);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error al eliminar usuario con Id {id}. Status: {response.StatusCode}, Detalle: {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Error de conexión al eliminar usuario con Id {id}: {ex.Message}", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new Exception($"Timeout al eliminar usuario con Id {id}: {ex.Message}", ex);
+            }
+        }
     }
 }

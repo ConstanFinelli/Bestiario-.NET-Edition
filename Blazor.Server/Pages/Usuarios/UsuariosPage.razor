@@ -1,0 +1,259 @@
+@page "/usuarios"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Usuarios</PageTitle>
+
+<div class="win-form" style="width: 880px;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-people text-primary"></span>
+            <span>Usuarios</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="CargarUsuarios" IsLoading="@isLoading" />
+
+    <div class="win-form-content">
+        @if (!Auth.EsInvestigador)
+        {
+            <div class="win-error-msg">
+                <span class="oi oi-lock-locked me-1"></span> Solo los Investigadores pueden gestionar usuarios.
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(feedbackMessage))
+            {
+                <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                    @feedbackMessage
+                </div>
+            }
+
+            <div class="win-grid-container" style="height: 260px;">
+                <table class="win-grid">
+                    <thead>
+                        <tr>
+                            <th class="win-grid-row-header-th"></th>
+                            <th style="width: 220px;">Correo</th>
+                            <th style="width: 110px;">Tipo</th>
+                            <th style="width: 190px;">Nombre y Apellido</th>
+                            <th style="width: 110px;">DNI</th>
+                            <th style="text-align: center;">Notificaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (isLoading)
+                        {
+                            <tr><td colspan="6" class="text-center py-4 text-muted">Cargando usuarios...</td></tr>
+                        }
+                        else if (usuarios == null || !usuarios.Any())
+                        {
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No hay usuarios registrados.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var u in usuarios)
+                            {
+                                bool isSelected = selectedUsuario?.Id == u.Id;
+                                var inv = u as InvestigadorDTO;
+                                <tr class="@(isSelected ? "selected" : "")"
+                                    @onclick="() => SeleccionarFila(u)"
+                                    @ondblclick="AbrirModalActualizar">
+                                    <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
+                                    <td>@u.Correo</td>
+                                    <td>
+                                        <span class="badge @(u.TipoUsuario == "Investigador" ? "bg-primary" : "bg-secondary")" style="font-size: 10px;">
+                                            @u.TipoUsuario
+                                        </span>
+                                    </td>
+                                    <td>@(inv != null ? $"{inv.Nombre} {inv.Apellido}" : "-")</td>
+                                    <td>@(inv != null ? inv.Dni : "-")</td>
+                                    <td style="text-align: center;">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="win-btn-action-bar">
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedUsuario == null || isLoading)">Eliminar</button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedUsuario == null || isLoading)">Actualizar</button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Agregar</button>
+            </div>
+        }
+    </div>
+
+    <div class="win-statusbar">
+        <span>@(usuarios?.Count ?? 0) usuario(s) cargado(s)</span>
+        <span>@(selectedUsuario != null ? $"Seleccionado: {selectedUsuario.Correo}" : "Ningún usuario seleccionado")</span>
+    </div>
+</div>
+
+<UsuarioModal IsOpen="@isModalOpen"
+              Mode="@modalMode"
+              Usuario="@usuarioParaEditar"
+              OnSaved="@OnUsuarioGuardado"
+              OnCancel="@CerrarModal" />
+
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar al usuario '{selectedUsuario?.Correo}'?")"
+              ConfirmButtonText="Sí"
+              OnConfirm="@EliminarUsuarioConfirmado"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@implements IDisposable
+
+@code {
+    private List<UsuarioDTO> usuarios = new();
+    private UsuarioDTO? selectedUsuario;
+    private UsuarioDTO usuarioParaEditar = new InvestigadorDTO();
+    private FormMode modalMode = FormMode.Add;
+
+    private bool isLoading = true;
+    private bool isModalOpen = false;
+    private bool isConfirmDeleteOpen = false;
+
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChange += HandleAuthStateChanged;
+        await CargarUsuarios();
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await CargarUsuarios();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Auth.OnChange -= HandleAuthStateChanged;
+
+    private async Task CargarUsuarios()
+    {
+        if (!Auth.EsInvestigador)
+        {
+            usuarios = new List<UsuarioDTO>();
+            selectedUsuario = null;
+            isLoading = false;
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedUsuario = null;
+
+            var result = await UsuarioApiClient.GetAllAsync();
+            usuarios = result?.ToList() ?? new List<UsuarioDTO>();
+            if (usuarios.Count > 0) selectedUsuario = usuarios[0];
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar usuarios: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SeleccionarFila(UsuarioDTO u) => selectedUsuario = u;
+
+    private void AbrirModalAgregar()
+    {
+        modalMode = FormMode.Add;
+        usuarioParaEditar = new InvestigadorDTO();
+        isModalOpen = true;
+    }
+
+    private async Task AbrirModalActualizar()
+    {
+        if (selectedUsuario == null) return;
+        try
+        {
+            isLoading = true;
+            var fresco = await UsuarioApiClient.GetAsync(selectedUsuario.Id);
+            if (fresco != null)
+            {
+                if (fresco is InvestigadorDTO inv)
+                {
+                    usuarioParaEditar = new InvestigadorDTO
+                    {
+                        Id = inv.Id,
+                        Correo = inv.Correo,
+                        RecibirNotificaciones = inv.RecibirNotificaciones,
+                        Dni = inv.Dni,
+                        Nombre = inv.Nombre,
+                        Apellido = inv.Apellido
+                    };
+                }
+                else
+                {
+                    usuarioParaEditar = new LectorDTO
+                    {
+                        Id = fresco.Id,
+                        Correo = fresco.Correo,
+                        RecibirNotificaciones = fresco.RecibirNotificaciones
+                    };
+                }
+                modalMode = FormMode.Update;
+                isModalOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener usuario: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CerrarModal() => isModalOpen = false;
+
+    private async Task OnUsuarioGuardado()
+    {
+        isModalOpen = false;
+        feedbackMessage = "Operación completada con éxito.";
+        isFeedbackError = false;
+        await CargarUsuarios();
+    }
+
+    private void AbrirModalEliminar()
+    {
+        if (selectedUsuario != null) isConfirmDeleteOpen = true;
+    }
+
+    private async Task EliminarUsuarioConfirmado()
+    {
+        if (selectedUsuario == null) return;
+        try
+        {
+            isConfirmDeleteOpen = false;
+            isLoading = true;
+            await UsuarioApiClient.DeleteAsync(selectedUsuario.Id);
+            feedbackMessage = $"Usuario '{selectedUsuario.Correo}' eliminado.";
+            isFeedbackError = false;
+            selectedUsuario = null;
+            await CargarUsuarios();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar usuario: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+}
