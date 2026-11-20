@@ -29,6 +29,9 @@
         <NavLink href="/habitats" class="win-menu-item">
             Hábitats
         </NavLink>
+        <NavLink href="/tipos-evidencia" class="win-menu-item">
+            Tipos Evidencia
+        </NavLink>
         <div class="ms-auto d-flex align-items-center gap-2">
             @if (Auth.IsAuthenticated)
             {
@@ -72,6 +75,9 @@
                 </button>
                 <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/habitats"))">
                     Hábitats
+                </button>
+                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/tipos-evidencia"))">
+                    Tipos Evidencia
                 </button>
             </div>
         </div>

@@ -1,0 +1,137 @@
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 420px;">
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-tag text-primary" style="font-size: 11px;"></span>
+                    <span>Tipo de Evidencia</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel" disabled="@isSaving">✕</button>
+                </div>
+            </div>
+
+            <div class="win-form-content" style="padding: 18px 24px;">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="win-error-msg">
+                        <span class="oi oi-warning me-1"></span> @errorMessage
+                    </div>
+                }
+
+                @if (Mode == FormMode.Update)
+                {
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4"><label class="win-label">Id:</label></div>
+                        <div class="col-8"><input type="text" class="win-textbox w-100" value="@TipoEvidencia.Id" readonly /></div>
+                    </div>
+                }
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">Descripción:</label></div>
+                    <div class="col-8">
+                        <input type="text" class="win-textbox w-100 @(descripcionInvalida ? "win-field-error" : "")"
+                               @bind="TipoEvidencia.Descripcion" maxlength="80" disabled="@isSaving" />
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-4"><label class="win-label">ResourceType:</label></div>
+                    <div class="col-8">
+                        <select class="win-textbox w-100 @(resourceTypeInvalido ? "win-field-error" : "")"
+                                @bind="TipoEvidencia.ResourceType" disabled="@isSaving">
+                            <option value="image">image</option>
+                            <option value="audio">audio</option>
+                            <option value="video">video</option>
+                            <option value="document">document</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                    <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Aceptar")
+                    </button>
+                    <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Add;
+    [Parameter] public TipoEvidenciaDTO TipoEvidencia { get; set; } = new();
+
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private bool isSaving = false;
+    private string? errorMessage;
+    private bool descripcionInvalida = false;
+    private bool resourceTypeInvalido = false;
+
+    protected override void OnParametersSet()
+    {
+        errorMessage = null;
+        descripcionInvalida = false;
+        resourceTypeInvalido = false;
+        if (TipoEvidencia != null && string.IsNullOrEmpty(TipoEvidencia.ResourceType))
+        {
+            TipoEvidencia.ResourceType = "image";
+        }
+    }
+
+    private bool ValidateInput()
+    {
+        descripcionInvalida = string.IsNullOrWhiteSpace(TipoEvidencia.Descripcion);
+        resourceTypeInvalido = string.IsNullOrWhiteSpace(TipoEvidencia.ResourceType);
+
+        if (descripcionInvalida)
+        {
+            errorMessage = "La descripción es requerida";
+            return false;
+        }
+        if (resourceTypeInvalido)
+        {
+            errorMessage = "El ResourceType es requerido";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
+    }
+
+    private async Task Save()
+    {
+        if (!ValidateInput()) return;
+
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+
+            if (Mode == FormMode.Add)
+                await TipoEvidenciaApiClient.AddAsync(TipoEvidencia);
+            else
+                await TipoEvidenciaApiClient.UpdateAsync(TipoEvidencia);
+
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar tipo de evidencia: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task Cancel() => await OnCancel.InvokeAsync();
+}
+

@@ -70,9 +70,11 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<INoticiaService, NoticiaService>();
 
-// Habitats
+// Habitats y Tipos de Evidencia
 builder.Services.AddScoped<IHabitatRepository, HabitatRepository>();
 builder.Services.AddScoped<IHabitatService, HabitatService>();
+builder.Services.AddScoped<ITipoEvidenciaRepository, TipoEvidenciaRepository>();
+builder.Services.AddScoped<ITipoEvidenciaService, TipoEvidenciaService>();
 
 // Bestias, Registros y Usuarios
 builder.Services.AddScoped<IBestiaRepository, BestiaRepository>();
@@ -96,6 +98,7 @@ app.UseAuthorization();
 app.MapCategoriaEndpoints();
 app.MapNoticiaEndpoints();
 app.MapHabitatEndpoints();
+app.MapTipoEvidenciaEndpoints();
 app.MapBestiaEndpoints();
 app.MapRegistroEndpoints();
 app.MapUsuarioEndpoints();

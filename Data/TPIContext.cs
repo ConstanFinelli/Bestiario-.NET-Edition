@@ -10,6 +10,7 @@ namespace Data
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Habitat> Habitats { get; set; }
         public DbSet<CaracteristicaHabitat> CaracteristicasHabitat { get; set; }
+        public DbSet<TipoEvidencia> TiposEvidencia { get; set; }
         public DbSet<Bestia> Bestias { get; set; }
         public DbSet<Registro> Registros { get; set; }
         public DbSet<ContenidoRegistro> ContenidoRegistros { get; set; }
@@ -118,6 +119,24 @@ namespace Data
                     new { IdHabitat = Guid.Parse("aaaa1111-1111-1111-1111-111111111111"), NroCaracteristica = 2, Descripcion = "Acantilados rocosos escarpados aptos para anidación" },
                     new { IdHabitat = Guid.Parse("aaaa2222-2222-2222-2222-222222222222"), NroCaracteristica = 1, Descripcion = "Humedad constante superior al 85% y niebla densa" },
                     new { IdHabitat = Guid.Parse("aaaa3333-3333-3333-3333-333333333333"), NroCaracteristica = 1, Descripcion = "Temperaturas extremas diurnas y arena rojiza profunda" }
+                );
+            });
+
+            // ==========================================
+            // Entidad TipoEvidencia
+            // ==========================================
+            modelBuilder.Entity<TipoEvidencia>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.Id).ValueGeneratedOnAdd();
+                entity.Property(t => t.Descripcion).IsRequired().HasMaxLength(80);
+                entity.Property(t => t.ResourceType).IsRequired().HasMaxLength(40);
+
+                entity.HasData(
+                    new { Id = Guid.Parse("bbbb1111-1111-1111-1111-111111111111"), Descripcion = "Fotografía de Campo", ResourceType = "image" },
+                    new { Id = Guid.Parse("bbbb2222-2222-2222-2222-222222222222"), Descripcion = "Grabación de Audio", ResourceType = "audio" },
+                    new { Id = Guid.Parse("bbbb3333-3333-3333-3333-333333333333"), Descripcion = "Video de Avistamiento", ResourceType = "video" },
+                    new { Id = Guid.Parse("bbbb4444-4444-4444-4444-444444444444"), Descripcion = "Documento / Boceto", ResourceType = "document" }
                 );
             });
 

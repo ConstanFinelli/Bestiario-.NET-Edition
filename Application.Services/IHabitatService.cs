@@ -14,3 +14,4 @@ namespace Application.Services
         Task<bool> DeleteAsync(Guid id);
     }
 }
+

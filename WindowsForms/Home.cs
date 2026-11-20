@@ -48,6 +48,12 @@ namespace WindowsForms
             habitatsForm.ShowDialog();
         }
 
+        private void TiposEvidenciaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TipoEvidenciaLista tiposForm = new TipoEvidenciaLista();
+            tiposForm.ShowDialog();
+        }
+
         private void IconPictureBox_Paint(object? sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;

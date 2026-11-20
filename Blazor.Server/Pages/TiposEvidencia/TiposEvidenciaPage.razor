@@ -1,0 +1,222 @@
+@page "/tipos-evidencia"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Tipos de Evidencia</PageTitle>
+
+<div class="win-form" style="width: 820px;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-tag text-primary"></span>
+            <span>Tipos de Evidencia</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="CargarTipos" IsLoading="@isLoading" />
+
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        <div class="win-grid-container" style="height: 250px;">
+            <table class="win-grid">
+                <thead>
+                    <tr>
+                        <th class="win-grid-row-header-th"></th>
+                        <th style="width: 140px;">Id</th>
+                        <th style="width: 280px;">Descripción</th>
+                        <th>ResourceType</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
+                    {
+                        <tr><td colspan="4" class="text-center py-4 text-muted">Cargando tipos de evidencia...</td></tr>
+                    }
+                    else if (tipos == null || !tipos.Any())
+                    {
+                        <tr><td colspan="4" class="text-center py-4 text-muted">No hay tipos de evidencia disponibles.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var t in tipos)
+                        {
+                            bool isSelected = selectedTipo?.Id == t.Id;
+                            <tr class="@(isSelected ? "selected" : "")"
+                                @onclick="() => SeleccionarFila(t)"
+                                @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
+                                <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
+                                <td style="font-family: monospace; font-size: 10px;">@t.Id</td>
+                                <td>@t.Descripcion</td>
+                                <td><span class="badge bg-info text-dark" style="font-size: 10px;">@t.ResourceType</span></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Auth.EsInvestigador)
+        {
+            <div class="win-btn-action-bar">
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedTipo == null || isLoading)">Eliminar</button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedTipo == null || isLoading)">Actualizar</button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Agregar</button>
+            </div>
+        }
+    </div>
+
+    <div class="win-statusbar">
+        <span>@(tipos?.Count ?? 0) elemento(s) cargado(s)</span>
+        <span>@(selectedTipo != null ? $"Seleccionado: {selectedTipo.Descripcion}" : "Ningún elemento seleccionado")</span>
+    </div>
+</div>
+
+<TipoEvidenciaModal IsOpen="@isModalOpen"
+                    Mode="@modalMode"
+                    TipoEvidencia="@tipoParaEditar"
+                    OnSaved="@OnTipoGuardado"
+                    OnCancel="@CerrarModal" />
+
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar el tipo de evidencia '{selectedTipo?.Descripcion}'?")"
+              ConfirmButtonText="Sí"
+              OnConfirm="@EliminarTipoConfirmado"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@implements IDisposable
+
+@code {
+    private List<TipoEvidenciaDTO> tipos = new();
+    private TipoEvidenciaDTO? selectedTipo;
+    private TipoEvidenciaDTO tipoParaEditar = new();
+    private FormMode modalMode = FormMode.Add;
+
+    private bool isLoading = true;
+    private bool isModalOpen = false;
+    private bool isConfirmDeleteOpen = false;
+
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChange += HandleAuthStateChanged;
+        await CargarTipos();
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await CargarTipos();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Auth.OnChange -= HandleAuthStateChanged;
+
+    private async Task CargarTipos()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedTipo = null;
+
+            var result = await TipoEvidenciaApiClient.GetAllAsync();
+            tipos = result?.ToList() ?? new List<TipoEvidenciaDTO>();
+            if (tipos.Count > 0) selectedTipo = tipos[0];
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar tipos de evidencia: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SeleccionarFila(TipoEvidenciaDTO t) => selectedTipo = t;
+
+    private void AbrirModalAgregar()
+    {
+        modalMode = FormMode.Add;
+        tipoParaEditar = new TipoEvidenciaDTO { ResourceType = "image" };
+        isModalOpen = true;
+    }
+
+    private async Task AbrirModalActualizar()
+    {
+        if (selectedTipo == null) return;
+        try
+        {
+            isLoading = true;
+            var fresco = await TipoEvidenciaApiClient.GetAsync(selectedTipo.Id);
+            if (fresco != null)
+            {
+                tipoParaEditar = new TipoEvidenciaDTO
+                {
+                    Id = fresco.Id,
+                    Descripcion = fresco.Descripcion,
+                    ResourceType = fresco.ResourceType
+                };
+                modalMode = FormMode.Update;
+                isModalOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener datos: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CerrarModal() => isModalOpen = false;
+
+    private async Task OnTipoGuardado()
+    {
+        isModalOpen = false;
+        feedbackMessage = "Operación completada con éxito.";
+        isFeedbackError = false;
+        await CargarTipos();
+    }
+
+    private void AbrirModalEliminar()
+    {
+        if (selectedTipo != null) isConfirmDeleteOpen = true;
+    }
+
+    private async Task EliminarTipoConfirmado()
+    {
+        if (selectedTipo == null) return;
+        try
+        {
+            isConfirmDeleteOpen = false;
+            isLoading = true;
+            await TipoEvidenciaApiClient.DeleteAsync(selectedTipo.Id);
+            feedbackMessage = $"Tipo '{selectedTipo.Descripcion}' eliminado.";
+            isFeedbackError = false;
+            selectedTipo = null;
+            await CargarTipos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar tipo de evidencia: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+}
+

@@ -14,3 +14,4 @@ namespace Data
         Task<bool> DeleteAsync(Guid id);
     }
 }
+
