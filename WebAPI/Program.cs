@@ -70,11 +70,15 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<INoticiaService, NoticiaService>();
 
-// Habitats y Tipos de Evidencia
+// Habitats, Tipos de Evidencia, Evidencias y Comentarios
 builder.Services.AddScoped<IHabitatRepository, HabitatRepository>();
 builder.Services.AddScoped<IHabitatService, HabitatService>();
 builder.Services.AddScoped<ITipoEvidenciaRepository, TipoEvidenciaRepository>();
 builder.Services.AddScoped<ITipoEvidenciaService, TipoEvidenciaService>();
+builder.Services.AddScoped<IEvidenciaRepository, EvidenciaRepository>();
+builder.Services.AddScoped<IEvidenciaService, EvidenciaService>();
+builder.Services.AddScoped<IComentarioRepository, ComentarioRepository>();
+builder.Services.AddScoped<IComentarioService, ComentarioService>();
 
 // Bestias, Registros y Usuarios
 builder.Services.AddScoped<IBestiaRepository, BestiaRepository>();
