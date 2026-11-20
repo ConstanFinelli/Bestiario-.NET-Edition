@@ -15,6 +15,7 @@ namespace Domain.Model
         public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
         public ICollection<Registro> Registros { get; set; } = new List<Registro>();
         public ICollection<Evidencia> Evidencias { get; set; } = new List<Evidencia>();
+        public ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
 
         public Bestia() { }
 

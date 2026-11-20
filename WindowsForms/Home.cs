@@ -60,6 +60,12 @@ namespace WindowsForms
             evidenciasForm.ShowDialog();
         }
 
+        private void ComentariosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ComentarioLista comentariosForm = new ComentarioLista();
+            comentariosForm.ShowDialog();
+        }
+
         private void IconPictureBox_Paint(object? sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;

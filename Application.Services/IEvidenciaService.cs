@@ -15,3 +15,4 @@ namespace Application.Services
         Task<bool> AprobarAsync(Guid idBestia, int nroEvidencia);
     }
 }
+

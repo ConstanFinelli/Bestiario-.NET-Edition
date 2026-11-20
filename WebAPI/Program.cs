@@ -75,8 +75,6 @@ builder.Services.AddScoped<IHabitatRepository, HabitatRepository>();
 builder.Services.AddScoped<IHabitatService, HabitatService>();
 builder.Services.AddScoped<ITipoEvidenciaRepository, TipoEvidenciaRepository>();
 builder.Services.AddScoped<ITipoEvidenciaService, TipoEvidenciaService>();
-builder.Services.AddScoped<IEvidenciaRepository, EvidenciaRepository>();
-builder.Services.AddScoped<IEvidenciaService, EvidenciaService>();
 
 // Bestias, Registros y Usuarios
 builder.Services.AddScoped<IBestiaRepository, BestiaRepository>();
@@ -102,6 +100,7 @@ app.MapNoticiaEndpoints();
 app.MapHabitatEndpoints();
 app.MapTipoEvidenciaEndpoints();
 app.MapEvidenciaEndpoints();
+app.MapComentarioEndpoints();
 app.MapBestiaEndpoints();
 app.MapRegistroEndpoints();
 app.MapUsuarioEndpoints();

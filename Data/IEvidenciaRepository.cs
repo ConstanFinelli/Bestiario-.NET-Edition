@@ -16,3 +16,4 @@ namespace Data
         Task<bool> AprobarAsync(Guid idBestia, int nroEvidencia);
     }
 }
+

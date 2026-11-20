@@ -12,6 +12,7 @@ namespace Data
         public DbSet<CaracteristicaHabitat> CaracteristicasHabitat { get; set; }
         public DbSet<TipoEvidencia> TiposEvidencia { get; set; }
         public DbSet<Evidencia> Evidencias { get; set; }
+        public DbSet<Comentario> Comentarios { get; set; }
         public DbSet<Bestia> Bestias { get; set; }
         public DbSet<Registro> Registros { get; set; }
         public DbSet<ContenidoRegistro> ContenidoRegistros { get; set; }
@@ -313,6 +314,41 @@ namespace Data
                         FechaObtencion = new DateTime(2026, 2, 10, 14, 30, 0),
                         FileId = "grifo_avistamiento_01.jpg",
                         IdTipoEvidencia = Guid.Parse("bbbb1111-1111-1111-1111-111111111111")
+                    }
+                );
+            });
+
+            // ==========================================
+            // Entidad Comentario
+            // ==========================================
+            modelBuilder.Entity<Comentario>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Id).ValueGeneratedOnAdd();
+                entity.Property(c => c.Titulo).IsRequired().HasMaxLength(100);
+                entity.Property(c => c.Contenido).IsRequired().HasMaxLength(500);
+                entity.Property(c => c.Estado).IsRequired().HasMaxLength(20);
+
+                entity.HasOne(c => c.Bestia)
+                    .WithMany(b => b.Comentarios)
+                    .HasForeignKey(c => c.IdBestia)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(c => c.Usuario)
+                    .WithMany()
+                    .HasForeignKey(c => c.IdUsuario)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasData(
+                    new
+                    {
+                        Id = Guid.Parse("cccc1111-1111-1111-1111-111111111111"),
+                        IdBestia = Guid.Parse("11111111-0000-0000-0000-000000000001"),
+                        IdUsuario = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                        Titulo = "Avistamiento en la sierra",
+                        Contenido = "Observé un ejemplar sobrevolando el paso montañoso al amanecer.",
+                        Estado = "aprobado",
+                        FechaAprobacion = (DateTime?)new DateTime(2026, 2, 12, 9, 15, 0)
                     }
                 );
             });

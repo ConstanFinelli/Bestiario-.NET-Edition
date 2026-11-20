@@ -36,6 +36,7 @@ namespace WindowsForms
             habitatsToolStripMenuItem = new ToolStripMenuItem();
             tiposEvidenciaToolStripMenuItem = new ToolStripMenuItem();
             evidenciasToolStripMenuItem = new ToolStripMenuItem();
+            comentariosToolStripMenuItem = new ToolStripMenuItem();
             cardPanel = new Panel();
             iconPictureBox = new PictureBox();
             titleLabel = new Label();
@@ -47,6 +48,7 @@ namespace WindowsForms
             habitatsButton = new Button();
             tiposEvidenciaButton = new Button();
             evidenciasButton = new Button();
+            comentariosButton = new Button();
             menuStrip1.SuspendLayout();
             cardPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)iconPictureBox).BeginInit();
@@ -55,7 +57,7 @@ namespace WindowsForms
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(32, 32);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem, comentariosToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(3, 1, 0, 1);
@@ -112,6 +114,13 @@ namespace WindowsForms
             evidenciasToolStripMenuItem.Text = "Evidencias";
             evidenciasToolStripMenuItem.Click += EvidenciasToolStripMenuItem_Click;
             // 
+            // comentariosToolStripMenuItem
+            // 
+            comentariosToolStripMenuItem.Name = "comentariosToolStripMenuItem";
+            comentariosToolStripMenuItem.Size = new Size(85, 22);
+            comentariosToolStripMenuItem.Text = "Comentarios";
+            comentariosToolStripMenuItem.Click += ComentariosToolStripMenuItem_Click;
+            // 
             // cardPanel
             // 
             cardPanel.BackColor = Color.White;
@@ -126,9 +135,10 @@ namespace WindowsForms
             cardPanel.Controls.Add(habitatsButton);
             cardPanel.Controls.Add(tiposEvidenciaButton);
             cardPanel.Controls.Add(evidenciasButton);
+            cardPanel.Controls.Add(comentariosButton);
             cardPanel.Location = new Point(43, 50);
             cardPanel.Name = "cardPanel";
-            cardPanel.Size = new Size(560, 260);
+            cardPanel.Size = new Size(560, 275);
             cardPanel.TabIndex = 1;
             // 
             // iconPictureBox
@@ -238,11 +248,22 @@ namespace WindowsForms
             evidenciasButton.UseVisualStyleBackColor = true;
             evidenciasButton.Click += EvidenciasToolStripMenuItem_Click;
             // 
+            // comentariosButton
+            // 
+            comentariosButton.Font = new Font("Segoe UI", 9F);
+            comentariosButton.Location = new Point(415, 190);
+            comentariosButton.Name = "comentariosButton";
+            comentariosButton.Size = new Size(120, 28);
+            comentariosButton.TabIndex = 10;
+            comentariosButton.Text = "Comentarios";
+            comentariosButton.UseVisualStyleBackColor = true;
+            comentariosButton.Click += ComentariosToolStripMenuItem_Click;
+            // 
             // Home
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(646, 355);
+            ClientSize = new Size(646, 370);
             Controls.Add(cardPanel);
             Controls.Add(menuStrip1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -270,6 +291,7 @@ namespace WindowsForms
         private ToolStripMenuItem habitatsToolStripMenuItem;
         private ToolStripMenuItem tiposEvidenciaToolStripMenuItem;
         private ToolStripMenuItem evidenciasToolStripMenuItem;
+        private ToolStripMenuItem comentariosToolStripMenuItem;
         private Panel cardPanel;
         private PictureBox iconPictureBox;
         private Label titleLabel;
@@ -281,5 +303,6 @@ namespace WindowsForms
         private Button habitatsButton;
         private Button tiposEvidenciaButton;
         private Button evidenciasButton;
+        private Button comentariosButton;
     }
 }

@@ -1,0 +1,330 @@
+@page "/comentarios"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Comentarios</PageTitle>
+
+<div class="win-form" style="width: 920px;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-comment-square text-primary"></span>
+            <span>Comentarios de Bestias</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="CargarDatos" IsLoading="@isLoading" />
+
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
+            <label class="win-label fw-bold mb-0">Filtrar por Bestia:</label>
+            <select class="win-textbox" style="min-width: 250px;" @onchange="OnBestiaSeleccionadaCambiada">
+                <option value="">-- Todas las Bestias --</option>
+                @foreach (var b in bestias)
+                {
+                    <option value="@b.Id" selected="@(selectedFiltroBestiaId == b.Id)">@b.Nombre (@b.Peligrosidad)</option>
+                }
+            </select>
+            @if (selectedFiltroBestiaId.HasValue)
+            {
+                <button class="win-btn" style="height: 22px; font-size: 11px;" @onclick="LimpiarFiltro">Quitar Filtro</button>
+            }
+        </div>
+
+        <div class="win-grid-container" style="height: 260px;">
+            <table class="win-grid">
+                <thead>
+                    <tr>
+                        <th class="win-grid-row-header-th"></th>
+                        <th style="width: 135px;">Bestia</th>
+                        <th style="width: 170px;">Título</th>
+                        <th style="width: 150px;">Autor</th>
+                        <th style="width: 85px; text-align: center;">Estado</th>
+                        <th style="width: 120px;">Aprobación</th>
+                        <th>Contenido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">Cargando comentarios...</td></tr>
+                    }
+                    else if (comentariosMostrados == null || !comentariosMostrados.Any())
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron comentarios.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var c in comentariosMostrados)
+                        {
+                            bool isSelected = selectedComentario?.Id == c.Id;
+                            var nombreBestia = c.BestiaNombre ?? bestias.FirstOrDefault(b => b.Id == c.IdBestia)?.Nombre ?? "-";
+                            <tr class="@(isSelected ? "selected" : "")"
+                                @onclick="() => SeleccionarFila(c)"
+                                @ondblclick="AbrirModalActualizar">
+                                <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
+                                <td><strong>@nombreBestia</strong></td>
+                                <td>@c.Titulo</td>
+                                <td style="font-size: 11px;">@(c.CorreoUsuario ?? "-")</td>
+                                <td style="text-align: center;">
+                                    <span class="badge @(c.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
+                                        @c.Estado
+                                    </span>
+                                </td>
+                                <td style="font-size: 11px;">@(c.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                <td style="font-size: 11px;">@c.Contenido</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="win-btn-action-bar">
+            @if (Auth.EsInvestigador && selectedComentario != null && selectedComentario.Estado == "pendiente")
+            {
+                <button class="win-btn btn-success me-auto" style="border-color: #2e6b2e;" @onclick="AprobarComentarioSeleccionado" disabled="@isLoading">
+                    ✔ Aprobar Comentario
+                </button>
+            }
+            @if (Auth.EsInvestigador)
+            {
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedComentario == null || isLoading)">Eliminar</button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedComentario == null || isLoading)">Ver / Editar</button>
+            }
+            else
+            {
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedComentario == null || isLoading)">Ver Detalle</button>
+            }
+            @if (Auth.IsAuthenticated)
+            {
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Agregar</button>
+            }
+        </div>
+    </div>
+
+    <div class="win-statusbar">
+        <span>@(comentariosMostrados?.Count ?? 0) comentario(s) encontrado(s)</span>
+        <span>@(selectedComentario != null ? $"Seleccionado: {selectedComentario.Titulo}" : "Ningún comentario seleccionado")</span>
+    </div>
+</div>
+
+<ComentarioModal IsOpen="@isModalOpen"
+                 Mode="@modalMode"
+                 Comentario="@comentarioParaEditar"
+                 Bestias="@bestias"
+                 OnSaved="@OnComentarioGuardado"
+                 OnCancel="@CerrarModal" />
+
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar el comentario '{selectedComentario?.Titulo}'?")"
+              ConfirmButtonText="Sí"
+              OnConfirm="@EliminarComentarioConfirmado"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@implements IDisposable
+
+@code {
+    private List<BestiaDTO> bestias = new();
+    private List<ComentarioDTO> todosComentarios = new();
+    private List<ComentarioDTO> comentariosMostrados = new();
+
+    private ComentarioDTO? selectedComentario;
+    private ComentarioDTO comentarioParaEditar = new();
+    private FormMode modalMode = FormMode.Add;
+
+    private Guid? selectedFiltroBestiaId;
+    private bool isLoading = true;
+    private bool isModalOpen = false;
+    private bool isConfirmDeleteOpen = false;
+
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChange += HandleAuthStateChanged;
+        await CargarDatos();
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await CargarDatos();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Auth.OnChange -= HandleAuthStateChanged;
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedComentario = null;
+
+            var beastsResult = await BestiaApiClient.GetAllAsync();
+            bestias = beastsResult?.ToList() ?? new List<BestiaDTO>();
+            if (!Auth.EsInvestigador)
+            {
+                bestias = bestias.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            var comsResult = await ComentarioApiClient.GetAllAsync();
+            todosComentarios = comsResult?.ToList() ?? new List<ComentarioDTO>();
+            if (!Auth.EsInvestigador)
+            {
+                todosComentarios = todosComentarios.Where(c => c.Estado != null && c.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            AplicarFiltro();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar comentarios: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnBestiaSeleccionadaCambiada(ChangeEventArgs e)
+    {
+        selectedFiltroBestiaId = Guid.TryParse(e.Value?.ToString(), out Guid id) ? id : null;
+        AplicarFiltro();
+    }
+
+    private void LimpiarFiltro()
+    {
+        selectedFiltroBestiaId = null;
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        comentariosMostrados = (selectedFiltroBestiaId.HasValue
+            ? todosComentarios.Where(c => c.IdBestia == selectedFiltroBestiaId.Value)
+            : todosComentarios).ToList();
+
+        selectedComentario = comentariosMostrados.FirstOrDefault();
+    }
+
+    private void SeleccionarFila(ComentarioDTO c) => selectedComentario = c;
+
+    private void AbrirModalAgregar()
+    {
+        modalMode = FormMode.Add;
+        comentarioParaEditar = new ComentarioDTO
+        {
+            IdBestia = selectedFiltroBestiaId ?? (bestias.FirstOrDefault()?.Id ?? Guid.Empty),
+            IdUsuario = Auth.CurrentUser?.Id ?? Guid.Empty,
+            CorreoUsuario = Auth.Username,
+            Estado = "pendiente"
+        };
+        isModalOpen = true;
+    }
+
+    private async Task AbrirModalActualizar()
+    {
+        if (selectedComentario == null) return;
+        try
+        {
+            isLoading = true;
+            var fresco = await ComentarioApiClient.GetAsync(selectedComentario.Id);
+            if (fresco != null)
+            {
+                comentarioParaEditar = new ComentarioDTO
+                {
+                    Id = fresco.Id,
+                    IdBestia = fresco.IdBestia,
+                    BestiaNombre = fresco.BestiaNombre,
+                    IdUsuario = fresco.IdUsuario,
+                    CorreoUsuario = fresco.CorreoUsuario,
+                    Titulo = fresco.Titulo,
+                    Contenido = fresco.Contenido,
+                    Estado = fresco.Estado,
+                    FechaAprobacion = fresco.FechaAprobacion
+                };
+                modalMode = FormMode.Update;
+                isModalOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener datos: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CerrarModal() => isModalOpen = false;
+
+    private async Task OnComentarioGuardado()
+    {
+        isModalOpen = false;
+        feedbackMessage = "Comentario guardado exitosamente.";
+        isFeedbackError = false;
+        await CargarDatos();
+    }
+
+    private void AbrirModalEliminar()
+    {
+        if (selectedComentario != null) isConfirmDeleteOpen = true;
+    }
+
+    private async Task EliminarComentarioConfirmado()
+    {
+        if (selectedComentario == null) return;
+        try
+        {
+            isConfirmDeleteOpen = false;
+            isLoading = true;
+            await ComentarioApiClient.DeleteAsync(selectedComentario.Id);
+            feedbackMessage = $"Comentario '{selectedComentario.Titulo}' eliminado.";
+            isFeedbackError = false;
+            selectedComentario = null;
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar comentario: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+
+    private async Task AprobarComentarioSeleccionado()
+    {
+        if (selectedComentario == null) return;
+        try
+        {
+            isLoading = true;
+            await ComentarioApiClient.AprobarAsync(selectedComentario.Id);
+            feedbackMessage = $"Comentario '{selectedComentario.Titulo}' aprobado con éxito.";
+            isFeedbackError = false;
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al aprobar comentario: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+}
+

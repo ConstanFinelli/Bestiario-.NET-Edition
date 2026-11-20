@@ -35,6 +35,9 @@
         <NavLink href="/evidencias" class="win-menu-item">
             Evidencias
         </NavLink>
+        <NavLink href="/comentarios" class="win-menu-item">
+            Comentarios
+        </NavLink>
         <div class="ms-auto d-flex align-items-center gap-2">
             @if (Auth.IsAuthenticated)
             {
@@ -84,6 +87,9 @@
                 </button>
                 <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/evidencias"))">
                     Evidencias
+                </button>
+                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/comentarios"))">
+                    Comentarios
                 </button>
             </div>
         </div>
