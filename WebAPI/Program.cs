@@ -70,6 +70,10 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<INoticiaService, NoticiaService>();
 
+// Habitats
+builder.Services.AddScoped<IHabitatRepository, HabitatRepository>();
+builder.Services.AddScoped<IHabitatService, HabitatService>();
+
 // Bestias, Registros y Usuarios
 builder.Services.AddScoped<IBestiaRepository, BestiaRepository>();
 builder.Services.AddScoped<IBestiaService, BestiaService>();
@@ -91,6 +95,7 @@ app.UseAuthorization();
 
 app.MapCategoriaEndpoints();
 app.MapNoticiaEndpoints();
+app.MapHabitatEndpoints();
 app.MapBestiaEndpoints();
 app.MapRegistroEndpoints();
 app.MapUsuarioEndpoints();

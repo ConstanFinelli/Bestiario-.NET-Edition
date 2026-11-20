@@ -8,6 +8,8 @@ namespace Data
     {
         public DbSet<Noticia> Noticias { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<Habitat> Habitats { get; set; }
+        public DbSet<CaracteristicaHabitat> CaracteristicasHabitat { get; set; }
         public DbSet<Bestia> Bestias { get; set; }
         public DbSet<Registro> Registros { get; set; }
         public DbSet<ContenidoRegistro> ContenidoRegistros { get; set; }
@@ -83,7 +85,44 @@ namespace Data
             });
 
             // ==========================================
-            // Entidad Bestia (Relación N:M con Categoria)
+            // Entidad Habitat y CaracteristicaHabitat (Maestro/Detalle)
+            // ==========================================
+            modelBuilder.Entity<Habitat>(entity =>
+            {
+                entity.HasKey(h => h.Id);
+                entity.Property(h => h.Id).ValueGeneratedOnAdd();
+                entity.Property(h => h.Nombre).IsRequired().HasMaxLength(60);
+                entity.Property(h => h.Localizacion).IsRequired().HasMaxLength(120);
+                entity.Property(h => h.Latitud).IsRequired();
+                entity.Property(h => h.Longitud).IsRequired();
+
+                entity.HasData(
+                    new { Id = Guid.Parse("aaaa1111-1111-1111-1111-111111111111"), Nombre = "Cumbres del Norte", Localizacion = "Cordillera Septentrional", Latitud = -32.8895, Longitud = -68.8458 },
+                    new { Id = Guid.Parse("aaaa2222-2222-2222-2222-222222222222"), Nombre = "Pantano de Bruma", Localizacion = "Tierras Bajas del Este", Latitud = -34.6037, Longitud = -58.3816 },
+                    new { Id = Guid.Parse("aaaa3333-3333-3333-3333-333333333333"), Nombre = "Desierto Escarlata", Localizacion = "Dunas del Oeste", Latitud = -29.4135, Longitud = -66.8558 }
+                );
+            });
+
+            modelBuilder.Entity<CaracteristicaHabitat>(entity =>
+            {
+                entity.HasKey(c => new { c.IdHabitat, c.NroCaracteristica });
+                entity.Property(c => c.Descripcion).IsRequired().HasMaxLength(200);
+
+                entity.HasOne(c => c.Habitat)
+                    .WithMany(h => h.Caracteristicas)
+                    .HasForeignKey(c => c.IdHabitat)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasData(
+                    new { IdHabitat = Guid.Parse("aaaa1111-1111-1111-1111-111111111111"), NroCaracteristica = 1, Descripcion = "Clima frío de alta montaña con vientos intensos" },
+                    new { IdHabitat = Guid.Parse("aaaa1111-1111-1111-1111-111111111111"), NroCaracteristica = 2, Descripcion = "Acantilados rocosos escarpados aptos para anidación" },
+                    new { IdHabitat = Guid.Parse("aaaa2222-2222-2222-2222-222222222222"), NroCaracteristica = 1, Descripcion = "Humedad constante superior al 85% y niebla densa" },
+                    new { IdHabitat = Guid.Parse("aaaa3333-3333-3333-3333-333333333333"), NroCaracteristica = 1, Descripcion = "Temperaturas extremas diurnas y arena rojiza profunda" }
+                );
+            });
+
+            // ==========================================
+            // Entidad Bestia (Relación N:M con Categoria y N:1 con Habitat)
             // ==========================================
             modelBuilder.Entity<Bestia>(entity =>
             {
@@ -93,14 +132,20 @@ namespace Data
                 entity.Property(e => e.Peligrosidad).IsRequired().HasMaxLength(30);
                 entity.Property(e => e.Estado).IsRequired().HasMaxLength(20);
 
+                entity.HasOne(b => b.Habitat)
+                    .WithMany(h => h.Bestias)
+                    .HasForeignKey(b => b.IdHabitat)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.SetNull);
+
                 entity.HasMany(b => b.Categorias)
                     .WithMany(c => c.Bestias)
                     .UsingEntity(j => j.ToTable("BestiaCategorias"));
 
                 entity.HasData(
-                    new { Id = Guid.Parse("11111111-0000-0000-0000-000000000001"), Nombre = "Grifo Real", Peligrosidad = "Alta", Estado = "aprobado" },
-                    new { Id = Guid.Parse("11111111-0000-0000-0000-000000000002"), Nombre = "Basilisco Menor", Peligrosidad = "Extrema", Estado = "aprobado" },
-                    new { Id = Guid.Parse("11111111-0000-0000-0000-000000000003"), Nombre = "Manticora de las Dunas", Peligrosidad = "Muy Alta", Estado = "pendiente" }
+                    new { Id = Guid.Parse("11111111-0000-0000-0000-000000000001"), Nombre = "Grifo Real", Peligrosidad = "Alta", Estado = "aprobado", IdHabitat = (Guid?)Guid.Parse("aaaa1111-1111-1111-1111-111111111111") },
+                    new { Id = Guid.Parse("11111111-0000-0000-0000-000000000002"), Nombre = "Basilisco Menor", Peligrosidad = "Extrema", Estado = "aprobado", IdHabitat = (Guid?)Guid.Parse("aaaa2222-2222-2222-2222-222222222222") },
+                    new { Id = Guid.Parse("11111111-0000-0000-0000-000000000003"), Nombre = "Manticora de las Dunas", Peligrosidad = "Muy Alta", Estado = "pendiente", IdHabitat = (Guid?)Guid.Parse("aaaa3333-3333-3333-3333-333333333333") }
                 );
             });
 

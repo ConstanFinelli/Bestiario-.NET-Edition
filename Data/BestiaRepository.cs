@@ -20,6 +20,7 @@ namespace Data
         {
             return await context.Bestias
                 .Include(b => b.Categorias)
+                .Include(b => b.Habitat)
                 .ToListAsync();
         }
 
@@ -27,6 +28,7 @@ namespace Data
         {
             return await context.Bestias
                 .Include(b => b.Categorias)
+                .Include(b => b.Habitat)
                 .Include(b => b.Registros)
                     .ThenInclude(r => r.Contenidos)
                 .FirstOrDefaultAsync(b => b.Id == id);
@@ -62,6 +64,7 @@ namespace Data
             existing.SetNombre(bestia.Nombre);
             existing.SetPeligrosidad(bestia.Peligrosidad);
             existing.SetEstado(bestia.Estado);
+            existing.IdHabitat = bestia.IdHabitat;
 
             if (categoriaIds != null)
             {

@@ -60,6 +60,7 @@ namespace WindowsForms
             {
                 DeshabilitarControles();
                 await CargarCategorias();
+                await CargarHabitats();
                 this.Mode = mode;
                 this.Bestia = bestia;
             }
@@ -92,12 +93,44 @@ namespace WindowsForms
             }
         }
 
+        private async Task CargarHabitats()
+        {
+            try
+            {
+                var result = await HabitatApiClient.GetAllAsync();
+                var habitats = result?.ToList() ?? new List<HabitatDTO>();
+
+                this.habitatComboBox.Items.Clear();
+                this.habitatComboBox.Items.Add(new HabitatComboItem { Id = null, Nombre = "-- Sin hábitat --" });
+                foreach (var h in habitats)
+                {
+                    this.habitatComboBox.Items.Add(new HabitatComboItem { Id = h.Id, Nombre = h.Nombre });
+                }
+                this.habitatComboBox.SelectedIndex = 0;
+            }
+            catch
+            {
+                this.habitatComboBox.Items.Clear();
+                this.habitatComboBox.Items.Add(new HabitatComboItem { Id = null, Nombre = "-- Sin hábitat --" });
+                this.habitatComboBox.SelectedIndex = 0;
+            }
+        }
+
         private void SetBestia()
         {
             this.idTextBox.Text = this.Bestia.Id.ToString();
             this.nombreTextBox.Text = this.Bestia.Nombre;
             this.peligrosidadComboBox.SelectedItem = string.IsNullOrEmpty(this.Bestia.Peligrosidad) ? "Media" : this.Bestia.Peligrosidad;
             this.estadoComboBox.SelectedItem = string.IsNullOrEmpty(this.Bestia.Estado) ? "pendiente" : this.Bestia.Estado;
+
+            for (int i = 0; i < this.habitatComboBox.Items.Count; i++)
+            {
+                if (this.habitatComboBox.Items[i] is HabitatComboItem item && item.Id == this.Bestia.IdHabitat)
+                {
+                    this.habitatComboBox.SelectedIndex = i;
+                    break;
+                }
+            }
 
             // Marcar categorías asignadas
             for (int i = 0; i < this.categoriasCheckedListBox.Items.Count; i++)
@@ -142,6 +175,7 @@ namespace WindowsForms
                     this.Bestia.Nombre = nombreTextBox.Text.Trim();
                     this.Bestia.Peligrosidad = peligrosidadComboBox.SelectedItem?.ToString() ?? "Media";
                     this.Bestia.Estado = estadoComboBox.SelectedItem?.ToString() ?? "pendiente";
+                    this.Bestia.IdHabitat = (habitatComboBox.SelectedItem as HabitatComboItem)?.Id;
 
                     // Extraer categorías seleccionadas
                     this.Bestia.CategoriasIds.Clear();
@@ -208,6 +242,7 @@ namespace WindowsForms
             nombreTextBox.Enabled = false;
             peligrosidadComboBox.Enabled = false;
             estadoComboBox.Enabled = false;
+            habitatComboBox.Enabled = false;
             categoriasCheckedListBox.Enabled = false;
         }
 
@@ -218,12 +253,21 @@ namespace WindowsForms
             nombreTextBox.Enabled = true;
             peligrosidadComboBox.Enabled = true;
             estadoComboBox.Enabled = true;
+            habitatComboBox.Enabled = true;
             categoriasCheckedListBox.Enabled = true;
         }
 
         private class CategoriaCheckItem
         {
             public Guid Id { get; set; }
+            public string Nombre { get; set; } = string.Empty;
+
+            public override string ToString() => Nombre;
+        }
+
+        private class HabitatComboItem
+        {
+            public Guid? Id { get; set; }
             public string Nombre { get; set; } = string.Empty;
 
             public override string ToString() => Nombre;

@@ -1,0 +1,261 @@
+@page "/habitats"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Hábitats</PageTitle>
+
+<div class="win-form" style="width: 880px;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-map-marker text-primary"></span>
+            <span>Hábitats</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="CargarHabitats" IsLoading="@isLoading" />
+
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        <div class="win-grid-container" style="height: 260px;">
+            <table class="win-grid">
+                <thead>
+                    <tr>
+                        <th class="win-grid-row-header-th"></th>
+                        <th style="width: 170px;">Nombre</th>
+                        <th style="width: 240px;">Localización</th>
+                        <th style="width: 100px; text-align: right;">Latitud</th>
+                        <th style="width: 100px; text-align: right;">Longitud</th>
+                        <th style="text-align: center;">Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Cargando hábitats...</td>
+                        </tr>
+                    }
+                    else if (habitats == null || !habitats.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No hay hábitats registrados.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var h in habitats)
+                        {
+                            bool isSelected = selectedHabitat?.Id == h.Id;
+                            <tr class="@(isSelected ? "selected" : "")"
+                                @onclick="() => SeleccionarFila(h)"
+                                @ondblclick="AbrirModalActualizar">
+                                <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
+                                <td><strong>@h.Nombre</strong></td>
+                                <td>@h.Localizacion</td>
+                                <td style="text-align: right;">@h.Latitud</td>
+                                <td style="text-align: right;">@h.Longitud</td>
+                                <td style="text-align: center;">@h.Caracteristicas.Count</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="win-btn-action-bar">
+            @if (Auth.EsInvestigador)
+            {
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedHabitat == null || isLoading)">
+                    Eliminar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedHabitat == null || isLoading)">
+                    Actualizar
+                </button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                    Agregar
+                </button>
+            }
+            else
+            {
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedHabitat == null || isLoading)">
+                    Ver Detalle
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="win-statusbar">
+        <span>@(habitats?.Count ?? 0) elemento(s) cargado(s)</span>
+        <span>@(selectedHabitat != null ? $"Seleccionado: {selectedHabitat.Nombre}" : "Ningún elemento seleccionado")</span>
+    </div>
+</div>
+
+<HabitatModal IsOpen="@isModalOpen"
+              Mode="@modalMode"
+              Habitat="@habitatParaEditar"
+              OnSaved="@OnHabitatGuardado"
+              OnCancel="@CerrarModal" />
+
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar el hábitat '{selectedHabitat?.Nombre}'?")"
+              ConfirmButtonText="Sí"
+              OnConfirm="@EliminarHabitatConfirmado"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@implements IDisposable
+
+@code {
+    private List<HabitatDTO> habitats = new();
+    private HabitatDTO? selectedHabitat;
+    private HabitatDTO habitatParaEditar = new();
+    private FormMode modalMode = FormMode.Add;
+
+    private bool isLoading = true;
+    private bool isModalOpen = false;
+    private bool isConfirmDeleteOpen = false;
+
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChange += HandleAuthStateChanged;
+        await CargarHabitats();
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await CargarHabitats();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= HandleAuthStateChanged;
+    }
+
+    private async Task CargarHabitats()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedHabitat = null;
+
+            var result = await HabitatApiClient.GetAllAsync();
+            habitats = result?.ToList() ?? new List<HabitatDTO>();
+
+            if (habitats.Count > 0)
+            {
+                selectedHabitat = habitats[0];
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar hábitats: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SeleccionarFila(HabitatDTO h) => selectedHabitat = h;
+
+    private void AbrirModalAgregar()
+    {
+        modalMode = FormMode.Add;
+        habitatParaEditar = new HabitatDTO();
+        isModalOpen = true;
+    }
+
+    private async Task AbrirModalActualizar()
+    {
+        if (selectedHabitat == null) return;
+
+        try
+        {
+            isLoading = true;
+            var fresco = await HabitatApiClient.GetAsync(selectedHabitat.Id);
+            if (fresco != null)
+            {
+                habitatParaEditar = new HabitatDTO
+                {
+                    Id = fresco.Id,
+                    Nombre = fresco.Nombre,
+                    Localizacion = fresco.Localizacion,
+                    Latitud = fresco.Latitud,
+                    Longitud = fresco.Longitud,
+                    Caracteristicas = fresco.Caracteristicas.Select(c => new CaracteristicaHabitatDTO
+                    {
+                        IdHabitat = c.IdHabitat,
+                        NroCaracteristica = c.NroCaracteristica,
+                        Descripcion = c.Descripcion
+                    }).ToList()
+                };
+                modalMode = FormMode.Update;
+                isModalOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener datos: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CerrarModal() => isModalOpen = false;
+
+    private async Task OnHabitatGuardado()
+    {
+        isModalOpen = false;
+        feedbackMessage = "Operación completada con éxito.";
+        isFeedbackError = false;
+        await CargarHabitats();
+    }
+
+    private void AbrirModalEliminar()
+    {
+        if (selectedHabitat != null)
+        {
+            isConfirmDeleteOpen = true;
+        }
+    }
+
+    private async Task EliminarHabitatConfirmado()
+    {
+        if (selectedHabitat == null) return;
+
+        try
+        {
+            isConfirmDeleteOpen = false;
+            isLoading = true;
+            await HabitatApiClient.DeleteAsync(selectedHabitat.Id);
+            feedbackMessage = $"Hábitat '{selectedHabitat.Nombre}' eliminado.";
+            isFeedbackError = false;
+            selectedHabitat = null;
+            await CargarHabitats();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar hábitat: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+}

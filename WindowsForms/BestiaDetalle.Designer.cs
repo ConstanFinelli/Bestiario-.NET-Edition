@@ -37,6 +37,8 @@ namespace WindowsForms
             peligrosidadComboBox = new ComboBox();
             estadoLabel = new Label();
             estadoComboBox = new ComboBox();
+            habitatLabel = new Label();
+            habitatComboBox = new ComboBox();
             categoriasLabel = new Label();
             categoriasCheckedListBox = new CheckedListBox();
             aceptarButton = new Button();
@@ -116,40 +118,58 @@ namespace WindowsForms
             estadoComboBox.Size = new Size(160, 23);
             estadoComboBox.TabIndex = 7;
             // 
+            // habitatLabel
+            // 
+            habitatLabel.AutoSize = true;
+            habitatLabel.Location = new Point(24, 146);
+            habitatLabel.Name = "habitatLabel";
+            habitatLabel.Size = new Size(49, 15);
+            habitatLabel.TabIndex = 8;
+            habitatLabel.Text = "Hábitat:";
+            // 
+            // habitatComboBox
+            // 
+            habitatComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            habitatComboBox.FormattingEnabled = true;
+            habitatComboBox.Location = new Point(120, 143);
+            habitatComboBox.Name = "habitatComboBox";
+            habitatComboBox.Size = new Size(260, 23);
+            habitatComboBox.TabIndex = 9;
+            // 
             // categoriasLabel
             // 
             categoriasLabel.AutoSize = true;
-            categoriasLabel.Location = new Point(24, 146);
+            categoriasLabel.Location = new Point(24, 178);
             categoriasLabel.Name = "categoriasLabel";
             categoriasLabel.Size = new Size(66, 15);
-            categoriasLabel.TabIndex = 8;
+            categoriasLabel.TabIndex = 10;
             categoriasLabel.Text = "Categorías:";
             // 
             // categoriasCheckedListBox
             // 
             categoriasCheckedListBox.CheckOnClick = true;
             categoriasCheckedListBox.FormattingEnabled = true;
-            categoriasCheckedListBox.Location = new Point(120, 146);
+            categoriasCheckedListBox.Location = new Point(120, 178);
             categoriasCheckedListBox.Name = "categoriasCheckedListBox";
             categoriasCheckedListBox.Size = new Size(260, 94);
-            categoriasCheckedListBox.TabIndex = 9;
+            categoriasCheckedListBox.TabIndex = 11;
             // 
             // aceptarButton
             // 
-            aceptarButton.Location = new Point(215, 260);
+            aceptarButton.Location = new Point(215, 292);
             aceptarButton.Name = "aceptarButton";
             aceptarButton.Size = new Size(80, 25);
-            aceptarButton.TabIndex = 10;
+            aceptarButton.TabIndex = 12;
             aceptarButton.Text = "Aceptar";
             aceptarButton.UseVisualStyleBackColor = true;
             aceptarButton.Click += aceptarButton_Click;
             // 
             // cancelarButton
             // 
-            cancelarButton.Location = new Point(300, 260);
+            cancelarButton.Location = new Point(300, 292);
             cancelarButton.Name = "cancelarButton";
             cancelarButton.Size = new Size(80, 25);
-            cancelarButton.TabIndex = 11;
+            cancelarButton.TabIndex = 13;
             cancelarButton.Text = "Cancelar";
             cancelarButton.UseVisualStyleBackColor = true;
             cancelarButton.Click += cancelarButton_Click;
@@ -162,11 +182,13 @@ namespace WindowsForms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(409, 300);
+            ClientSize = new Size(409, 332);
             Controls.Add(cancelarButton);
             Controls.Add(aceptarButton);
             Controls.Add(categoriasCheckedListBox);
             Controls.Add(categoriasLabel);
+            Controls.Add(habitatComboBox);
+            Controls.Add(habitatLabel);
             Controls.Add(estadoComboBox);
             Controls.Add(estadoLabel);
             Controls.Add(peligrosidadComboBox);
@@ -196,6 +218,8 @@ namespace WindowsForms
         private ComboBox peligrosidadComboBox;
         private Label estadoLabel;
         private ComboBox estadoComboBox;
+        private Label habitatLabel;
+        private ComboBox habitatComboBox;
         private Label categoriasLabel;
         private CheckedListBox categoriasCheckedListBox;
         private Button aceptarButton;

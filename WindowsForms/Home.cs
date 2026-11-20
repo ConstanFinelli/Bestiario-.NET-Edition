@@ -42,6 +42,12 @@ namespace WindowsForms
             registrosForm.ShowDialog();
         }
 
+        private void HabitatsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HabitatLista habitatsForm = new HabitatLista();
+            habitatsForm.ShowDialog();
+        }
+
         private void IconPictureBox_Paint(object? sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;

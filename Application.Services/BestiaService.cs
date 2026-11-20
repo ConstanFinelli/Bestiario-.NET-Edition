@@ -23,7 +23,8 @@ namespace Application.Services
                 dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id,
                 dto.Nombre,
                 dto.Peligrosidad,
-                string.IsNullOrWhiteSpace(dto.Estado) ? "pendiente" : dto.Estado
+                string.IsNullOrWhiteSpace(dto.Estado) ? "pendiente" : dto.Estado,
+                dto.IdHabitat
             );
 
             await bestiaRepository.AddAsync(bestia, dto.CategoriasIds);
@@ -32,6 +33,7 @@ namespace Application.Services
             dto.Nombre = bestia.Nombre;
             dto.Peligrosidad = bestia.Peligrosidad;
             dto.Estado = bestia.Estado;
+            dto.IdHabitat = bestia.IdHabitat;
 
             return dto;
         }
@@ -42,7 +44,8 @@ namespace Application.Services
                 dto.Id,
                 dto.Nombre,
                 dto.Peligrosidad,
-                dto.Estado
+                dto.Estado,
+                dto.IdHabitat
             );
 
             return await bestiaRepository.UpdateAsync(bestia, dto.CategoriasIds);
@@ -65,6 +68,8 @@ namespace Application.Services
                 Nombre = bestia.Nombre,
                 Peligrosidad = bestia.Peligrosidad,
                 Estado = bestia.Estado,
+                IdHabitat = bestia.IdHabitat,
+                HabitatNombre = bestia.Habitat?.Nombre,
                 CategoriasIds = bestia.Categorias.Select(c => c.Id).ToList(),
                 CategoriasNombres = bestia.Categorias.Select(c => c.Nombre).ToList()
             };
@@ -80,6 +85,8 @@ namespace Application.Services
                 Nombre = b.Nombre,
                 Peligrosidad = b.Peligrosidad,
                 Estado = b.Estado,
+                IdHabitat = b.IdHabitat,
+                HabitatNombre = b.Habitat?.Nombre,
                 CategoriasIds = b.Categorias.Select(c => c.Id).ToList(),
                 CategoriasNombres = b.Categorias.Select(c => c.Nombre).ToList()
             }).ToList();

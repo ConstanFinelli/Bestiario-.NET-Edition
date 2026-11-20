@@ -71,6 +71,21 @@
                     </div>
                 </div>
 
+                <div class="row align-items-center mb-2">
+                    <div class="col-4">
+                        <label class="win-label">Hábitat:</label>
+                    </div>
+                    <div class="col-8">
+                        <select class="win-textbox w-100" value="@(Bestia.IdHabitat?.ToString() ?? "")" @onchange="OnHabitatChanged" disabled="@isSaving">
+                            <option value="">-- Sin hábitat --</option>
+                            @foreach (var h in todosHabitats)
+                            {
+                                <option value="@h.Id">@h.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Categorías vinculadas (Muchos a Muchos) -->
                 <div class="row mb-2">
                     <div class="col-4 pt-1">
@@ -125,6 +140,7 @@
     [Parameter] public EventCallback OnCancel { get; set; }
 
     private List<CategoriaDTO> todasCategorias = new();
+    private List<HabitatDTO> todosHabitats = new();
     private bool isSaving = false;
     private string? errorMessage;
     private bool nombreInvalido = false;
@@ -150,7 +166,25 @@
             {
                 todasCategorias = new List<CategoriaDTO>();
             }
+
+            try
+            {
+                var habs = await HabitatApiClient.GetAllAsync();
+                todosHabitats = habs?.ToList() ?? new List<HabitatDTO>();
+            }
+            catch
+            {
+                todosHabitats = new List<HabitatDTO>();
+            }
         }
+    }
+
+    private void OnHabitatChanged(ChangeEventArgs e)
+    {
+        if (Guid.TryParse(e.Value?.ToString(), out Guid idHab))
+            Bestia.IdHabitat = idHab;
+        else
+            Bestia.IdHabitat = null;
     }
 
     private void ToggleCategoria(Guid idCategoria, object? isCheckedObj)

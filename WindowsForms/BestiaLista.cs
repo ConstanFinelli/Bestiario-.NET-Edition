@@ -58,10 +58,18 @@ namespace WindowsForms
 
             this.bestiasDataGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "Habitat",
+                HeaderText = "Hábitat",
+                DataPropertyName = "HabitatTexto",
+                Width = 140
+            });
+
+            this.bestiasDataGridView.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 Name = "Categorias",
                 HeaderText = "Categorías",
                 DataPropertyName = "CategoriasTexto",
-                Width = 220
+                Width = 180
             });
 
             this.bestiasDataGridView.ReadOnly = true;
@@ -171,6 +179,9 @@ namespace WindowsForms
                     Nombre = b.Nombre,
                     Peligrosidad = b.Peligrosidad,
                     Estado = b.Estado,
+                    IdHabitat = b.IdHabitat,
+                    HabitatNombre = b.HabitatNombre,
+                    HabitatTexto = string.IsNullOrEmpty(b.HabitatNombre) ? "-" : b.HabitatNombre,
                     CategoriasIds = b.CategoriasIds,
                     CategoriasNombres = b.CategoriasNombres,
                     CategoriasTexto = b.CategoriasNombres.Any() ? string.Join(", ", b.CategoriasNombres) : "-"
@@ -241,6 +252,7 @@ namespace WindowsForms
         private class BestiaVM : BestiaDTO
         {
             public string CategoriasTexto { get; set; } = string.Empty;
+            public string HabitatTexto { get; set; } = string.Empty;
         }
     }
 }

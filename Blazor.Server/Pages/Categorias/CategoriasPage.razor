@@ -14,28 +14,7 @@
     </div>
 
     <!-- MenuStrip de Navegación -->
-    <div class="win-menustrip">
-        <NavLink href="/" class="win-menu-item">
-            Inicio
-        </NavLink>
-        <NavLink href="/categorias" class="win-menu-item active">
-            Categorias
-        </NavLink>
-        <NavLink href="/noticias" class="win-menu-item">
-            Noticias
-        </NavLink>
-        <NavLink href="/bestias" class="win-menu-item">
-            Bestias
-        </NavLink>
-        <NavLink href="/registros" class="win-menu-item">
-            Registros
-        </NavLink>
-        <div class="ms-auto">
-            <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 6px;" @onclick="CargarCategorias" disabled="@isLoading">
-                Refrescar
-            </button>
-        </div>
-    </div>
+    <WinMenuStrip OnRefresh="CargarCategorias" IsLoading="@isLoading" />
 
     <!-- Contenido del Formulario -->
     <div class="win-form-content">

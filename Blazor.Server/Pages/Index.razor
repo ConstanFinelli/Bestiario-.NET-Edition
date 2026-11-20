@@ -26,6 +26,9 @@
         <NavLink href="/registros" class="win-menu-item">
             Registros
         </NavLink>
+        <NavLink href="/habitats" class="win-menu-item">
+            Hábitats
+        </NavLink>
         <div class="ms-auto d-flex align-items-center gap-2">
             @if (Auth.IsAuthenticated)
             {
@@ -66,6 +69,9 @@
                 </button>
                 <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/registros"))">
                     Registros
+                </button>
+                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/habitats"))">
+                    Hábitats
                 </button>
             </div>
         </div>
