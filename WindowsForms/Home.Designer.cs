@@ -35,6 +35,7 @@ namespace WindowsForms
             registrosToolStripMenuItem = new ToolStripMenuItem();
             habitatsToolStripMenuItem = new ToolStripMenuItem();
             tiposEvidenciaToolStripMenuItem = new ToolStripMenuItem();
+            evidenciasToolStripMenuItem = new ToolStripMenuItem();
             cardPanel = new Panel();
             iconPictureBox = new PictureBox();
             titleLabel = new Label();
@@ -45,6 +46,7 @@ namespace WindowsForms
             registrosButton = new Button();
             habitatsButton = new Button();
             tiposEvidenciaButton = new Button();
+            evidenciasButton = new Button();
             menuStrip1.SuspendLayout();
             cardPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)iconPictureBox).BeginInit();
@@ -53,7 +55,7 @@ namespace WindowsForms
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(32, 32);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(3, 1, 0, 1);
@@ -103,6 +105,13 @@ namespace WindowsForms
             tiposEvidenciaToolStripMenuItem.Text = "Tipos Evidencia";
             tiposEvidenciaToolStripMenuItem.Click += TiposEvidenciaToolStripMenuItem_Click;
             // 
+            // evidenciasToolStripMenuItem
+            // 
+            evidenciasToolStripMenuItem.Name = "evidenciasToolStripMenuItem";
+            evidenciasToolStripMenuItem.Size = new Size(80, 22);
+            evidenciasToolStripMenuItem.Text = "Evidencias";
+            evidenciasToolStripMenuItem.Click += EvidenciasToolStripMenuItem_Click;
+            // 
             // cardPanel
             // 
             cardPanel.BackColor = Color.White;
@@ -116,6 +125,7 @@ namespace WindowsForms
             cardPanel.Controls.Add(registrosButton);
             cardPanel.Controls.Add(habitatsButton);
             cardPanel.Controls.Add(tiposEvidenciaButton);
+            cardPanel.Controls.Add(evidenciasButton);
             cardPanel.Location = new Point(43, 50);
             cardPanel.Name = "cardPanel";
             cardPanel.Size = new Size(560, 260);
@@ -217,6 +227,17 @@ namespace WindowsForms
             tiposEvidenciaButton.UseVisualStyleBackColor = true;
             tiposEvidenciaButton.Click += TiposEvidenciaToolStripMenuItem_Click;
             // 
+            // evidenciasButton
+            // 
+            evidenciasButton.Font = new Font("Segoe UI", 9F);
+            evidenciasButton.Location = new Point(285, 190);
+            evidenciasButton.Name = "evidenciasButton";
+            evidenciasButton.Size = new Size(120, 28);
+            evidenciasButton.TabIndex = 9;
+            evidenciasButton.Text = "Evidencias";
+            evidenciasButton.UseVisualStyleBackColor = true;
+            evidenciasButton.Click += EvidenciasToolStripMenuItem_Click;
+            // 
             // Home
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -248,6 +269,7 @@ namespace WindowsForms
         private ToolStripMenuItem registrosToolStripMenuItem;
         private ToolStripMenuItem habitatsToolStripMenuItem;
         private ToolStripMenuItem tiposEvidenciaToolStripMenuItem;
+        private ToolStripMenuItem evidenciasToolStripMenuItem;
         private Panel cardPanel;
         private PictureBox iconPictureBox;
         private Label titleLabel;
@@ -258,5 +280,6 @@ namespace WindowsForms
         private Button registrosButton;
         private Button habitatsButton;
         private Button tiposEvidenciaButton;
+        private Button evidenciasButton;
     }
 }

@@ -11,6 +11,7 @@ namespace Data
         public DbSet<Habitat> Habitats { get; set; }
         public DbSet<CaracteristicaHabitat> CaracteristicasHabitat { get; set; }
         public DbSet<TipoEvidencia> TiposEvidencia { get; set; }
+        public DbSet<Evidencia> Evidencias { get; set; }
         public DbSet<Bestia> Bestias { get; set; }
         public DbSet<Registro> Registros { get; set; }
         public DbSet<ContenidoRegistro> ContenidoRegistros { get; set; }
@@ -278,6 +279,40 @@ namespace Data
                         NroContenido = 2,
                         Titulo = "Comportamiento y Caza",
                         Contenido = "Caza en parejas durante el amanecer. Extremadamente territorial."
+                    }
+                );
+            });
+
+            // ==========================================
+            // Entidad Evidencia (PK compuesta: IdBestia, NroEvidencia)
+            // ==========================================
+            modelBuilder.Entity<Evidencia>(entity =>
+            {
+                entity.HasKey(e => new { e.IdBestia, e.NroEvidencia });
+
+                entity.Property(e => e.Estado).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.FechaObtencion).IsRequired();
+                entity.Property(e => e.FileId).IsRequired().HasMaxLength(200);
+
+                entity.HasOne(e => e.Bestia)
+                    .WithMany(b => b.Evidencias)
+                    .HasForeignKey(e => e.IdBestia)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.TipoEvidencia)
+                    .WithMany()
+                    .HasForeignKey(e => e.IdTipoEvidencia)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasData(
+                    new
+                    {
+                        IdBestia = Guid.Parse("11111111-0000-0000-0000-000000000001"),
+                        NroEvidencia = 1,
+                        Estado = "aprobado",
+                        FechaObtencion = new DateTime(2026, 2, 10, 14, 30, 0),
+                        FileId = "grifo_avistamiento_01.jpg",
+                        IdTipoEvidencia = Guid.Parse("bbbb1111-1111-1111-1111-111111111111")
                     }
                 );
             });

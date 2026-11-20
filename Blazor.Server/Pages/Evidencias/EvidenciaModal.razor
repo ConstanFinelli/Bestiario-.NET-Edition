@@ -1,0 +1,198 @@
+@inject AuthService Auth
+
+@if (IsOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 480px;">
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-camera-slr text-primary" style="font-size: 11px;"></span>
+                    <span>Evidencia</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" title="Cerrar" @onclick="Cancel" disabled="@isSaving">✕</button>
+                </div>
+            </div>
+
+            <div class="win-form-content" style="padding: 18px 24px;">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="win-error-msg mb-2">
+                        <span class="oi oi-warning me-1"></span> @errorMessage
+                    </div>
+                }
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">Bestia:</label></div>
+                    <div class="col-8">
+                        @if (Mode == FormMode.Update)
+                        {
+                            var nombreBestia = Bestias.FirstOrDefault(b => b.Id == Evidencia.IdBestia)?.Nombre ?? Evidencia.IdBestia.ToString();
+                            <input type="text" class="win-textbox w-100" value="@nombreBestia" readonly />
+                        }
+                        else
+                        {
+                            <select class="win-textbox w-100" @bind="Evidencia.IdBestia" disabled="@(isSaving || !Auth.EsInvestigador)">
+                                <option value="@Guid.Empty">-- Seleccione una Bestia --</option>
+                                @foreach (var b in Bestias)
+                                {
+                                    <option value="@b.Id">@b.Nombre (@b.Peligrosidad)</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                </div>
+
+                @if (Mode == FormMode.Update)
+                {
+                    <div class="row align-items-center mb-2">
+                        <div class="col-4"><label class="win-label">Nro. Evidencia:</label></div>
+                        <div class="col-8"><input type="text" class="win-textbox" style="width: 100px;" value="@Evidencia.NroEvidencia" readonly /></div>
+                    </div>
+                }
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">Tipo Evidencia:</label></div>
+                    <div class="col-8">
+                        <select class="win-textbox w-100" @bind="Evidencia.IdTipoEvidencia" disabled="@(isSaving || !Auth.EsInvestigador)">
+                            <option value="@Guid.Empty">-- Seleccione Tipo --</option>
+                            @foreach (var t in tipos)
+                            {
+                                <option value="@t.Id">@t.Descripcion (@t.ResourceType)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">FileId:</label></div>
+                    <div class="col-8">
+                        <input type="text" class="win-textbox w-100 @(fileIdInvalido ? "win-field-error" : "")"
+                               @bind="Evidencia.FileId" maxlength="200" disabled="@(isSaving || !Auth.EsInvestigador)" />
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-2">
+                    <div class="col-4"><label class="win-label">Fecha Obtención:</label></div>
+                    <div class="col-8">
+                        <input type="date" class="win-textbox w-100" @bind="Evidencia.FechaObtencion" disabled="@(isSaving || !Auth.EsInvestigador)" />
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-4"><label class="win-label">Estado:</label></div>
+                    <div class="col-8">
+                        <select class="win-textbox w-100" @bind="Evidencia.Estado" disabled="@(isSaving || !Auth.EsInvestigador)">
+                            <option value="pendiente">pendiente</option>
+                            <option value="aprobado">aprobado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                    @if (Auth.EsInvestigador)
+                    {
+                        <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
+                            @(isSaving ? "Guardando..." : "Aceptar")
+                        </button>
+                    }
+                    <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
+                        @(Auth.EsInvestigador ? "Cancelar" : "Cerrar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Add;
+    [Parameter] public EvidenciaDTO Evidencia { get; set; } = new();
+    [Parameter] public List<BestiaDTO> Bestias { get; set; } = new();
+
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private List<TipoEvidenciaDTO> tipos = new();
+    private bool isSaving = false;
+    private string? errorMessage;
+    private bool fileIdInvalido = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        errorMessage = null;
+        fileIdInvalido = false;
+
+        if (IsOpen)
+        {
+            if (string.IsNullOrEmpty(Evidencia.Estado)) Evidencia.Estado = "pendiente";
+            if (Evidencia.FechaObtencion == default) Evidencia.FechaObtencion = DateTime.Now;
+
+            try
+            {
+                var res = await TipoEvidenciaApiClient.GetAllAsync();
+                tipos = res?.ToList() ?? new List<TipoEvidenciaDTO>();
+                if (Evidencia.IdTipoEvidencia == Guid.Empty && tipos.Any())
+                {
+                    Evidencia.IdTipoEvidencia = tipos[0].Id;
+                }
+            }
+            catch
+            {
+                tipos = new List<TipoEvidenciaDTO>();
+            }
+        }
+    }
+
+    private bool ValidateInput()
+    {
+        fileIdInvalido = string.IsNullOrWhiteSpace(Evidencia.FileId);
+        if (Evidencia.IdBestia == Guid.Empty)
+        {
+            errorMessage = "Debe seleccionar una Bestia.";
+            return false;
+        }
+        if (Evidencia.IdTipoEvidencia == Guid.Empty)
+        {
+            errorMessage = "Debe seleccionar un Tipo de Evidencia.";
+            return false;
+        }
+        if (fileIdInvalido)
+        {
+            errorMessage = "El FileId es requerido.";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
+    }
+
+    private async Task Save()
+    {
+        if (!ValidateInput()) return;
+
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+
+            if (Mode == FormMode.Add)
+                await EvidenciaApiClient.AddAsync(Evidencia);
+            else
+                await EvidenciaApiClient.UpdateAsync(Evidencia);
+
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar evidencia: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task Cancel() => await OnCancel.InvokeAsync();
+}

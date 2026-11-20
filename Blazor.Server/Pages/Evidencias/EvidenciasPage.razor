@@ -1,0 +1,331 @@
+@page "/evidencias"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+
+<PageTitle>Evidencias</PageTitle>
+
+<div class="win-form" style="width: 920px;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-camera-slr text-primary"></span>
+            <span>Evidencias de Bestias</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="CargarDatos" IsLoading="@isLoading" />
+
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
+            <label class="win-label fw-bold mb-0">Filtrar por Bestia:</label>
+            <select class="win-textbox" style="min-width: 250px;" @onchange="OnBestiaSeleccionadaCambiada">
+                <option value="">-- Todas las Bestias --</option>
+                @foreach (var b in bestias)
+                {
+                    <option value="@b.Id" selected="@(selectedFiltroBestiaId == b.Id)">@b.Nombre (@b.Peligrosidad)</option>
+                }
+            </select>
+            @if (selectedFiltroBestiaId.HasValue)
+            {
+                <button class="win-btn" style="height: 22px; font-size: 11px;" @onclick="LimpiarFiltro">
+                    Quitar Filtro
+                </button>
+            }
+        </div>
+
+        <div class="win-grid-container" style="height: 260px;">
+            <table class="win-grid">
+                <thead>
+                    <tr>
+                        <th class="win-grid-row-header-th"></th>
+                        <th style="width: 140px;">Bestia</th>
+                        <th style="width: 55px; text-align: center;">Nro</th>
+                        <th style="width: 170px;">Tipo Evidencia</th>
+                        <th style="width: 190px;">FileId</th>
+                        <th style="width: 85px; text-align: center;">Estado</th>
+                        <th>Fecha Obtención</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">Cargando evidencias...</td></tr>
+                    }
+                    else if (evidenciasMostradas == null || !evidenciasMostradas.Any())
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron evidencias.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var e in evidenciasMostradas)
+                        {
+                            bool isSelected = selectedEvidencia?.IdBestia == e.IdBestia && selectedEvidencia?.NroEvidencia == e.NroEvidencia;
+                            var nombreBestia = bestias.FirstOrDefault(b => b.Id == e.IdBestia)?.Nombre ?? e.IdBestia.ToString().Substring(0, 8);
+                            <tr class="@(isSelected ? "selected" : "")"
+                                @onclick="() => SeleccionarFila(e)"
+                                @ondblclick="AbrirModalActualizar">
+                                <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
+                                <td><strong>@nombreBestia</strong></td>
+                                <td style="text-align: center; font-weight: bold;">@e.NroEvidencia</td>
+                                <td>@(e.TipoEvidenciaDescripcion ?? "-") (@(e.TipoEvidenciaResourceType ?? "-"))</td>
+                                <td style="font-family: monospace; font-size: 11px;">@e.FileId</td>
+                                <td style="text-align: center;">
+                                    <span class="badge @(e.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
+                                        @e.Estado
+                                    </span>
+                                </td>
+                                <td style="font-size: 11px;">@e.FechaObtencion.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="win-btn-action-bar">
+            @if (Auth.EsInvestigador && selectedEvidencia != null && selectedEvidencia.Estado == "pendiente")
+            {
+                <button class="win-btn btn-success me-auto" style="border-color: #2e6b2e;" @onclick="AprobarEvidenciaSeleccionada" disabled="@isLoading">
+                    ✔ Aprobar Evidencia
+                </button>
+            }
+            @if (Auth.EsInvestigador)
+            {
+                <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedEvidencia == null || isLoading)">Eliminar</button>
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedEvidencia == null || isLoading)">Ver / Editar</button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Agregar</button>
+            }
+            else
+            {
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedEvidencia == null || isLoading)">Ver Detalle</button>
+            }
+        </div>
+    </div>
+
+    <div class="win-statusbar">
+        <span>@(evidenciasMostradas?.Count ?? 0) evidencia(s) encontrada(s)</span>
+        <span>@(selectedEvidencia != null ? $"Seleccionada: Evidencia #{selectedEvidencia.NroEvidencia}" : "Ninguna evidencia seleccionada")</span>
+    </div>
+</div>
+
+<EvidenciaModal IsOpen="@isModalOpen"
+                Mode="@modalMode"
+                Evidencia="@evidenciaParaEditar"
+                Bestias="@bestias"
+                OnSaved="@OnEvidenciaGuardada"
+                OnCancel="@CerrarModal" />
+
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar la evidencia #{selectedEvidencia?.NroEvidencia}?")"
+              ConfirmButtonText="Sí"
+              OnConfirm="@EliminarEvidenciaConfirmada"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@implements IDisposable
+
+@code {
+    private List<BestiaDTO> bestias = new();
+    private List<EvidenciaDTO> todasEvidencias = new();
+    private List<EvidenciaDTO> evidenciasMostradas = new();
+
+    private EvidenciaDTO? selectedEvidencia;
+    private EvidenciaDTO evidenciaParaEditar = new();
+    private FormMode modalMode = FormMode.Add;
+
+    private Guid? selectedFiltroBestiaId;
+    private bool isLoading = true;
+    private bool isModalOpen = false;
+    private bool isConfirmDeleteOpen = false;
+
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChange += HandleAuthStateChanged;
+        await CargarDatos();
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await CargarDatos();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Auth.OnChange -= HandleAuthStateChanged;
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedEvidencia = null;
+
+            var beastsResult = await BestiaApiClient.GetAllAsync();
+            bestias = beastsResult?.ToList() ?? new List<BestiaDTO>();
+            if (!Auth.EsInvestigador)
+            {
+                bestias = bestias.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            todasEvidencias = new List<EvidenciaDTO>();
+            foreach (var b in bestias)
+            {
+                var items = await EvidenciaApiClient.GetByBestiaAsync(b.Id);
+                if (items != null) todasEvidencias.AddRange(items);
+            }
+
+            if (!Auth.EsInvestigador)
+            {
+                todasEvidencias = todasEvidencias.Where(e => e.Estado != null && e.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            AplicarFiltro();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar evidencias: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnBestiaSeleccionadaCambiada(ChangeEventArgs e)
+    {
+        selectedFiltroBestiaId = Guid.TryParse(e.Value?.ToString(), out Guid id) ? id : null;
+        AplicarFiltro();
+    }
+
+    private void LimpiarFiltro()
+    {
+        selectedFiltroBestiaId = null;
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        evidenciasMostradas = (selectedFiltroBestiaId.HasValue
+            ? todasEvidencias.Where(e => e.IdBestia == selectedFiltroBestiaId.Value).OrderBy(e => e.NroEvidencia)
+            : todasEvidencias.OrderBy(e => e.IdBestia).ThenBy(e => e.NroEvidencia)).ToList();
+
+        selectedEvidencia = evidenciasMostradas.FirstOrDefault();
+    }
+
+    private void SeleccionarFila(EvidenciaDTO e) => selectedEvidencia = e;
+
+    private void AbrirModalAgregar()
+    {
+        modalMode = FormMode.Add;
+        evidenciaParaEditar = new EvidenciaDTO
+        {
+            IdBestia = selectedFiltroBestiaId ?? (bestias.FirstOrDefault()?.Id ?? Guid.Empty),
+            Estado = "pendiente",
+            FechaObtencion = DateTime.Now
+        };
+        isModalOpen = true;
+    }
+
+    private async Task AbrirModalActualizar()
+    {
+        if (selectedEvidencia == null) return;
+        try
+        {
+            isLoading = true;
+            var fresca = await EvidenciaApiClient.GetAsync(selectedEvidencia.IdBestia, selectedEvidencia.NroEvidencia);
+            if (fresca != null)
+            {
+                evidenciaParaEditar = new EvidenciaDTO
+                {
+                    IdBestia = fresca.IdBestia,
+                    NroEvidencia = fresca.NroEvidencia,
+                    Estado = fresca.Estado,
+                    FechaObtencion = fresca.FechaObtencion,
+                    FileId = fresca.FileId,
+                    IdTipoEvidencia = fresca.IdTipoEvidencia,
+                    TipoEvidenciaDescripcion = fresca.TipoEvidenciaDescripcion,
+                    TipoEvidenciaResourceType = fresca.TipoEvidenciaResourceType
+                };
+                modalMode = FormMode.Update;
+                isModalOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener datos: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CerrarModal() => isModalOpen = false;
+
+    private async Task OnEvidenciaGuardada()
+    {
+        isModalOpen = false;
+        feedbackMessage = "Evidencia guardada exitosamente.";
+        isFeedbackError = false;
+        await CargarDatos();
+    }
+
+    private void AbrirModalEliminar()
+    {
+        if (selectedEvidencia != null) isConfirmDeleteOpen = true;
+    }
+
+    private async Task EliminarEvidenciaConfirmada()
+    {
+        if (selectedEvidencia == null) return;
+        try
+        {
+            isConfirmDeleteOpen = false;
+            isLoading = true;
+            await EvidenciaApiClient.DeleteAsync(selectedEvidencia.IdBestia, selectedEvidencia.NroEvidencia);
+            feedbackMessage = $"Evidencia #{selectedEvidencia.NroEvidencia} eliminada.";
+            isFeedbackError = false;
+            selectedEvidencia = null;
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al eliminar evidencia: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+
+    private async Task AprobarEvidenciaSeleccionada()
+    {
+        if (selectedEvidencia == null) return;
+        try
+        {
+            isLoading = true;
+            await EvidenciaApiClient.AprobarAsync(selectedEvidencia.IdBestia, selectedEvidencia.NroEvidencia);
+            feedbackMessage = $"Evidencia #{selectedEvidencia.NroEvidencia} aprobada con éxito.";
+            isFeedbackError = false;
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al aprobar evidencia: {ex.Message}";
+            isFeedbackError = true;
+            isLoading = false;
+        }
+    }
+}

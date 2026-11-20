@@ -14,6 +14,7 @@ namespace Domain.Model
         public Habitat? Habitat { get; set; }
         public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
         public ICollection<Registro> Registros { get; set; } = new List<Registro>();
+        public ICollection<Evidencia> Evidencias { get; set; } = new List<Evidencia>();
 
         public Bestia() { }
 
