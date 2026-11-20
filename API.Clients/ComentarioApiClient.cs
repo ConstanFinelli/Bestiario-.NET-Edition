@@ -164,29 +164,5 @@ namespace API.Clients
                 throw new Exception($"Timeout al eliminar comentario: {ex.Message}", ex);
             }
         }
-
-        public static async Task AprobarAsync(Guid id)
-        {
-            try
-            {
-                using var client = await CreateHttpClientAsync();
-                HttpResponseMessage response = await client.PutAsync($"comentarios/{id}/aprobar", null);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error al aprobar comentario. Status: {response.StatusCode}, Detalle: {errorContent}");
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                throw new Exception($"Error de conexión al aprobar comentario: {ex.Message}", ex);
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new Exception($"Timeout al aprobar comentario: {ex.Message}", ex);
-            }
-        }
     }
 }
-

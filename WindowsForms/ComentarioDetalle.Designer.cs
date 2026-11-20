@@ -28,10 +28,6 @@ namespace WindowsForms
             tituloTextBox = new TextBox();
             contenidoLabel = new Label();
             contenidoTextBox = new TextBox();
-            estadoLabel = new Label();
-            estadoComboBox = new ComboBox();
-            fechaLabel = new Label();
-            fechaAprobacionTextBox = new TextBox();
             aceptarButton = new Button();
             cancelarButton = new Button();
             errorProvider = new ErrorProvider(components);
@@ -124,61 +120,25 @@ namespace WindowsForms
             contenidoTextBox.MaxLength = 500;
             contenidoTextBox.Multiline = true;
             contenidoTextBox.Name = "contenidoTextBox";
-            contenidoTextBox.Size = new Size(280, 85);
+            contenidoTextBox.Size = new Size(280, 95);
             contenidoTextBox.TabIndex = 9;
-            // 
-            // estadoLabel
-            // 
-            estadoLabel.AutoSize = true;
-            estadoLabel.Location = new Point(20, 240);
-            estadoLabel.Name = "estadoLabel";
-            estadoLabel.Size = new Size(45, 15);
-            estadoLabel.TabIndex = 10;
-            estadoLabel.Text = "Estado:";
-            // 
-            // estadoComboBox
-            // 
-            estadoComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            estadoComboBox.FormattingEnabled = true;
-            estadoComboBox.Location = new Point(130, 237);
-            estadoComboBox.Name = "estadoComboBox";
-            estadoComboBox.Size = new Size(150, 23);
-            estadoComboBox.TabIndex = 11;
-            // 
-            // fechaLabel
-            // 
-            fechaLabel.AutoSize = true;
-            fechaLabel.Location = new Point(20, 272);
-            fechaLabel.Name = "fechaLabel";
-            fechaLabel.Size = new Size(99, 15);
-            fechaLabel.TabIndex = 12;
-            fechaLabel.Text = "F. Aprobación:";
-            // 
-            // fechaAprobacionTextBox
-            // 
-            fechaAprobacionTextBox.Location = new Point(130, 269);
-            fechaAprobacionTextBox.Name = "fechaAprobacionTextBox";
-            fechaAprobacionTextBox.ReadOnly = true;
-            fechaAprobacionTextBox.Size = new Size(280, 23);
-            fechaAprobacionTextBox.TabIndex = 13;
-            fechaAprobacionTextBox.TabStop = false;
             // 
             // aceptarButton
             // 
-            aceptarButton.Location = new Point(245, 310);
+            aceptarButton.Location = new Point(245, 255);
             aceptarButton.Name = "aceptarButton";
             aceptarButton.Size = new Size(80, 25);
-            aceptarButton.TabIndex = 14;
+            aceptarButton.TabIndex = 10;
             aceptarButton.Text = "Aceptar";
             aceptarButton.UseVisualStyleBackColor = true;
             aceptarButton.Click += aceptarButton_Click;
             // 
             // cancelarButton
             // 
-            cancelarButton.Location = new Point(330, 310);
+            cancelarButton.Location = new Point(330, 255);
             cancelarButton.Name = "cancelarButton";
             cancelarButton.Size = new Size(80, 25);
-            cancelarButton.TabIndex = 15;
+            cancelarButton.TabIndex = 11;
             cancelarButton.Text = "Cancelar";
             cancelarButton.UseVisualStyleBackColor = true;
             cancelarButton.Click += cancelarButton_Click;
@@ -191,13 +151,9 @@ namespace WindowsForms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(430, 352);
+            ClientSize = new Size(430, 297);
             Controls.Add(cancelarButton);
             Controls.Add(aceptarButton);
-            Controls.Add(fechaAprobacionTextBox);
-            Controls.Add(fechaLabel);
-            Controls.Add(estadoComboBox);
-            Controls.Add(estadoLabel);
             Controls.Add(contenidoTextBox);
             Controls.Add(contenidoLabel);
             Controls.Add(tituloTextBox);
@@ -231,13 +187,8 @@ namespace WindowsForms
         private TextBox tituloTextBox;
         private Label contenidoLabel;
         private TextBox contenidoTextBox;
-        private Label estadoLabel;
-        private ComboBox estadoComboBox;
-        private Label fechaLabel;
-        private TextBox fechaAprobacionTextBox;
         private Button aceptarButton;
         private Button cancelarButton;
         private ErrorProvider errorProvider;
     }
 }
-

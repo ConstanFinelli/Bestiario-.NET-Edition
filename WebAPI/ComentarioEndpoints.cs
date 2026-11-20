@@ -8,14 +8,9 @@ namespace WebAPI
     {
         public static void MapComentarioEndpoints(this WebApplication app)
         {
-            app.MapGet("/comentarios", async (ClaimsPrincipal user, IComentarioService service) =>
+            app.MapGet("/comentarios", async (IComentarioService service) =>
             {
                 var dtos = await service.GetAllAsync();
-                bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
-                if (!esInvestigador)
-                {
-                    dtos = dtos.Where(c => c.Estado != null && c.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
-                }
                 return Results.Ok(dtos);
             })
             .WithName("GetAllComentarios")
@@ -23,14 +18,9 @@ namespace WebAPI
             .Produces<List<ComentarioDTO>>(StatusCodes.Status200OK)
             .WithOpenApi();
 
-            app.MapGet("/bestias/{idBestia}/comentarios", async (Guid idBestia, ClaimsPrincipal user, IComentarioService service) =>
+            app.MapGet("/bestias/{idBestia}/comentarios", async (Guid idBestia, IComentarioService service) =>
             {
                 var dtos = await service.GetByBestiaAsync(idBestia);
-                bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
-                if (!esInvestigador)
-                {
-                    dtos = dtos.Where(c => c.Estado != null && c.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
-                }
                 return Results.Ok(dtos);
             })
             .WithName("GetComentariosByBestia")
@@ -38,14 +28,10 @@ namespace WebAPI
             .Produces<List<ComentarioDTO>>(StatusCodes.Status200OK)
             .WithOpenApi();
 
-            app.MapGet("/comentarios/{id}", async (Guid id, ClaimsPrincipal user, IComentarioService service) =>
+            app.MapGet("/comentarios/{id}", async (Guid id, IComentarioService service) =>
             {
                 var dto = await service.GetAsync(id);
                 if (dto == null)
-                    return Results.NotFound();
-
-                bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
-                if (!esInvestigador && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
                     return Results.NotFound();
 
                 return Results.Ok(dto);
@@ -67,13 +53,6 @@ namespace WebAPI
                         {
                             dto.IdUsuario = userId;
                         }
-                    }
-
-                    bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
-                    if (!esInvestigador)
-                    {
-                        dto.Estado = "pendiente";
-                        dto.FechaAprobacion = null;
                     }
 
                     var result = await service.AddAsync(dto);
@@ -130,23 +109,6 @@ namespace WebAPI
             .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
-
-            app.MapPut("/comentarios/{id}/aprobar", async (Guid id, IComentarioService service) =>
-            {
-                var ok = await service.AprobarAsync(id);
-                if (!ok)
-                    return Results.NotFound();
-
-                return Results.NoContent();
-            })
-            .WithName("AprobarComentario")
-            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
         }
     }
 }
-

@@ -55,8 +55,6 @@ namespace Data
 
             existing.SetTitulo(comentario.Titulo);
             existing.SetContenido(comentario.Contenido);
-            existing.SetEstado(comentario.Estado);
-            existing.FechaAprobacion = comentario.FechaAprobacion;
             existing.IdBestia = comentario.IdBestia;
 
             await context.SaveChangesAsync();
@@ -74,17 +72,5 @@ namespace Data
             }
             return false;
         }
-
-        public async Task<bool> AprobarAsync(Guid id)
-        {
-            var existing = await context.Comentarios.FindAsync(id);
-            if (existing == null)
-                return false;
-
-            existing.Aprobar();
-            await context.SaveChangesAsync();
-            return true;
-        }
     }
 }
-

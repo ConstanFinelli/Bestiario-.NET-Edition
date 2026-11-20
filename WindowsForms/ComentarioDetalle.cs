@@ -31,7 +31,6 @@ namespace WindowsForms
         public ComentarioDetalle()
         {
             InitializeComponent();
-            estadoComboBox.Items.AddRange(new object[] { "pendiente", "aprobado" });
         }
 
         public ComentarioDetalle(FormMode mode, ComentarioDTO comentario, List<BestiaDTO> bestias) : this()
@@ -83,8 +82,6 @@ namespace WindowsForms
             this.autorTextBox.Text = this.Comentario.CorreoUsuario ?? LoginForm.UsuarioLogueado?.Correo ?? "-";
             this.tituloTextBox.Text = this.Comentario.Titulo;
             this.contenidoTextBox.Text = this.Comentario.Contenido;
-            this.estadoComboBox.SelectedItem = string.IsNullOrEmpty(this.Comentario.Estado) ? "pendiente" : this.Comentario.Estado;
-            this.fechaAprobacionTextBox.Text = this.Comentario.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-";
         }
 
         private void SetFormMode(FormMode value)
@@ -94,17 +91,12 @@ namespace WindowsForms
             {
                 idLabel.Visible = false;
                 idTextBox.Visible = false;
-                fechaLabel.Visible = false;
-                fechaAprobacionTextBox.Visible = false;
-                estadoComboBox.SelectedIndex = 0;
                 this.Text = "Agregar Comentario";
             }
             else
             {
                 idLabel.Visible = true;
                 idTextBox.Visible = true;
-                fechaLabel.Visible = true;
-                fechaAprobacionTextBox.Visible = true;
                 this.Text = "Actualizar Comentario";
             }
         }
@@ -121,7 +113,6 @@ namespace WindowsForms
                 this.Comentario.IdBestia = selectedBestia!.Id;
                 this.Comentario.Titulo = tituloTextBox.Text.Trim();
                 this.Comentario.Contenido = contenidoTextBox.Text.Trim();
-                this.Comentario.Estado = estadoComboBox.SelectedItem?.ToString() ?? "pendiente";
 
                 if (this.Mode == FormMode.Update)
                 {
@@ -179,7 +170,6 @@ namespace WindowsForms
             bestiaComboBox.Enabled = false;
             tituloTextBox.Enabled = false;
             contenidoTextBox.Enabled = false;
-            estadoComboBox.Enabled = false;
         }
 
         private void HabilitarControles()
@@ -195,7 +185,6 @@ namespace WindowsForms
             bestiaComboBox.Enabled = puedeGuardar && Mode == FormMode.Add;
             tituloTextBox.Enabled = puedeGuardar;
             contenidoTextBox.Enabled = puedeGuardar;
-            estadoComboBox.Enabled = esInvestigador;
             if (!puedeGuardar) this.Text = "Detalle de Comentario";
         }
 
@@ -207,4 +196,3 @@ namespace WindowsForms
         }
     }
 }
-

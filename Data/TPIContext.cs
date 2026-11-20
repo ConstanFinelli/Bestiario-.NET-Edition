@@ -327,7 +327,6 @@ namespace Data
                 entity.Property(c => c.Id).ValueGeneratedOnAdd();
                 entity.Property(c => c.Titulo).IsRequired().HasMaxLength(100);
                 entity.Property(c => c.Contenido).IsRequired().HasMaxLength(500);
-                entity.Property(c => c.Estado).IsRequired().HasMaxLength(20);
 
                 entity.HasOne(c => c.Bestia)
                     .WithMany(b => b.Comentarios)
@@ -346,9 +345,7 @@ namespace Data
                         IdBestia = Guid.Parse("11111111-0000-0000-0000-000000000001"),
                         IdUsuario = Guid.Parse("77777777-7777-7777-7777-777777777777"),
                         Titulo = "Avistamiento en la sierra",
-                        Contenido = "Observé un ejemplar sobrevolando el paso montañoso al amanecer.",
-                        Estado = "aprobado",
-                        FechaAprobacion = (DateTime?)new DateTime(2026, 2, 12, 9, 15, 0)
+                        Contenido = "Observé un ejemplar sobrevolando el paso montañoso al amanecer."
                     }
                 );
             });

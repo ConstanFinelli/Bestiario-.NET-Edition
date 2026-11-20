@@ -28,7 +28,7 @@ namespace WindowsForms
                 Name = "Bestia",
                 HeaderText = "Bestia",
                 DataPropertyName = "BestiaTexto",
-                Width = 140
+                Width = 150
             });
 
             this.comentariosDataGridView.Columns.Add(new DataGridViewTextBoxColumn
@@ -36,7 +36,7 @@ namespace WindowsForms
                 Name = "Titulo",
                 HeaderText = "Título",
                 DataPropertyName = "Titulo",
-                Width = 170
+                Width = 190
             });
 
             this.comentariosDataGridView.Columns.Add(new DataGridViewTextBoxColumn
@@ -44,23 +44,15 @@ namespace WindowsForms
                 Name = "Autor",
                 HeaderText = "Autor",
                 DataPropertyName = "CorreoUsuarioTexto",
-                Width = 150
+                Width = 170
             });
 
             this.comentariosDataGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
-                Name = "Estado",
-                HeaderText = "Estado",
-                DataPropertyName = "Estado",
-                Width = 85
-            });
-
-            this.comentariosDataGridView.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "FechaAprobacion",
-                HeaderText = "Fecha Aprobación",
-                DataPropertyName = "FechaAprobacionTexto",
-                Width = 130
+                Name = "Contenido",
+                HeaderText = "Contenido",
+                DataPropertyName = "Contenido",
+                Width = 220
             });
 
             this.comentariosDataGridView.ReadOnly = true;
@@ -112,12 +104,6 @@ namespace WindowsForms
                 var result = await ComentarioApiClient.GetAllAsync();
                 todosComentarios = result?.ToList() ?? new List<ComentarioDTO>();
 
-                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
-                if (!esInvestigador)
-                {
-                    todosComentarios = todosComentarios.Where(c => c.Estado != null && c.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
-                }
-
                 AplicarFiltro();
             }
             catch (Exception ex)
@@ -150,11 +136,8 @@ namespace WindowsForms
                 CorreoUsuario = c.CorreoUsuario,
                 Titulo = c.Titulo,
                 Contenido = c.Contenido,
-                Estado = c.Estado,
-                FechaAprobacion = c.FechaAprobacion,
                 BestiaTexto = c.BestiaNombre ?? bestias.FirstOrDefault(b => b.Id == c.IdBestia)?.Nombre ?? "-",
-                CorreoUsuarioTexto = c.CorreoUsuario ?? "-",
-                FechaAprobacionTexto = c.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-"
+                CorreoUsuarioTexto = c.CorreoUsuario ?? "-"
             }).ToList();
 
             this.comentariosDataGridView.DataSource = vmList;
@@ -174,16 +157,6 @@ namespace WindowsForms
             this.eliminarButton.Enabled = esInvestigador && hayFilas;
             this.actualizarButton.Enabled = hayFilas;
             this.actualizarButton.Text = esInvestigador ? "Ver / Editar" : "Ver Detalle";
-
-            if (hayFilas && esInvestigador)
-            {
-                var vm = (ComentarioVM)comentariosDataGridView.SelectedRows[0].DataBoundItem;
-                this.aprobarButton.Enabled = vm.Estado == "pendiente";
-            }
-            else
-            {
-                this.aprobarButton.Enabled = false;
-            }
         }
 
         private async void agregarButton_Click(object sender, EventArgs e)
@@ -196,8 +169,7 @@ namespace WindowsForms
             var nuevo = new ComentarioDTO
             {
                 IdBestia = bestiaPredeterminada,
-                IdUsuario = LoginForm.UsuarioLogueado?.Id ?? Guid.Empty,
-                Estado = "pendiente"
+                IdUsuario = LoginForm.UsuarioLogueado?.Id ?? Guid.Empty
             };
 
             ComentarioDetalle detalle = new ComentarioDetalle(FormMode.Add, nuevo, bestias);
@@ -258,34 +230,11 @@ namespace WindowsForms
             }
         }
 
-        private async void aprobarButton_Click(object sender, EventArgs e)
-        {
-            if (this.comentariosDataGridView.SelectedRows.Count == 0) return;
-            var vm = (ComentarioVM)comentariosDataGridView.SelectedRows[0].DataBoundItem;
-
-            try
-            {
-                DeshabilitarControles();
-                await ComentarioApiClient.AprobarAsync(vm.Id);
-                MessageBox.Show($"Comentario '{vm.Titulo}' aprobado con éxito.", "Aprobación Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await CargarComentarios();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al aprobar comentario: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                HabilitarControles();
-            }
-        }
-
         private void DeshabilitarControles()
         {
             agregarButton.Enabled = false;
             actualizarButton.Enabled = false;
             eliminarButton.Enabled = false;
-            aprobarButton.Enabled = false;
             comentariosDataGridView.Enabled = false;
             bestiasComboBox.Enabled = false;
         }
@@ -308,8 +257,6 @@ namespace WindowsForms
         {
             public string BestiaTexto { get; set; } = string.Empty;
             public string CorreoUsuarioTexto { get; set; } = string.Empty;
-            public string FechaAprobacionTexto { get; set; } = string.Empty;
         }
     }
 }
-

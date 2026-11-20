@@ -13,7 +13,5 @@ namespace Application.Services
         Task<ComentarioDTO> AddAsync(ComentarioDTO dto);
         Task<bool> UpdateAsync(ComentarioDTO dto);
         Task<bool> DeleteAsync(Guid id);
-        Task<bool> AprobarAsync(Guid id);
     }
 }
-

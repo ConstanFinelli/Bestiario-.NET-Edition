@@ -42,9 +42,7 @@ namespace Application.Services
                 dto.IdBestia,
                 dto.IdUsuario,
                 dto.Titulo,
-                dto.Contenido,
-                string.IsNullOrWhiteSpace(dto.Estado) ? "pendiente" : dto.Estado,
-                dto.Estado?.Trim().ToLowerInvariant() == "aprobado" ? (dto.FechaAprobacion ?? DateTime.Now) : null
+                dto.Contenido
             );
 
             await comentarioRepository.AddAsync(comentario);
@@ -59,9 +57,7 @@ namespace Application.Services
                 dto.IdBestia,
                 dto.IdUsuario,
                 dto.Titulo,
-                dto.Contenido,
-                dto.Estado,
-                dto.Estado?.Trim().ToLowerInvariant() == "aprobado" ? (dto.FechaAprobacion ?? DateTime.Now) : null
+                dto.Contenido
             );
 
             return await comentarioRepository.UpdateAsync(comentario);
@@ -70,11 +66,6 @@ namespace Application.Services
         public async Task<bool> DeleteAsync(Guid id)
         {
             return await comentarioRepository.DeleteAsync(id);
-        }
-
-        public async Task<bool> AprobarAsync(Guid id)
-        {
-            return await comentarioRepository.AprobarAsync(id);
         }
 
         private static ComentarioDTO MapToDTO(Comentario c)
@@ -87,11 +78,8 @@ namespace Application.Services
                 IdUsuario = c.IdUsuario,
                 CorreoUsuario = c.Usuario?.Correo,
                 Titulo = c.Titulo,
-                Contenido = c.Contenido,
-                Estado = c.Estado,
-                FechaAprobacion = c.FechaAprobacion
+                Contenido = c.Contenido
             };
         }
     }
 }
-

@@ -13,7 +13,5 @@ namespace Data
         Task AddAsync(Comentario comentario);
         Task<bool> UpdateAsync(Comentario comentario);
         Task<bool> DeleteAsync(Guid id);
-        Task<bool> AprobarAsync(Guid id);
     }
 }
-

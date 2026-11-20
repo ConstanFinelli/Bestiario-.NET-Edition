@@ -21,7 +21,6 @@ namespace WindowsForms
             bestiasComboBox = new ComboBox();
             filtroLabel = new Label();
             comentariosDataGridView = new DataGridView();
-            aprobarButton = new Button();
             eliminarButton = new Button();
             actualizarButton = new Button();
             agregarButton = new Button();
@@ -75,25 +74,13 @@ namespace WindowsForms
             comentariosDataGridView.SelectionChanged += comentariosDataGridView_SelectionChanged;
             comentariosDataGridView.DoubleClick += actualizarButton_Click;
             // 
-            // aprobarButton
-            // 
-            aprobarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            aprobarButton.ForeColor = Color.DarkGreen;
-            aprobarButton.Location = new Point(12, 360);
-            aprobarButton.Name = "aprobarButton";
-            aprobarButton.Size = new Size(145, 26);
-            aprobarButton.TabIndex = 2;
-            aprobarButton.Text = "✔ Aprobar Comentario";
-            aprobarButton.UseVisualStyleBackColor = true;
-            aprobarButton.Click += aprobarButton_Click;
-            // 
             // eliminarButton
             // 
             eliminarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             eliminarButton.Location = new Point(490, 360);
             eliminarButton.Name = "eliminarButton";
             eliminarButton.Size = new Size(80, 26);
-            eliminarButton.TabIndex = 3;
+            eliminarButton.TabIndex = 2;
             eliminarButton.Text = "Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
@@ -104,7 +91,7 @@ namespace WindowsForms
             actualizarButton.Location = new Point(576, 360);
             actualizarButton.Name = "actualizarButton";
             actualizarButton.Size = new Size(100, 26);
-            actualizarButton.TabIndex = 4;
+            actualizarButton.TabIndex = 3;
             actualizarButton.Text = "Ver / Editar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
@@ -115,7 +102,7 @@ namespace WindowsForms
             agregarButton.Location = new Point(682, 360);
             agregarButton.Name = "agregarButton";
             agregarButton.Size = new Size(90, 26);
-            agregarButton.TabIndex = 5;
+            agregarButton.TabIndex = 4;
             agregarButton.Text = "Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
@@ -128,7 +115,6 @@ namespace WindowsForms
             Controls.Add(agregarButton);
             Controls.Add(actualizarButton);
             Controls.Add(eliminarButton);
-            Controls.Add(aprobarButton);
             Controls.Add(comentariosDataGridView);
             Controls.Add(filtroPanel);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -149,10 +135,8 @@ namespace WindowsForms
         private ComboBox bestiasComboBox;
         private Label filtroLabel;
         private DataGridView comentariosDataGridView;
-        private Button aprobarButton;
         private Button eliminarButton;
         private Button actualizarButton;
         private Button agregarButton;
     }
 }
-

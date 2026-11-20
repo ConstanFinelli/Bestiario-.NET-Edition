@@ -42,22 +42,20 @@
                 <thead>
                     <tr>
                         <th class="win-grid-row-header-th"></th>
-                        <th style="width: 135px;">Bestia</th>
-                        <th style="width: 170px;">Título</th>
-                        <th style="width: 150px;">Autor</th>
-                        <th style="width: 85px; text-align: center;">Estado</th>
-                        <th style="width: 120px;">Aprobación</th>
+                        <th style="width: 150px;">Bestia</th>
+                        <th style="width: 190px;">Título</th>
+                        <th style="width: 170px;">Autor</th>
                         <th>Contenido</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (isLoading)
                     {
-                        <tr><td colspan="7" class="text-center py-4 text-muted">Cargando comentarios...</td></tr>
+                        <tr><td colspan="5" class="text-center py-4 text-muted">Cargando comentarios...</td></tr>
                     }
                     else if (comentariosMostrados == null || !comentariosMostrados.Any())
                     {
-                        <tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron comentarios.</td></tr>
+                        <tr><td colspan="5" class="text-center py-4 text-muted">No se encontraron comentarios.</td></tr>
                     }
                     else
                     {
@@ -72,12 +70,6 @@
                                 <td><strong>@nombreBestia</strong></td>
                                 <td>@c.Titulo</td>
                                 <td style="font-size: 11px;">@(c.CorreoUsuario ?? "-")</td>
-                                <td style="text-align: center;">
-                                    <span class="badge @(c.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
-                                        @c.Estado
-                                    </span>
-                                </td>
-                                <td style="font-size: 11px;">@(c.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
                                 <td style="font-size: 11px;">@c.Contenido</td>
                             </tr>
                         }
@@ -87,12 +79,6 @@
         </div>
 
         <div class="win-btn-action-bar">
-            @if (Auth.EsInvestigador && selectedComentario != null && selectedComentario.Estado == "pendiente")
-            {
-                <button class="win-btn btn-success me-auto" style="border-color: #2e6b2e;" @onclick="AprobarComentarioSeleccionado" disabled="@isLoading">
-                    ✔ Aprobar Comentario
-                </button>
-            }
             @if (Auth.EsInvestigador)
             {
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedComentario == null || isLoading)">Eliminar</button>
@@ -182,10 +168,6 @@
 
             var comsResult = await ComentarioApiClient.GetAllAsync();
             todosComentarios = comsResult?.ToList() ?? new List<ComentarioDTO>();
-            if (!Auth.EsInvestigador)
-            {
-                todosComentarios = todosComentarios.Where(c => c.Estado != null && c.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
-            }
 
             AplicarFiltro();
         }
@@ -230,8 +212,7 @@
         {
             IdBestia = selectedFiltroBestiaId ?? (bestias.FirstOrDefault()?.Id ?? Guid.Empty),
             IdUsuario = Auth.CurrentUser?.Id ?? Guid.Empty,
-            CorreoUsuario = Auth.Username,
-            Estado = "pendiente"
+            CorreoUsuario = Auth.Username
         };
         isModalOpen = true;
     }
@@ -253,9 +234,7 @@
                     IdUsuario = fresco.IdUsuario,
                     CorreoUsuario = fresco.CorreoUsuario,
                     Titulo = fresco.Titulo,
-                    Contenido = fresco.Contenido,
-                    Estado = fresco.Estado,
-                    FechaAprobacion = fresco.FechaAprobacion
+                    Contenido = fresco.Contenido
                 };
                 modalMode = FormMode.Update;
                 isModalOpen = true;
@@ -307,24 +286,4 @@
             isLoading = false;
         }
     }
-
-    private async Task AprobarComentarioSeleccionado()
-    {
-        if (selectedComentario == null) return;
-        try
-        {
-            isLoading = true;
-            await ComentarioApiClient.AprobarAsync(selectedComentario.Id);
-            feedbackMessage = $"Comentario '{selectedComentario.Titulo}' aprobado con éxito.";
-            isFeedbackError = false;
-            await CargarDatos();
-        }
-        catch (Exception ex)
-        {
-            feedbackMessage = $"Error al aprobar comentario: {ex.Message}";
-            isFeedbackError = true;
-            isLoading = false;
-        }
-    }
 }
-
