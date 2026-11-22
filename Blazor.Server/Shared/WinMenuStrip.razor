@@ -1,4 +1,5 @@
 @inject AuthService Auth
+@implements IDisposable
 
 <div class="win-menustrip">
     <NavLink href="/" class="win-menu-item" Match="NavLinkMatch.All">
@@ -59,4 +60,19 @@
 @code {
     [Parameter] public EventCallback OnRefresh { get; set; }
     [Parameter] public bool IsLoading { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Auth.OnChange += OnAuthChanged;
+    }
+
+    private void OnAuthChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= OnAuthChanged;
+    }
 }
