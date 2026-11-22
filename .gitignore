@@ -55,4 +55,5 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Carpeta de documentacion de Java (no versionar en remoto)
-docsJava/
+docsJava/
+docs/
