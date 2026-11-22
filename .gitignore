@@ -56,4 +56,7 @@ $RECYCLE.BIN/
 
 # Carpeta de documentacion de Java (no versionar en remoto)
 docsJava/
-docs/
+docs/
+
+WebAPI/appsettings.json
+
