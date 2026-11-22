@@ -38,6 +38,9 @@ namespace WindowsForms
             evidenciasToolStripMenuItem = new ToolStripMenuItem();
             comentariosToolStripMenuItem = new ToolStripMenuItem();
             usuariosToolStripMenuItem = new ToolStripMenuItem();
+            reportesToolStripMenuItem = new ToolStripMenuItem();
+            estadisticasBestiasToolStripMenuItem = new ToolStripMenuItem();
+            registrosPorBestiaToolStripMenuItem = new ToolStripMenuItem();
             cardPanel = new Panel();
             iconPictureBox = new PictureBox();
             titleLabel = new Label();
@@ -51,6 +54,8 @@ namespace WindowsForms
             evidenciasButton = new Button();
             comentariosButton = new Button();
             usuariosButton = new Button();
+            reporteEstadisticasButton = new Button();
+            reporteRegistrosButton = new Button();
             menuStrip1.SuspendLayout();
             cardPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)iconPictureBox).BeginInit();
@@ -59,7 +64,7 @@ namespace WindowsForms
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(32, 32);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem, comentariosToolStripMenuItem, usuariosToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem, comentariosToolStripMenuItem, usuariosToolStripMenuItem, reportesToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(3, 1, 0, 1);
@@ -130,6 +135,27 @@ namespace WindowsForms
             usuariosToolStripMenuItem.Text = "Usuarios";
             usuariosToolStripMenuItem.Click += UsuariosToolStripMenuItem_Click;
             // 
+            // reportesToolStripMenuItem
+            // 
+            reportesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { estadisticasBestiasToolStripMenuItem, registrosPorBestiaToolStripMenuItem });
+            reportesToolStripMenuItem.Name = "reportesToolStripMenuItem";
+            reportesToolStripMenuItem.Size = new Size(68, 22);
+            reportesToolStripMenuItem.Text = "Reportes";
+            // 
+            // estadisticasBestiasToolStripMenuItem
+            // 
+            estadisticasBestiasToolStripMenuItem.Name = "estadisticasBestiasToolStripMenuItem";
+            estadisticasBestiasToolStripMenuItem.Size = new Size(235, 22);
+            estadisticasBestiasToolStripMenuItem.Text = "Estadísticas de Bestias (Gráfico)";
+            estadisticasBestiasToolStripMenuItem.Click += EstadisticasBestiasToolStripMenuItem_Click;
+            // 
+            // registrosPorBestiaToolStripMenuItem
+            // 
+            registrosPorBestiaToolStripMenuItem.Name = "registrosPorBestiaToolStripMenuItem";
+            registrosPorBestiaToolStripMenuItem.Size = new Size(235, 22);
+            registrosPorBestiaToolStripMenuItem.Text = "Registros por Bestia";
+            registrosPorBestiaToolStripMenuItem.Click += RegistrosPorBestiaToolStripMenuItem_Click;
+            // 
             // cardPanel
             // 
             cardPanel.BackColor = Color.White;
@@ -146,6 +172,8 @@ namespace WindowsForms
             cardPanel.Controls.Add(evidenciasButton);
             cardPanel.Controls.Add(comentariosButton);
             cardPanel.Controls.Add(usuariosButton);
+            cardPanel.Controls.Add(reporteEstadisticasButton);
+            cardPanel.Controls.Add(reporteRegistrosButton);
             cardPanel.Location = new Point(43, 50);
             cardPanel.Name = "cardPanel";
             cardPanel.Size = new Size(560, 290);
@@ -280,6 +308,28 @@ namespace WindowsForms
             usuariosButton.UseVisualStyleBackColor = true;
             usuariosButton.Click += UsuariosToolStripMenuItem_Click;
             // 
+            // reporteEstadisticasButton
+            // 
+            reporteEstadisticasButton.Font = new Font("Segoe UI", 9F);
+            reporteEstadisticasButton.Location = new Point(155, 230);
+            reporteEstadisticasButton.Name = "reporteEstadisticasButton";
+            reporteEstadisticasButton.Size = new Size(120, 28);
+            reporteEstadisticasButton.TabIndex = 12;
+            reporteEstadisticasButton.Text = "Rep. Estadísticas";
+            reporteEstadisticasButton.UseVisualStyleBackColor = true;
+            reporteEstadisticasButton.Click += EstadisticasBestiasToolStripMenuItem_Click;
+            // 
+            // reporteRegistrosButton
+            // 
+            reporteRegistrosButton.Font = new Font("Segoe UI", 9F);
+            reporteRegistrosButton.Location = new Point(285, 230);
+            reporteRegistrosButton.Name = "reporteRegistrosButton";
+            reporteRegistrosButton.Size = new Size(120, 28);
+            reporteRegistrosButton.TabIndex = 13;
+            reporteRegistrosButton.Text = "Rep. Registros";
+            reporteRegistrosButton.UseVisualStyleBackColor = true;
+            reporteRegistrosButton.Click += RegistrosPorBestiaToolStripMenuItem_Click;
+            // 
             // Home
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -314,6 +364,9 @@ namespace WindowsForms
         private ToolStripMenuItem evidenciasToolStripMenuItem;
         private ToolStripMenuItem comentariosToolStripMenuItem;
         private ToolStripMenuItem usuariosToolStripMenuItem;
+        private ToolStripMenuItem reportesToolStripMenuItem;
+        private ToolStripMenuItem estadisticasBestiasToolStripMenuItem;
+        private ToolStripMenuItem registrosPorBestiaToolStripMenuItem;
         private Panel cardPanel;
         private PictureBox iconPictureBox;
         private Label titleLabel;
@@ -327,5 +380,7 @@ namespace WindowsForms
         private Button evidenciasButton;
         private Button comentariosButton;
         private Button usuariosButton;
+        private Button reporteEstadisticasButton;
+        private Button reporteRegistrosButton;
     }
 }

@@ -87,6 +87,10 @@ builder.Services.AddScoped<IRegistroRepository, RegistroRepository>();
 builder.Services.AddScoped<IRegistroService, RegistroService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<ISolicitudInvestigadorRepository, SolicitudInvestigadorRepository>();
+builder.Services.AddScoped<ISolicitudInvestigadorService, SolicitudInvestigadorService>();
+builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
+builder.Services.AddScoped<IReporteService, ReporteService>();
 
 var app = builder.Build();
 
@@ -108,5 +112,7 @@ app.MapComentarioEndpoints();
 app.MapBestiaEndpoints();
 app.MapRegistroEndpoints();
 app.MapUsuarioEndpoints();
+app.MapSolicitudInvestigadorEndpoints();
+app.MapReporteEndpoints();
 
 app.Run();

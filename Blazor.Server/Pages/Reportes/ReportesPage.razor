@@ -1,0 +1,516 @@
+@page "/reportes"
+@using System.Globalization
+@inject NavigationManager Navigation
+@inject AuthService Auth
+@implements IDisposable
+
+<PageTitle>Reportes</PageTitle>
+
+<div class="win-form" style="width: 980px; max-width: 96vw;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-bar-chart text-primary"></span>
+            <span>Reportes del Bestiario (ADO.NET)</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="RecargarActual" IsLoading="@isLoading" />
+
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        @if (!Auth.EsInvestigador)
+        {
+            <div class="win-error-msg mb-2">
+                <span class="oi oi-lock-locked me-1"></span> Solo los Investigadores pueden consultar los reportes del sistema.
+            </div>
+            @if (!Auth.IsAuthenticated)
+            {
+                <button class="win-btn" @onclick="@(() => Navigation.NavigateTo("/login"))">Iniciar Sesión</button>
+            }
+        }
+        else
+        {
+            <div class="d-flex gap-1 mb-3 border-bottom pb-2">
+                <button class="win-btn @(activeTab == 1 ? "fw-bold border-primary" : "")"
+                        style="@(activeTab == 1 ? "background-color: #dbe8f9;" : "")"
+                        @onclick="() => CambiarTab(1)">
+                    📊 Reporte 1: Estadísticas de Bestias (Gráficos)
+                </button>
+                <button class="win-btn @(activeTab == 2 ? "fw-bold border-primary" : "")"
+                        style="@(activeTab == 2 ? "background-color: #dbe8f9;" : "")"
+                        @onclick="() => CambiarTab(2)">
+                    📋 Reporte 2: Registros por Bestia
+                </button>
+            </div>
+
+            @if (activeTab == 1)
+            {
+                @if (isLoading)
+                {
+                    <div class="text-center py-5 text-muted">Cargando estadísticas desde SQL Server (ADO.NET)...</div>
+                }
+                else if (estadisticas != null)
+                {
+                    <!-- Tarjetas Resumen -->
+                    <div class="row g-2 mb-3">
+                        <div class="col">
+                            <div class="border bg-white p-2 text-center">
+                                <div class="text-muted" style="font-size: 10px;">TOTAL BESTIAS</div>
+                                <div class="fw-bold text-primary" style="font-size: 18px;">@estadisticas.TotalBestias</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="border bg-white p-2 text-center">
+                                <div class="text-muted" style="font-size: 10px;">APROBADAS</div>
+                                <div class="fw-bold text-success" style="font-size: 18px;">@estadisticas.TotalAprobadas</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="border bg-white p-2 text-center">
+                                <div class="text-muted" style="font-size: 10px;">PENDIENTES</div>
+                                <div class="fw-bold text-warning" style="font-size: 18px;">@estadisticas.TotalPendientes</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="border bg-white p-2 text-center">
+                                <div class="text-muted" style="font-size: 10px;">REGISTROS</div>
+                                <div class="fw-bold text-dark" style="font-size: 18px;">@estadisticas.TotalRegistros</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="border bg-white p-2 text-center">
+                                <div class="text-muted" style="font-size: 10px;">EVIDENCIAS</div>
+                                <div class="fw-bold text-dark" style="font-size: 18px;">@estadisticas.TotalEvidencias</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Gráfico 1: Barras Verticales por Peligrosidad -->
+                        <div class="col-md-6">
+                            <div class="border bg-white p-2 h-100">
+                                <div class="fw-bold mb-2" style="font-size: 12px;">Bestias por Peligrosidad (Aprobadas vs Pendientes)</div>
+                                @if (!estadisticas.PorPeligrosidad.Any())
+                                {
+                                    <div class="text-muted text-center py-4">Sin datos de peligrosidad.</div>
+                                }
+                                else
+                                {
+                                    int maxPel = Math.Max(1, estadisticas.PorPeligrosidad.Max(p => p.Cantidad));
+                                    int svgW = 440;
+                                    int svgH = 210;
+                                    int chartLeft = 40;
+                                    int chartTop = 20;
+                                    int chartW = 380;
+                                    int chartH = 145;
+                                    int count = estadisticas.PorPeligrosidad.Count;
+                                    double slotW = (double)chartW / count;
+                                    double barW = Math.Min(48, slotW * 0.55);
+
+                                    <svg viewBox="0 0 @svgW @svgH" class="w-100" style="max-height: 220px;">
+                                        @for (int g = 0; g <= 4; g++)
+                                        {
+                                            double yLine = chartTop + chartH - (chartH * g / 4.0);
+                                            int tickVal = (int)Math.Round(maxPel * g / 4.0);
+                                            <line x1="@chartLeft" y1="@F(yLine)" x2="@(chartLeft + chartW)" y2="@F(yLine)" stroke="#e5e7eb" stroke-width="1" />
+                                            @((MarkupString)$"<text x=\"{chartLeft - 6}\" y=\"{F(yLine + 3)}\" text-anchor=\"end\" font-size=\"10\" fill=\"#666\">{tickVal}</text>")
+                                        }
+                                        <line x1="@chartLeft" y1="@(chartTop + chartH)" x2="@(chartLeft + chartW)" y2="@(chartTop + chartH)" stroke="#999" stroke-width="1.2" />
+
+                                        @for (int i = 0; i < count; i++)
+                                        {
+                                            var item = estadisticas.PorPeligrosidad[i];
+                                            double x = chartLeft + i * slotW + (slotW - barW) / 2.0;
+                                            double hAprob = (double)item.Aprobadas / maxPel * chartH;
+                                            double hPend = (double)item.Pendientes / maxPel * chartH;
+                                            double yAprob = chartTop + chartH - hAprob;
+                                            double yPend = yAprob - hPend;
+                                            double labelX = x + barW / 2.0;
+
+                                            if (item.Aprobadas > 0)
+                                            {
+                                                <rect x="@F(x)" y="@F(yAprob)" width="@F(barW)" height="@F(hAprob)" fill="#198754" rx="2" />
+                                            }
+                                            if (item.Pendientes > 0)
+                                            {
+                                                <rect x="@F(x)" y="@F(yPend)" width="@F(barW)" height="@F(hPend)" fill="#ffc107" rx="2" />
+                                            }
+                                            @((MarkupString)$"<text x=\"{F(labelX)}\" y=\"{F(yPend - 4)}\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"bold\" fill=\"#222\">{item.Cantidad}</text>")
+                                            @((MarkupString)$"<text x=\"{F(labelX)}\" y=\"{chartTop + chartH + 16}\" text-anchor=\"middle\" font-size=\"10\" fill=\"#333\">{System.Net.WebUtility.HtmlEncode(item.Peligrosidad)}</text>")
+                                        }
+                                    </svg>
+                                    <div class="d-flex justify-content-center gap-3 mt-1" style="font-size: 10px;">
+                                        <span><span style="display:inline-block;width:10px;height:10px;background:#198754;"></span> Aprobadas</span>
+                                        <span><span style="display:inline-block;width:10px;height:10px;background:#ffc107;"></span> Pendientes</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Gráfico 2: Barras Horizontales por Categoría -->
+                        <div class="col-md-6">
+                            <div class="border bg-white p-2 h-100">
+                                <div class="fw-bold mb-2" style="font-size: 12px;">Bestias por Categoría</div>
+                                @if (!estadisticas.PorCategoria.Any())
+                                {
+                                    <div class="text-muted text-center py-4">Sin datos de categorías.</div>
+                                }
+                                else
+                                {
+                                    int maxCat = Math.Max(1, estadisticas.PorCategoria.Max(c => c.CantidadBestias));
+                                    int count = estadisticas.PorCategoria.Count;
+                                    int rowH = 30;
+                                    int svgH = 24 + count * rowH;
+                                    int labelW = 105;
+                                    int barMaxW = 270;
+
+                                    <svg viewBox="0 0 430 @svgH" class="w-100" style="max-height: 220px;">
+                                        @for (int i = 0; i < count; i++)
+                                        {
+                                            var c = estadisticas.PorCategoria[i];
+                                            int y = 14 + i * rowH;
+                                            double wAprob = (double)c.Aprobadas / maxCat * barMaxW;
+                                            double wPend = (double)c.Pendientes / maxCat * barMaxW;
+                                            double xEnd = labelW + wAprob + wPend;
+
+                                            @((MarkupString)$"<text x=\"{labelW - 8}\" y=\"{y + 13}\" text-anchor=\"end\" font-size=\"11\" fill=\"#222\">{System.Net.WebUtility.HtmlEncode(c.Categoria)}</text>")
+                                            <rect x="@labelW" y="@y" width="@barMaxW" height="18" fill="#f3f4f6" rx="2" />
+                                            if (c.Aprobadas > 0)
+                                            {
+                                                <rect x="@labelW" y="@y" width="@F(wAprob)" height="18" fill="#0d6efd" rx="2" />
+                                            }
+                                            if (c.Pendientes > 0)
+                                            {
+                                                <rect x="@F(labelW + wAprob)" y="@y" width="@F(wPend)" height="18" fill="#ffc107" rx="2" />
+                                            }
+                                            @((MarkupString)$"<text x=\"{F(xEnd + 6)}\" y=\"{y + 13}\" font-size=\"11\" font-weight=\"bold\" fill=\"#222\">{c.CantidadBestias}</text>")
+                                        }
+                                    </svg>
+                                    <div class="d-flex justify-content-center gap-3 mt-1" style="font-size: 10px;">
+                                        <span><span style="display:inline-block;width:10px;height:10px;background:#0d6efd;"></span> Aprobadas</span>
+                                        <span><span style="display:inline-block;width:10px;height:10px;background:#ffc107;"></span> Pendientes</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tablas Resumen -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="fw-bold mb-1" style="font-size: 11px;">Tabla Resumen por Categoría</div>
+                            <div class="win-grid-container" style="height: 155px;">
+                                <table class="win-grid">
+                                    <thead>
+                                        <tr>
+                                            <th>Categoría</th>
+                                            <th style="width: 75px; text-align: center;">Total</th>
+                                            <th style="width: 85px; text-align: center;">Aprobadas</th>
+                                            <th style="width: 85px; text-align: center;">Pendientes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var c in estadisticas.PorCategoria)
+                                        {
+                                            <tr>
+                                                <td><strong>@c.Categoria</strong></td>
+                                                <td style="text-align: center;">@c.CantidadBestias</td>
+                                                <td style="text-align: center;">@c.Aprobadas</td>
+                                                <td style="text-align: center;">@c.Pendientes</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fw-bold mb-1" style="font-size: 11px;">Tabla Resumen por Peligrosidad</div>
+                            <div class="win-grid-container" style="height: 155px;">
+                                <table class="win-grid">
+                                    <thead>
+                                        <tr>
+                                            <th>Peligrosidad</th>
+                                            <th style="width: 75px; text-align: center;">Total</th>
+                                            <th style="width: 85px; text-align: center;">Aprobadas</th>
+                                            <th style="width: 85px; text-align: center;">Pendientes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var p in estadisticas.PorPeligrosidad)
+                                        {
+                                            <tr>
+                                                <td><strong>@p.Peligrosidad</strong></td>
+                                                <td style="text-align: center;">@p.Cantidad</td>
+                                                <td style="text-align: center;">@p.Aprobadas</td>
+                                                <td style="text-align: center;">@p.Pendientes</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- Tab 2: Reporte Tabular Registros por Bestia -->
+                <div class="d-flex flex-wrap align-items-end gap-2 mb-2 p-2 bg-light border">
+                    <div>
+                        <label class="win-label d-block mb-0">Bestia:</label>
+                        <select class="win-textbox" style="min-width: 170px;" @bind="filtroIdBestia">
+                            <option value="">-- Todas --</option>
+                            @foreach (var b in bestias)
+                            {
+                                <option value="@b.Id">@b.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label class="win-label d-block mb-0">Estado:</label>
+                        <select class="win-textbox" style="min-width: 120px;" @bind="filtroEstadoRegistro">
+                            <option value="">-- Todos --</option>
+                            <option value="aprobado">aprobado</option>
+                            <option value="pendiente">pendiente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="win-label d-block mb-0">Aprobados Desde:</label>
+                        <input type="date" class="win-textbox" @bind="filtroDesde" />
+                    </div>
+                    <div>
+                        <label class="win-label d-block mb-0">Aprobados Hasta:</label>
+                        <input type="date" class="win-textbox" @bind="filtroHasta" />
+                    </div>
+                    <div class="d-flex gap-1 ms-auto">
+                        <button class="win-btn" @onclick="CargarReporteRegistros" disabled="@isLoading">Buscar</button>
+                        <button class="win-btn" @onclick="LimpiarFiltrosRegistros" disabled="@isLoading">Limpiar</button>
+                    </div>
+                </div>
+
+                <div class="win-grid-container" style="height: 290px;">
+                    <table class="win-grid">
+                        <thead>
+                            <tr>
+                                <th>Bestia</th>
+                                <th style="width: 85px;">Peligrosidad</th>
+                                <th style="width: 125px;">Hábitat</th>
+                                <th style="width: 55px; text-align: center;">Nro</th>
+                                <th style="width: 80px; text-align: center;">Estado</th>
+                                <th style="width: 115px;">Aprobación</th>
+                                <th style="width: 140px;">Publicador</th>
+                                <th style="width: 115px;">Aprobador</th>
+                                <th style="width: 65px; text-align: center;">Secciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (isLoading)
+                            {
+                                <tr><td colspan="9" class="text-center py-4 text-muted">Consultando registros...</td></tr>
+                            }
+                            else if (!registrosReporte.Any())
+                            {
+                                <tr><td colspan="9" class="text-center py-4 text-muted">No se encontraron registros con los filtros aplicados.</td></tr>
+                            }
+                            else
+                            {
+                                string? bestiaActual = null;
+                                @foreach (var r in registrosReporte)
+                                {
+                                    if (bestiaActual != r.BestiaNombre)
+                                    {
+                                        bestiaActual = r.BestiaNombre;
+                                        int subtotalBestia = registrosReporte.Count(x => x.IdBestia == r.IdBestia);
+                                        <tr style="background-color: #eef3fb; font-weight: bold;">
+                                            <td colspan="9" style="font-size: 11px;">
+                                                ▶ @r.BestiaNombre (@r.Peligrosidad) — Hábitat: @r.HabitatNombre — @subtotalBestia registro(s)
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td>@r.BestiaNombre</td>
+                                        <td>@r.Peligrosidad</td>
+                                        <td style="font-size: 11px;">@r.HabitatNombre</td>
+                                        <td style="text-align: center; font-weight: bold;">@r.NroRegistro</td>
+                                        <td style="text-align: center;">
+                                            <span class="badge @(r.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">@r.Estado</span>
+                                        </td>
+                                        <td style="font-size: 11px;">@(r.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                        <td style="font-size: 11px;">@r.PublicadorCorreo</td>
+                                        <td style="font-size: 11px;">@r.AprobadorNombre</td>
+                                        <td style="text-align: center;">@r.CantidadContenidos</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between mt-2 p-2 bg-light border" style="font-size: 11px;">
+                    <span><strong>Total de registros mostrados:</strong> @registrosReporte.Count</span>
+                    <span><strong>Total de secciones de contenido:</strong> @registrosReporte.Sum(r => r.CantidadContenidos)</span>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="win-statusbar">
+        <span>Origen de datos: ADO.NET (SqlConnection / SqlDataReader)</span>
+        <span>@(activeTab == 1 ? "Reporte 1: Estadísticas" : $"Reporte 2: {registrosReporte.Count} registro(s)")</span>
+    </div>
+</div>
+
+@code {
+    private int activeTab = 1;
+    private bool isLoading = true;
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    private ReporteEstadisticasBestiasDTO? estadisticas;
+    private List<ReporteRegistrosPorBestiaDTO> registrosReporte = new();
+    private List<BestiaDTO> bestias = new();
+
+    private string filtroIdBestia = string.Empty;
+    private string filtroEstadoRegistro = string.Empty;
+    private DateTime? filtroDesde;
+    private DateTime? filtroHasta;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChange += HandleAuthStateChanged;
+        await CargarTodoInicial();
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await CargarTodoInicial();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Auth.OnChange -= HandleAuthStateChanged;
+
+    private async Task CargarTodoInicial()
+    {
+        if (!Auth.EsInvestigador)
+        {
+            isLoading = false;
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+
+            var bestiasRes = await BestiaApiClient.GetAllAsync();
+            bestias = bestiasRes?.OrderBy(b => b.Nombre).ToList() ?? new List<BestiaDTO>();
+
+            if (activeTab == 1)
+            {
+                estadisticas = await ReporteApiClient.GetEstadisticasBestiasAsync();
+            }
+            else
+            {
+                await CargarReporteRegistrosSinSpinner();
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar reportes: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CambiarTab(int tab)
+    {
+        activeTab = tab;
+        await RecargarActual();
+    }
+
+    private async Task RecargarActual()
+    {
+        if (!Auth.EsInvestigador) return;
+
+        if (activeTab == 1)
+        {
+            await CargarEstadisticas();
+        }
+        else
+        {
+            await CargarReporteRegistros();
+        }
+    }
+
+    private async Task CargarEstadisticas()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            estadisticas = await ReporteApiClient.GetEstadisticasBestiasAsync();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener estadísticas: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CargarReporteRegistros()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            await CargarReporteRegistrosSinSpinner();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al obtener reporte de registros: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CargarReporteRegistrosSinSpinner()
+    {
+        Guid? idBestia = Guid.TryParse(filtroIdBestia, out var parsed) ? parsed : null;
+        var res = await ReporteApiClient.GetRegistrosPorBestiaAsync(
+            filtroDesde,
+            filtroHasta,
+            string.IsNullOrWhiteSpace(filtroEstadoRegistro) ? null : filtroEstadoRegistro,
+            idBestia);
+        registrosReporte = res?.ToList() ?? new List<ReporteRegistrosPorBestiaDTO>();
+    }
+
+    private async Task LimpiarFiltrosRegistros()
+    {
+        filtroIdBestia = string.Empty;
+        filtroEstadoRegistro = string.Empty;
+        filtroDesde = null;
+        filtroHasta = null;
+        await CargarReporteRegistros();
+    }
+
+    private static string F(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+}

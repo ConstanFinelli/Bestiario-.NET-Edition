@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DTOs;
 
 namespace WindowsForms
 {
@@ -16,6 +17,10 @@ namespace WindowsForms
         public Home()
         {
             InitializeComponent();
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            reportesToolStripMenuItem.Visible = esInvestigador;
+            reporteEstadisticasButton.Visible = esInvestigador;
+            reporteRegistrosButton.Visible = esInvestigador;
         }
 
         private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -70,6 +75,18 @@ namespace WindowsForms
         {
             UsuarioLista usuariosForm = new UsuarioLista();
             usuariosForm.ShowDialog();
+        }
+
+        private void EstadisticasBestiasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReporteBestiasForm form = new ReporteBestiasForm();
+            form.ShowDialog();
+        }
+
+        private void RegistrosPorBestiaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReporteRegistrosForm form = new ReporteRegistrosForm();
+            form.ShowDialog();
         }
 
         private void IconPictureBox_Paint(object? sender, PaintEventArgs e)
