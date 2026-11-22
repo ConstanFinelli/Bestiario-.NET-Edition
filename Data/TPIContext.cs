@@ -19,6 +19,7 @@ namespace Data
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Investigador> Investigadores { get; set; }
         public DbSet<Lector> Lectores { get; set; }
+        public DbSet<SolicitudInvestigador> SolicitudesInvestigador { get; set; }
 
         public TPIContext(DbContextOptions<TPIContext> options) : base(options)
         {
@@ -348,6 +349,32 @@ namespace Data
                         Contenido = "Observé un ejemplar sobrevolando el paso montañoso al amanecer."
                     }
                 );
+            });
+
+            // ==========================================
+            // Entidad SolicitudInvestigador
+            // ==========================================
+            modelBuilder.Entity<SolicitudInvestigador>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+                entity.Property(s => s.Id).ValueGeneratedOnAdd();
+                entity.Property(s => s.Dni).IsRequired().HasMaxLength(20);
+                entity.Property(s => s.Nombre).IsRequired().HasMaxLength(50);
+                entity.Property(s => s.Apellido).IsRequired().HasMaxLength(50);
+                entity.Property(s => s.Motivo).IsRequired().HasMaxLength(500);
+                entity.Property(s => s.Estado).IsRequired().HasMaxLength(20);
+                entity.Property(s => s.FechaSolicitud).IsRequired();
+
+                entity.HasOne(s => s.Lector)
+                    .WithMany()
+                    .HasForeignKey(s => s.IdLector)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.InvestigadorResolutor)
+                    .WithMany()
+                    .HasForeignKey(s => s.IdInvestigadorResolutor)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

@@ -1,0 +1,390 @@
+@page "/solicitudes-investigador"
+@inject NavigationManager Navigation
+@inject AuthService Auth
+@implements IDisposable
+
+<PageTitle>Solicitudes a Investigador</PageTitle>
+
+<div class="win-form" style="width: 960px; max-width: 96vw;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-badge text-primary"></span>
+            <span>@(Auth.EsInvestigador ? "Solicitudes de Lectores para Investigador" : "Solicitar Rol de Investigador")</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="CargarDatos" IsLoading="@isLoading" />
+
+    <div class="win-form-content">
+        @if (!string.IsNullOrEmpty(feedbackMessage))
+        {
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                @feedbackMessage
+            </div>
+        }
+
+        @if (Auth.EsInvitado)
+        {
+            <div class="win-error-msg mb-2">
+                <span class="oi oi-lock-locked me-1"></span> Debe iniciar sesión como Lector para solicitar el ascenso a Investigador, o como Investigador para aprobar solicitudes.
+            </div>
+            <button class="win-btn" @onclick="@(() => Navigation.NavigateTo("/login"))">Iniciar Sesión</button>
+        }
+        else if (Auth.EsLector)
+        {
+            bool tienePendiente = misSolicitudes.Any(s => s.Estado == "pendiente");
+            bool tieneAprobada = misSolicitudes.Any(s => s.Estado == "aprobada");
+
+            @if (tieneAprobada)
+            {
+                <div class="alert alert-success py-2 mb-2 d-flex align-items-center justify-content-between" style="font-size: 11px;">
+                    <span>
+                        <strong>¡Tu solicitud fue aprobada!</strong> Cerrá sesión y volvé a iniciar sesión para activar tus permisos de Investigador.
+                    </span>
+                    <button class="win-btn ms-2" @onclick="ReiniciarSesion">Ir a Iniciar Sesión</button>
+                </div>
+            }
+            else if (tienePendiente)
+            {
+                <div class="alert alert-info py-2 mb-2" style="font-size: 11px;">
+                    Ya tenés una solicitud en estado <strong>pendiente</strong>. Un investigador revisará tu postulación pronto.
+                </div>
+            }
+
+            <fieldset style="border: 1px solid #c0c0c0; padding: 12px 16px; margin-bottom: 14px; background: #fafafa;">
+                <legend style="font-size: 11px; font-weight: bold; width: auto; padding: 0 6px; margin-bottom: 4px;">
+                    Nueva Solicitud para ser Investigador
+                </legend>
+
+                <div class="row g-2 mb-2">
+                    <div class="col-md-4">
+                        <label class="win-label d-block">Nombre:</label>
+                        <input type="text" class="win-textbox w-100" maxlength="50"
+                               @bind="nuevaSolicitud.Nombre"
+                               disabled="@(tienePendiente || tieneAprobada || isSaving)" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="win-label d-block">Apellido:</label>
+                        <input type="text" class="win-textbox w-100" maxlength="50"
+                               @bind="nuevaSolicitud.Apellido"
+                               disabled="@(tienePendiente || tieneAprobada || isSaving)" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="win-label d-block">DNI:</label>
+                        <input type="text" class="win-textbox w-100" maxlength="20"
+                               @bind="nuevaSolicitud.Dni"
+                               disabled="@(tienePendiente || tieneAprobada || isSaving)" />
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="win-label d-block">Motivo / Experiencia:</label>
+                    <textarea class="win-textbox w-100" rows="2" maxlength="500"
+                              placeholder="Contanos por qué querés ser investigador y tu experiencia..."
+                              @bind="nuevaSolicitud.Motivo"
+                              disabled="@(tienePendiente || tieneAprobada || isSaving)"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button class="win-btn" @onclick="EnviarSolicitud"
+                            disabled="@(tienePendiente || tieneAprobada || isSaving || isLoading)">
+                        @(isSaving ? "Enviando..." : "Enviar Solicitud")
+                    </button>
+                </div>
+            </fieldset>
+
+            <div class="fw-bold mb-1" style="font-size: 11px;">Historial de mis solicitudes:</div>
+            <div class="win-grid-container" style="height: 190px;">
+                <table class="win-grid">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">Fecha</th>
+                            <th style="width: 170px;">Nombre y Apellido</th>
+                            <th style="width: 90px;">DNI</th>
+                            <th>Motivo</th>
+                            <th style="width: 90px; text-align: center;">Estado</th>
+                            <th style="width: 140px;">Resuelto por</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (isLoading)
+                        {
+                            <tr><td colspan="6" class="text-center py-4 text-muted">Cargando solicitudes...</td></tr>
+                        }
+                        else if (!misSolicitudes.Any())
+                        {
+                            <tr><td colspan="6" class="text-center py-4 text-muted">Todavía no enviaste ninguna solicitud.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var s in misSolicitudes)
+                            {
+                                <tr>
+                                    <td style="font-size: 11px;">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@s.Nombre @s.Apellido</td>
+                                    <td>@s.Dni</td>
+                                    <td style="font-size: 11px;">@s.Motivo</td>
+                                    <td style="text-align: center;">
+                                        <span class="badge @GetEstadoBadgeClass(s.Estado)" style="font-size: 10px;">@s.Estado</span>
+                                    </td>
+                                    <td style="font-size: 11px;">@(s.NombreInvestigadorResolutor ?? "-")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (Auth.EsInvestigador)
+        {
+            <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
+                <label class="win-label fw-bold mb-0">Filtrar por Estado:</label>
+                <select class="win-textbox" style="min-width: 180px;" value="@filtroEstado" @onchange="OnFiltroEstadoChanged">
+                    <option value="pendiente">Pendientes</option>
+                    <option value="">-- Todas --</option>
+                    <option value="aprobada">Aprobadas</option>
+                    <option value="rechazada">Rechazadas</option>
+                </select>
+            </div>
+
+            <div class="win-grid-container" style="height: 270px;">
+                <table class="win-grid">
+                    <thead>
+                        <tr>
+                            <th class="win-grid-row-header-th"></th>
+                            <th style="width: 115px;">Fecha</th>
+                            <th style="width: 170px;">Correo Lector</th>
+                            <th style="width: 150px;">Nombre y Apellido</th>
+                            <th style="width: 85px;">DNI</th>
+                            <th>Motivo</th>
+                            <th style="width: 85px; text-align: center;">Estado</th>
+                            <th style="width: 130px;">Resolutor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (isLoading)
+                        {
+                            <tr><td colspan="8" class="text-center py-4 text-muted">Cargando solicitudes...</td></tr>
+                        }
+                        else if (!solicitudes.Any())
+                        {
+                            <tr><td colspan="8" class="text-center py-4 text-muted">No hay solicitudes para el filtro seleccionado.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var s in solicitudes)
+                            {
+                                bool isSelected = selectedSolicitud?.Id == s.Id;
+                                <tr class="@(isSelected ? "selected" : "")" @onclick="() => selectedSolicitud = s">
+                                    <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
+                                    <td style="font-size: 11px;">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@(s.CorreoLector ?? "-")</td>
+                                    <td><strong>@s.Nombre @s.Apellido</strong></td>
+                                    <td>@s.Dni</td>
+                                    <td style="font-size: 11px;">@s.Motivo</td>
+                                    <td style="text-align: center;">
+                                        <span class="badge @GetEstadoBadgeClass(s.Estado)" style="font-size: 10px;">@s.Estado</span>
+                                    </td>
+                                    <td style="font-size: 11px;">@(s.NombreInvestigadorResolutor ?? "-")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="win-btn-action-bar">
+                @if (selectedSolicitud != null && selectedSolicitud.Estado == "pendiente")
+                {
+                    <button class="win-btn btn-success" style="border-color: #2e6b2e;" @onclick="AprobarSeleccionada" disabled="@(isLoading || isSaving)">
+                        ✔ Aprobar Solicitud
+                    </button>
+                    <button class="win-btn text-danger" @onclick="RechazarSeleccionada" disabled="@(isLoading || isSaving)">
+                        ✕ Rechazar Solicitud
+                    </button>
+                }
+                else
+                {
+                    <span class="text-muted" style="font-size: 11px;">Seleccione una solicitud pendiente para aprobarla o rechazarla.</span>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="win-statusbar">
+        @if (Auth.EsInvestigador)
+        {
+            <span>@solicitudes.Count solicitud(es) encontrada(s)</span>
+            <span>@(selectedSolicitud != null ? $"Seleccionada: {selectedSolicitud.CorreoLector}" : "Ninguna solicitud seleccionada")</span>
+        }
+        else if (Auth.EsLector)
+        {
+            <span>@misSolicitudes.Count solicitud(es) enviada(s)</span>
+            <span>Rol actual: Lector</span>
+        }
+        else
+        {
+            <span>Modo Invitado</span>
+            <span>Sin sesión activa</span>
+        }
+    </div>
+</div>
+
+@code {
+    private List<SolicitudInvestigadorDTO> solicitudes = new();
+    private List<SolicitudInvestigadorDTO> misSolicitudes = new();
+    private SolicitudInvestigadorDTO? selectedSolicitud;
+    private CrearSolicitudInvestigadorDTO nuevaSolicitud = new();
+
+    private string filtroEstado = "pendiente";
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChange += HandleAuthStateChanged;
+        await CargarDatos();
+    }
+
+    private async void HandleAuthStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await CargarDatos();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Auth.OnChange -= HandleAuthStateChanged;
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            selectedSolicitud = null;
+
+            if (Auth.EsInvestigador)
+            {
+                var res = await SolicitudInvestigadorApiClient.GetAllAsync(string.IsNullOrEmpty(filtroEstado) ? null : filtroEstado);
+                solicitudes = res?.ToList() ?? new List<SolicitudInvestigadorDTO>();
+                selectedSolicitud = solicitudes.FirstOrDefault();
+            }
+            else if (Auth.EsLector)
+            {
+                var res = await SolicitudInvestigadorApiClient.GetMisSolicitudesAsync();
+                misSolicitudes = res?.ToList() ?? new List<SolicitudInvestigadorDTO>();
+            }
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar solicitudes: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnFiltroEstadoChanged(ChangeEventArgs e)
+    {
+        filtroEstado = e.Value?.ToString() ?? string.Empty;
+        await CargarDatos();
+    }
+
+    private async Task EnviarSolicitud()
+    {
+        if (string.IsNullOrWhiteSpace(nuevaSolicitud.Nombre) ||
+            string.IsNullOrWhiteSpace(nuevaSolicitud.Apellido) ||
+            string.IsNullOrWhiteSpace(nuevaSolicitud.Dni) ||
+            string.IsNullOrWhiteSpace(nuevaSolicitud.Motivo))
+        {
+            feedbackMessage = "Todos los campos (Nombre, Apellido, DNI y Motivo) son obligatorios.";
+            isFeedbackError = true;
+            return;
+        }
+
+        try
+        {
+            isSaving = true;
+            feedbackMessage = null;
+            await SolicitudInvestigadorApiClient.CrearAsync(nuevaSolicitud);
+            nuevaSolicitud = new CrearSolicitudInvestigadorDTO();
+            await CargarDatos();
+            feedbackMessage = "Solicitud enviada exitosamente. Quedó en estado 'pendiente'.";
+            isFeedbackError = false;
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al enviar solicitud: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task AprobarSeleccionada()
+    {
+        if (selectedSolicitud == null) return;
+        try
+        {
+            isSaving = true;
+            string correo = selectedSolicitud.CorreoLector ?? selectedSolicitud.Nombre;
+            await SolicitudInvestigadorApiClient.AprobarAsync(selectedSolicitud.Id);
+            await CargarDatos();
+            feedbackMessage = $"Solicitud aprobada. El usuario '{correo}' ahora tiene rol Investigador.";
+            isFeedbackError = false;
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al aprobar solicitud: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task RechazarSeleccionada()
+    {
+        if (selectedSolicitud == null) return;
+        try
+        {
+            isSaving = true;
+            string correo = selectedSolicitud.CorreoLector ?? selectedSolicitud.Nombre;
+            await SolicitudInvestigadorApiClient.RechazarAsync(selectedSolicitud.Id);
+            await CargarDatos();
+            feedbackMessage = $"Solicitud de '{correo}' rechazada.";
+            isFeedbackError = false;
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al rechazar solicitud: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task ReiniciarSesion()
+    {
+        await Auth.LogoutAsync();
+        Navigation.NavigateTo("/login");
+    }
+
+    private static string GetEstadoBadgeClass(string estado) => estado switch
+    {
+        "aprobada" => "bg-success",
+        "rechazada" => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}
