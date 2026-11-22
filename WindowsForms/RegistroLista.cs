@@ -157,7 +157,10 @@ namespace WindowsForms
                 bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
                 if (!esInvestigador)
                 {
-                    todosRegistros = todosRegistros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                    Guid? userId = LoginForm.UsuarioLogueado?.Id;
+                    todosRegistros = todosRegistros.Where(r =>
+                        (r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)) ||
+                        (userId.HasValue && r.IdUsuarioPublicador == userId.Value)).ToList();
                 }
 
                 AplicarFiltro();
@@ -186,7 +189,10 @@ namespace WindowsForms
             bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
             if (!esInvestigador)
             {
-                filtrados = filtrados.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase));
+                Guid? userId = LoginForm.UsuarioLogueado?.Id;
+                filtrados = filtrados.Where(r =>
+                    (r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)) ||
+                    (userId.HasValue && r.IdUsuarioPublicador == userId.Value));
             }
 
             var vmList = filtrados.Select(r => new RegistroVM
@@ -352,7 +358,9 @@ namespace WindowsForms
         private void HabilitarControles()
         {
             bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
-            agregarButton.Enabled = esInvestigador;
+            bool esLector = LoginForm.UsuarioLogueado is LectorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Lector";
+            agregarButton.Enabled = esInvestigador || esLector;
+            agregarButton.Text = esLector ? "Proponer" : "Agregar";
             registrosDataGridView.Enabled = true;
             bestiasComboBox.Enabled = true;
             ActualizarEstadoBotones();

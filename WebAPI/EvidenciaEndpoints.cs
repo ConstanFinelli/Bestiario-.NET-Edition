@@ -41,11 +41,17 @@ namespace WebAPI
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
-            app.MapPost("/bestias/{idBestia}/evidencias", async (Guid idBestia, EvidenciaDTO dto, IEvidenciaService service) =>
+            app.MapPost("/bestias/{idBestia}/evidencias", async (Guid idBestia, EvidenciaDTO dto, ClaimsPrincipal user, IEvidenciaService service) =>
             {
                 try
                 {
                     dto.IdBestia = idBestia;
+                    bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
+                    if (!esInvestigador)
+                    {
+                        dto.Estado = "pendiente";
+                    }
+
                     var result = await service.AddAsync(dto);
                     return Results.Created($"/bestias/{idBestia}/evidencias/{result.NroEvidencia}", result);
                 }
@@ -78,9 +84,10 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateEvidencia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -94,9 +101,10 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteEvidencia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 

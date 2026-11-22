@@ -21,6 +21,12 @@
                         <span class="oi oi-warning me-1"></span> @errorMessage
                     </div>
                 }
+                @if (Auth.EsLector && Mode == FormMode.Add)
+                {
+                    <div class="alert alert-info py-1 mb-2" style="font-size: 11px;">
+                        Tu evidencia se enviará en estado <strong>pendiente</strong> para revisión de un investigador.
+                    </div>
+                }
 
                 <div class="row align-items-center mb-2">
                     <div class="col-4"><label class="win-label">Bestia:</label></div>
@@ -32,7 +38,7 @@
                         }
                         else
                         {
-                            <select class="win-textbox w-100" @bind="Evidencia.IdBestia" disabled="@(isSaving || !Auth.EsInvestigador)">
+                            <select class="win-textbox w-100" @bind="Evidencia.IdBestia" disabled="@(isSaving || !PuedeEditar)">
                                 <option value="@Guid.Empty">-- Seleccione una Bestia --</option>
                                 @foreach (var b in Bestias)
                                 {
@@ -54,7 +60,7 @@
                 <div class="row align-items-center mb-2">
                     <div class="col-4"><label class="win-label">Tipo Evidencia:</label></div>
                     <div class="col-8">
-                        <select class="win-textbox w-100" @bind="Evidencia.IdTipoEvidencia" disabled="@(isSaving || !Auth.EsInvestigador)">
+                        <select class="win-textbox w-100" @bind="Evidencia.IdTipoEvidencia" disabled="@(isSaving || !PuedeEditar)">
                             <option value="@Guid.Empty">-- Seleccione Tipo --</option>
                             @foreach (var t in tipos)
                             {
@@ -68,14 +74,14 @@
                     <div class="col-4"><label class="win-label">FileId:</label></div>
                     <div class="col-8">
                         <input type="text" class="win-textbox w-100 @(fileIdInvalido ? "win-field-error" : "")"
-                               @bind="Evidencia.FileId" maxlength="200" disabled="@(isSaving || !Auth.EsInvestigador)" />
+                               @bind="Evidencia.FileId" maxlength="200" disabled="@(isSaving || !PuedeEditar)" />
                     </div>
                 </div>
 
                 <div class="row align-items-center mb-2">
                     <div class="col-4"><label class="win-label">Fecha Obtención:</label></div>
                     <div class="col-8">
-                        <input type="date" class="win-textbox w-100" @bind="Evidencia.FechaObtencion" disabled="@(isSaving || !Auth.EsInvestigador)" />
+                        <input type="date" class="win-textbox w-100" @bind="Evidencia.FechaObtencion" disabled="@(isSaving || !PuedeEditar)" />
                     </div>
                 </div>
 
@@ -90,14 +96,14 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
-                    @if (Auth.EsInvestigador)
+                    @if (PuedeEditar)
                     {
                         <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
-                            @(isSaving ? "Guardando..." : "Aceptar")
+                            @(isSaving ? "Guardando..." : (Auth.EsInvestigador ? "Aceptar" : "Proponer"))
                         </button>
                     }
                     <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
-                        @(Auth.EsInvestigador ? "Cancelar" : "Cerrar")
+                        @(PuedeEditar ? "Cancelar" : "Cerrar")
                     </button>
                 </div>
             </div>
@@ -118,6 +124,7 @@
     private bool isSaving = false;
     private string? errorMessage;
     private bool fileIdInvalido = false;
+    private bool PuedeEditar => Auth.EsInvestigador || (Auth.EsLector && Mode == FormMode.Add);
 
     protected override async Task OnParametersSetAsync()
     {
@@ -126,7 +133,8 @@
 
         if (IsOpen)
         {
-            if (string.IsNullOrEmpty(Evidencia.Estado)) Evidencia.Estado = "pendiente";
+            if (!Auth.EsInvestigador) Evidencia.Estado = "pendiente";
+            else if (string.IsNullOrEmpty(Evidencia.Estado)) Evidencia.Estado = "pendiente";
             if (Evidencia.FechaObtencion == default) Evidencia.FechaObtencion = DateTime.Now;
 
             try
@@ -176,6 +184,11 @@
         {
             isSaving = true;
             errorMessage = null;
+
+            if (!Auth.EsInvestigador)
+            {
+                Evidencia.Estado = "pendiente";
+            }
 
             if (Mode == FormMode.Add)
                 await EvidenciaApiClient.AddAsync(Evidencia);

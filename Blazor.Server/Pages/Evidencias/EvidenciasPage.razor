@@ -101,6 +101,11 @@
                 <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedEvidencia == null || isLoading)">Ver / Editar</button>
                 <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Agregar</button>
             }
+            else if (Auth.EsLector)
+            {
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedEvidencia == null || isLoading)">Ver Detalle</button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Proponer Evidencia</button>
+            }
             else
             {
                 <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedEvidencia == null || isLoading)">Ver Detalle</button>
@@ -279,9 +284,12 @@
     private async Task OnEvidenciaGuardada()
     {
         isModalOpen = false;
-        feedbackMessage = "Evidencia guardada exitosamente.";
+        var msg = Auth.EsInvestigador
+            ? "Evidencia guardada exitosamente."
+            : "Evidencia propuesta en estado 'pendiente'. Un investigador deberá aprobarla para que sea visible públicamente.";
         isFeedbackError = false;
         await CargarDatos();
+        feedbackMessage = msg;
     }
 
     private void AbrirModalEliminar()

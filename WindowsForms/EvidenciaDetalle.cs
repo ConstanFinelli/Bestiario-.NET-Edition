@@ -149,10 +149,13 @@ namespace WindowsForms
 
                 var selectedBestia = bestiaComboBox.SelectedItem as ComboItem;
                 var selectedTipo = tipoComboBox.SelectedItem as ComboItem;
+                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
 
                 this.Evidencia.IdBestia = selectedBestia!.Id;
                 this.Evidencia.IdTipoEvidencia = selectedTipo!.Id;
-                this.Evidencia.Estado = estadoComboBox.SelectedItem?.ToString() ?? "pendiente";
+                this.Evidencia.Estado = esInvestigador
+                    ? (estadoComboBox.SelectedItem?.ToString() ?? "pendiente")
+                    : "pendiente";
                 this.Evidencia.FechaObtencion = fechaObtencionPicker.Value;
                 this.Evidencia.FileId = fileIdTextBox.Text.Trim();
 
@@ -221,16 +224,21 @@ namespace WindowsForms
         private void HabilitarControles()
         {
             bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
-            aceptarButton.Visible = esInvestigador;
-            aceptarButton.Enabled = esInvestigador;
+            bool esLector = LoginForm.UsuarioLogueado is LectorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Lector";
+            bool puedeEditar = esInvestigador || (esLector && Mode == FormMode.Add);
+
+            aceptarButton.Visible = puedeEditar;
+            aceptarButton.Enabled = puedeEditar;
+            aceptarButton.Text = (!esInvestigador && esLector) ? "Proponer" : "Aceptar";
             cancelarButton.Enabled = true;
-            cancelarButton.Text = esInvestigador ? "Cancelar" : "Cerrar";
-            bestiaComboBox.Enabled = esInvestigador && Mode == FormMode.Add;
-            tipoComboBox.Enabled = esInvestigador;
+            cancelarButton.Text = puedeEditar ? "Cancelar" : "Cerrar";
+            bestiaComboBox.Enabled = puedeEditar && Mode == FormMode.Add;
+            tipoComboBox.Enabled = puedeEditar;
             estadoComboBox.Enabled = esInvestigador;
-            fechaObtencionPicker.Enabled = esInvestigador;
-            fileIdTextBox.Enabled = esInvestigador;
-            if (!esInvestigador) this.Text = "Detalle de Evidencia";
+            fechaObtencionPicker.Enabled = puedeEditar;
+            fileIdTextBox.Enabled = puedeEditar;
+            if (!puedeEditar) this.Text = "Detalle de Evidencia";
+            else if (!esInvestigador && esLector) this.Text = "Proponer Evidencia";
         }
 
         private class ComboItem

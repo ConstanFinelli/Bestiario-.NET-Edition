@@ -125,6 +125,15 @@
                     Agregar
                 </button>
             }
+            else if (Auth.EsLector)
+            {
+                <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedRegistro == null || isLoading)">
+                    Ver Detalle
+                </button>
+                <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
+                    Proponer Registro
+                </button>
+            }
             else
             {
                 <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedRegistro == null || isLoading)">
@@ -234,7 +243,10 @@
 
             if (!Auth.EsInvestigador)
             {
-                todosRegistros = todosRegistros.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                Guid? userId = Auth.CurrentUser?.Id;
+                todosRegistros = todosRegistros.Where(r =>
+                    (r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)) ||
+                    (Auth.EsLector && userId.HasValue && r.IdUsuarioPublicador == userId.Value)).ToList();
             }
 
             AplicarFiltro();
@@ -360,9 +372,12 @@
     private async Task OnRegistroGuardado()
     {
         isModalOpen = false;
-        feedbackMessage = "Registro guardado exitosamente.";
+        var msg = Auth.EsInvestigador
+            ? "Registro guardado exitosamente."
+            : "Registro propuesto en estado 'pendiente'. Un investigador deberá aprobarlo para publicarlo.";
         isFeedbackError = false;
         await CargarDatos();
+        feedbackMessage = msg;
     }
 
     private void AbrirModalEliminar()

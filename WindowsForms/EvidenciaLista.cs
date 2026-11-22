@@ -319,7 +319,9 @@ namespace WindowsForms
         private void HabilitarControles()
         {
             bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
-            agregarButton.Enabled = esInvestigador;
+            bool esLector = LoginForm.UsuarioLogueado is LectorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Lector";
+            agregarButton.Enabled = esInvestigador || esLector;
+            agregarButton.Text = esLector ? "Proponer" : "Agregar";
             evidenciasDataGridView.Enabled = true;
             bestiasComboBox.Enabled = true;
             ActualizarEstadoBotones();

@@ -14,7 +14,11 @@ namespace WebAPI
                 bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
                 if (!esInvestigador)
                 {
-                    dtos = dtos.Where(r => r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
+                    Guid? userId = Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var uid) ? uid : null;
+                    dtos = dtos.Where(r =>
+                        (r.Estado != null && r.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)) ||
+                        (userId.HasValue && r.IdUsuarioPublicador == userId.Value))
+                        .ToList();
                 }
                 return Results.Ok(dtos);
             })
@@ -30,7 +34,10 @@ namespace WebAPI
                     return Results.NotFound();
 
                 bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
-                if (!esInvestigador && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
+                Guid? userId = Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var uid) ? uid : null;
+                bool esPropio = userId.HasValue && dto.IdUsuarioPublicador == userId.Value;
+
+                if (!esInvestigador && !esPropio && !dto.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
                     return Results.NotFound();
 
                 return Results.Ok(dto);
@@ -41,11 +48,27 @@ namespace WebAPI
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
-            app.MapPost("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, IRegistroService registroService) =>
+            app.MapPost("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, ClaimsPrincipal user, IRegistroService registroService) =>
             {
                 try
                 {
                     dto.IdBestia = idBestia;
+                    bool esInvestigador = user.Identity?.IsAuthenticated == true && user.IsInRole("Investigador");
+                    if (Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var uid))
+                    {
+                        if (!esInvestigador || dto.IdUsuarioPublicador == Guid.Empty)
+                        {
+                            dto.IdUsuarioPublicador = uid;
+                        }
+                    }
+
+                    if (!esInvestigador)
+                    {
+                        dto.Estado = "pendiente";
+                        dto.IdInvestigadorAprobador = null;
+                        dto.FechaAprobacion = null;
+                    }
+
                     var result = await registroService.AddAsync(dto);
                     return Results.Created($"/bestias/{idBestia}/registros/{result.NroRegistro}", result);
                 }
@@ -78,9 +101,10 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateRegistro")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -94,9 +118,10 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteRegistro")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 

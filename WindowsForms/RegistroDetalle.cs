@@ -226,8 +226,11 @@ namespace WindowsForms
                 DeshabilitarControles();
 
                 var selectedBestia = this.bestiaComboBox.SelectedItem as BestiaComboItem;
+                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
                 this.Registro.IdBestia = selectedBestia!.Id;
-                this.Registro.Estado = this.estadoComboBox.SelectedItem?.ToString() ?? "pendiente";
+                this.Registro.Estado = esInvestigador
+                    ? (this.estadoComboBox.SelectedItem?.ToString() ?? "pendiente")
+                    : "pendiente";
                 this.Registro.Contenidos = contenidosBindingList.ToList();
 
                 foreach (var c in this.Registro.Contenidos)
@@ -296,19 +299,27 @@ namespace WindowsForms
         private void HabilitarControles()
         {
             bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
-            aceptarButton.Visible = esInvestigador;
-            aceptarButton.Enabled = esInvestigador;
+            bool esLector = LoginForm.UsuarioLogueado is LectorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Lector";
+            bool puedeEditar = esInvestigador || (esLector && Mode == FormMode.Add);
+
+            aceptarButton.Visible = puedeEditar;
+            aceptarButton.Enabled = puedeEditar;
+            aceptarButton.Text = (!esInvestigador && esLector) ? "Proponer" : "Aceptar";
             cancelarButton.Enabled = true;
-            cancelarButton.Text = esInvestigador ? "Cancelar" : "Cerrar";
-            bestiaComboBox.Enabled = esInvestigador && Mode == FormMode.Add;
+            cancelarButton.Text = puedeEditar ? "Cancelar" : "Cerrar";
+            bestiaComboBox.Enabled = puedeEditar && Mode == FormMode.Add;
             estadoComboBox.Enabled = esInvestigador;
-            agregarContenidoButton.Enabled = esInvestigador;
-            quitarContenidoButton.Enabled = esInvestigador;
-            nuevoTituloTextBox.Enabled = esInvestigador;
-            nuevoContenidoTextBox.Enabled = esInvestigador;
-            if (!esInvestigador)
+            agregarContenidoButton.Enabled = puedeEditar;
+            quitarContenidoButton.Enabled = puedeEditar;
+            nuevoTituloTextBox.Enabled = puedeEditar;
+            nuevoContenidoTextBox.Enabled = puedeEditar;
+            if (!puedeEditar)
             {
                 this.Text = "Detalle de Registro";
+            }
+            else if (!esInvestigador && esLector)
+            {
+                this.Text = "Proponer Registro (Maestro / Detalle)";
             }
         }
 
