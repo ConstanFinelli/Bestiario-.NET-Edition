@@ -38,8 +38,20 @@
         <NavLink href="/comentarios" class="win-menu-item">
             Comentarios
         </NavLink>
+        @if (Auth.EsLector)
+        {
+            <NavLink href="/solicitudes-investigador" class="win-menu-item">
+                Ser Investigador
+            </NavLink>
+        }
         @if (Auth.EsInvestigador)
         {
+            <NavLink href="/reportes" class="win-menu-item">
+                Reportes
+            </NavLink>
+            <NavLink href="/solicitudes-investigador" class="win-menu-item">
+                Solicitudes
+            </NavLink>
             <NavLink href="/usuarios" class="win-menu-item">
                 Usuarios
             </NavLink>
@@ -97,8 +109,20 @@
                 <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/comentarios"))">
                     Comentarios
                 </button>
+                @if (Auth.EsLector)
+                {
+                    <button class="win-btn" style="min-width: 120px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/solicitudes-investigador"))">
+                        Ser Investigador
+                    </button>
+                }
                 @if (Auth.EsInvestigador)
                 {
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/reportes"))">
+                        Reportes
+                    </button>
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/solicitudes-investigador"))">
+                        Solicitudes
+                    </button>
                     <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/usuarios"))">
                         Usuarios
                     </button>
