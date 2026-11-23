@@ -4,7 +4,7 @@
 
 <PageTitle>Bestiario-NET</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form" style="width: 940px; max-width: 96vw; margin-bottom: 14px;">
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
             <span class="oi oi-window me-1 text-primary"></span>
@@ -93,60 +93,68 @@
                 }
             </div>
         </div>
-
-        <!-- Últimas 3 Noticias -->
-        <div style="width: 100%; max-width: 860px; margin-top: 20px; text-align: left;">
-            <div class="d-flex align-items-center justify-content-between mb-2 pb-1" style="border-bottom: 1px solid #c0c0c0;">
-                <span class="fw-bold" style="font-size: 12px;">
-                    <span class="oi oi-bullhorn text-primary me-1"></span> Últimas Noticias
-                </span>
-                <button class="win-btn" style="height: 22px; font-size: 11px; padding: 0 8px;" @onclick="@(() => Navigation.NavigateTo("/noticias"))">
-                    Ver todas
-                </button>
-            </div>
-
-            @if (cargandoNoticias)
-            {
-                <div class="text-muted text-center py-3" style="font-size: 11px;">Cargando últimas noticias...</div>
-            }
-            else if (!string.IsNullOrEmpty(errorNoticias))
-            {
-                <div class="win-error-msg" style="font-size: 11px;">@errorNoticias</div>
-            }
-            else if (!ultimasNoticias.Any())
-            {
-                <div class="text-muted text-center py-3 border bg-white" style="font-size: 11px;">No hay noticias publicadas aún.</div>
-            }
-            else
-            {
-                <div class="row g-2">
-                    @foreach (var noticia in ultimasNoticias)
-                    {
-                        <div class="col-md-4">
-                            <div class="bg-white border p-2 h-100 d-flex flex-column justify-content-between" style="border-color: #c0c0c0; border-radius: 2px;">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-start gap-1 mb-1">
-                                        <strong style="font-size: 12px; color: #1f2937;">@noticia.Titulo</strong>
-                                        <span class="text-muted" style="font-size: 10px; white-space: nowrap;">
-                                            @noticia.FechaPublicacion.ToString("dd/MM/yyyy")
-                                        </span>
-                                    </div>
-                                    <p class="mb-0 text-secondary" style="font-size: 11px; line-height: 1.4;">
-                                        @noticia.Contenido
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
     </div>
 
     <!-- Barra de Estado Inferior -->
     <div class="win-statusbar">
         <span>Listo</span>
         <span>Conectado a WebAPI: 5076</span>
+    </div>
+</div>
+
+<!-- Bloque independiente inferior: Últimas 3 Noticias -->
+<div class="win-form" style="width: 940px; max-width: 96vw; margin-top: 0;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-bullhorn text-primary"></span>
+            <span>Últimas Noticias</span>
+        </div>
+        <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 8px;" @onclick="@(() => Navigation.NavigateTo("/noticias"))">
+            Ver todas
+        </button>
+    </div>
+
+    <div class="win-form-content" style="padding: 14px 16px;">
+        @if (cargandoNoticias)
+        {
+            <div class="text-muted text-center py-3" style="font-size: 11px;">Cargando últimas noticias...</div>
+        }
+        else if (!string.IsNullOrEmpty(errorNoticias))
+        {
+            <div class="win-error-msg" style="font-size: 11px;">@errorNoticias</div>
+        }
+        else if (!ultimasNoticias.Any())
+        {
+            <div class="text-muted text-center py-3 border bg-white" style="font-size: 11px;">No hay noticias publicadas aún.</div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var noticia in ultimasNoticias)
+                {
+                    <div class="col-md-4">
+                        <div class="bg-white border p-3 h-100 d-flex flex-column justify-content-between" style="border-color: #c0c0c0; border-radius: 2px; box-shadow: inset 0 0 3px rgba(0,0,0,0.04);">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2 pb-1" style="border-bottom: 1px solid #ececec;">
+                                    <strong style="font-size: 12px; color: #1f2937;">@noticia.Titulo</strong>
+                                    <span class="text-muted" style="font-size: 10px; white-space: nowrap;">
+                                        @noticia.FechaPublicacion.ToString("dd/MM/yyyy")
+                                    </span>
+                                </div>
+                                <p class="mb-0 text-secondary" style="font-size: 11px; line-height: 1.45;">
+                                    @noticia.Contenido
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="win-statusbar">
+        <span>Mostrando @ultimasNoticias.Count noticia(s) reciente(s)</span>
+        <a href="/noticias" class="text-decoration-none" style="font-size: 11px; color: #0066cc;">Ir al listado completo →</a>
     </div>
 </div>
 
