@@ -14,10 +14,86 @@ namespace WindowsForms
 {
     public partial class NoticiaLista : Form
     {
+        private List<NoticiaDTO> _todasNoticias = new();
+        private CheckBox _desdeCheckBox = null!;
+        private DateTimePicker _desdePicker = null!;
+        private CheckBox _hastaCheckBox = null!;
+        private DateTimePicker _hastaPicker = null!;
+
         public NoticiaLista()
         {
             InitializeComponent();
+            InicializarFiltroFecha();
             ConfigurarColumnas();
+        }
+
+        private void InicializarFiltroFecha()
+        {
+            this.noticiaGridView.Top += 34;
+            this.noticiaGridView.Height -= 34;
+
+            _desdeCheckBox = new CheckBox
+            {
+                Text = "Desde:",
+                AutoSize = true,
+                Location = new Point(12, 13)
+            };
+            _desdeCheckBox.CheckedChanged += (_, _) =>
+            {
+                _desdePicker.Enabled = _desdeCheckBox.Checked;
+                AplicarFiltroFecha();
+            };
+
+            _desdePicker = new DateTimePicker
+            {
+                Format = DateTimePickerFormat.Short,
+                Location = new Point(78, 10),
+                Width = 110,
+                Enabled = false
+            };
+            _desdePicker.ValueChanged += (_, _) => { if (_desdeCheckBox.Checked) AplicarFiltroFecha(); };
+
+            _hastaCheckBox = new CheckBox
+            {
+                Text = "Hasta:",
+                AutoSize = true,
+                Location = new Point(204, 13)
+            };
+            _hastaCheckBox.CheckedChanged += (_, _) =>
+            {
+                _hastaPicker.Enabled = _hastaCheckBox.Checked;
+                AplicarFiltroFecha();
+            };
+
+            _hastaPicker = new DateTimePicker
+            {
+                Format = DateTimePickerFormat.Short,
+                Location = new Point(268, 10),
+                Width = 110,
+                Enabled = false
+            };
+            _hastaPicker.ValueChanged += (_, _) => { if (_hastaCheckBox.Checked) AplicarFiltroFecha(); };
+
+            var limpiarBtn = new Button
+            {
+                Text = "Limpiar",
+                Size = new Size(76, 24),
+                Location = new Point(392, 9),
+                UseVisualStyleBackColor = true
+            };
+            limpiarBtn.Click += (_, _) =>
+            {
+                _desdeCheckBox.Checked = false;
+                _hastaCheckBox.Checked = false;
+                AplicarFiltroFecha();
+            };
+
+            this.Controls.AddRange(new Control[]
+            {
+                _desdeCheckBox, _desdePicker,
+                _hastaCheckBox, _hastaPicker,
+                limpiarBtn
+            });
         }
 
         private void ConfigurarColumnas()
@@ -137,29 +213,10 @@ namespace WindowsForms
                 DeshabilitarControles();
                 this.noticiaGridView.DataSource = null;
 
-                IEnumerable<NoticiaDTO> noticias;
-               
-                noticias = await NoticiaApiClient.GetAllAsync();
-                
+                var noticias = await NoticiaApiClient.GetAllAsync();
+                _todasNoticias = noticias?.ToList() ?? new List<NoticiaDTO>();
 
-                this.noticiaGridView.DataSource = noticias;
-
-                bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
-                bool canUpdate = esInvestigador && (actualizarButton.Tag is bool updatePermission ? updatePermission : true);
-                bool canDelete = esInvestigador && (eliminarButton.Tag is bool deletePermission ? deletePermission : true);
-
-                if (this.noticiaGridView.Rows.Count > 0)
-                {
-                    this.noticiaGridView.Rows[0].Selected = true;
-
-                    if (canDelete) this.eliminarButton.Enabled = true;
-                    if (canUpdate) this.actualizarButton.Enabled = true;
-                }
-                else
-                {
-                    this.eliminarButton.Enabled = false;
-                    this.actualizarButton.Enabled = false;
-                }
+                AplicarFiltroFecha();
             }
             catch (Exception ex)
             {
@@ -168,6 +225,40 @@ namespace WindowsForms
             finally
             {
                 HabilitarControles();
+            }
+        }
+
+        private void AplicarFiltroFecha()
+        {
+            IEnumerable<NoticiaDTO> query = _todasNoticias;
+            if (_desdeCheckBox.Checked)
+            {
+                DateTime desde = _desdePicker.Value.Date;
+                query = query.Where(n => n.FechaPublicacion.Date >= desde);
+            }
+            if (_hastaCheckBox.Checked)
+            {
+                DateTime hasta = _hastaPicker.Value.Date;
+                query = query.Where(n => n.FechaPublicacion.Date <= hasta);
+            }
+
+            this.noticiaGridView.DataSource = query.ToList();
+
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            bool canUpdate = esInvestigador && (actualizarButton.Tag is bool updatePermission ? updatePermission : true);
+            bool canDelete = esInvestigador && (eliminarButton.Tag is bool deletePermission ? deletePermission : true);
+
+            if (this.noticiaGridView.Rows.Count > 0)
+            {
+                this.noticiaGridView.Rows[0].Selected = true;
+
+                if (canDelete) this.eliminarButton.Enabled = true;
+                if (canUpdate) this.actualizarButton.Enabled = true;
+            }
+            else
+            {
+                this.eliminarButton.Enabled = false;
+                this.actualizarButton.Enabled = false;
             }
         }
 

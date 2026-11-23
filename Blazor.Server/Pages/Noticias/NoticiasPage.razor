@@ -25,6 +25,22 @@
             </div>
         }
 
+        <!-- Filtro por Fecha de Publicación -->
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-2 p-2 bg-light border">
+            <div class="d-flex align-items-center gap-2">
+                <label class="win-label fw-bold mb-0">Desde:</label>
+                <input type="date" class="win-textbox" @bind="fechaDesde" @bind:after="ActualizarSeleccionTrasFiltro" />
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label class="win-label fw-bold mb-0">Hasta:</label>
+                <input type="date" class="win-textbox" @bind="fechaHasta" @bind:after="ActualizarSeleccionTrasFiltro" />
+            </div>
+            @if (fechaDesde.HasValue || fechaHasta.HasValue)
+            {
+                <button type="button" class="win-btn" @onclick="LimpiarFiltros">Limpiar</button>
+            }
+        </div>
+
         <!-- Grilla DataGridView -->
         <div class="win-grid-container" style="height: 280px;">
             <table class="win-grid">
@@ -46,17 +62,17 @@
                             </td>
                         </tr>
                     }
-                    else if (noticias == null || !noticias.Any())
+                    else if (!NoticiasFiltradas.Any())
                     {
                         <tr>
                             <td colspan="5" class="text-center py-4 text-muted">
-                                No hay noticias disponibles.
+                                No hay noticias disponibles para el filtro seleccionado.
                             </td>
                         </tr>
                     }
                     else
                     {
-                        @foreach (var not in noticias)
+                        @foreach (var not in NoticiasFiltradas)
                         {
                             bool isSelected = selectedNoticia?.Id == not.Id;
                             <tr class="@(isSelected ? "selected" : "")" 
@@ -119,6 +135,8 @@
 
 @code {
     private List<NoticiaDTO> noticias = new();
+    private DateTime? fechaDesde;
+    private DateTime? fechaHasta;
     private NoticiaDTO? selectedNoticia;
     private NoticiaDTO noticiaParaEditar = new();
     private FormMode modalMode = FormMode.Add;
@@ -129,6 +147,23 @@
 
     private string? feedbackMessage;
     private bool isFeedbackError = false;
+
+    private IEnumerable<NoticiaDTO> NoticiasFiltradas
+    {
+        get
+        {
+            IEnumerable<NoticiaDTO> query = noticias;
+            if (fechaDesde.HasValue)
+            {
+                query = query.Where(n => n.FechaPublicacion.Date >= fechaDesde.Value.Date);
+            }
+            if (fechaHasta.HasValue)
+            {
+                query = query.Where(n => n.FechaPublicacion.Date <= fechaHasta.Value.Date);
+            }
+            return query;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -161,10 +196,7 @@
             var result = await NoticiaApiClient.GetAllAsync();
             noticias = result?.ToList() ?? new List<NoticiaDTO>();
 
-            if (noticias.Count > 0)
-            {
-                selectedNoticia = noticias[0];
-            }
+            selectedNoticia = NoticiasFiltradas.FirstOrDefault();
         }
         catch (Exception ex)
         {
@@ -175,6 +207,18 @@
         {
             isLoading = false;
         }
+    }
+
+    private void ActualizarSeleccionTrasFiltro()
+    {
+        selectedNoticia = NoticiasFiltradas.FirstOrDefault();
+    }
+
+    private void LimpiarFiltros()
+    {
+        fechaDesde = null;
+        fechaHasta = null;
+        selectedNoticia = NoticiasFiltradas.FirstOrDefault();
     }
 
     private void SeleccionarFila(NoticiaDTO n)
