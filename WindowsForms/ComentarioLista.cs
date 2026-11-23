@@ -33,10 +33,10 @@ namespace WindowsForms
 
             this.comentariosDataGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
-                Name = "Titulo",
-                HeaderText = "Título",
-                DataPropertyName = "Titulo",
-                Width = 190
+                Name = "Fecha",
+                HeaderText = "Fecha",
+                DataPropertyName = "FechaTexto",
+                Width = 140
             });
 
             this.comentariosDataGridView.Columns.Add(new DataGridViewTextBoxColumn
@@ -134,10 +134,11 @@ namespace WindowsForms
                 BestiaNombre = c.BestiaNombre,
                 IdUsuario = c.IdUsuario,
                 CorreoUsuario = c.CorreoUsuario,
-                Titulo = c.Titulo,
+                FechaPublicacion = c.FechaPublicacion,
                 Contenido = c.Contenido,
                 BestiaTexto = c.BestiaNombre ?? bestias.FirstOrDefault(b => b.Id == c.IdBestia)?.Nombre ?? "-",
-                CorreoUsuarioTexto = c.CorreoUsuario ?? "-"
+                CorreoUsuarioTexto = c.CorreoUsuario ?? "-",
+                FechaTexto = c.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")
             }).ToList();
 
             this.comentariosDataGridView.DataSource = vmList;
@@ -208,7 +209,7 @@ namespace WindowsForms
             if (this.comentariosDataGridView.SelectedRows.Count == 0) return;
             var vm = (ComentarioVM)comentariosDataGridView.SelectedRows[0].DataBoundItem;
 
-            var result = MessageBox.Show($"¿Está seguro que desea eliminar el comentario '{vm.Titulo}'?",
+            var result = MessageBox.Show($"¿Está seguro que desea eliminar el comentario de '{vm.CorreoUsuarioTexto}' ({vm.FechaTexto})?",
                 "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
@@ -257,6 +258,7 @@ namespace WindowsForms
         {
             public string BestiaTexto { get; set; } = string.Empty;
             public string CorreoUsuarioTexto { get; set; } = string.Empty;
+            public string FechaTexto { get; set; } = string.Empty;
         }
     }
 }

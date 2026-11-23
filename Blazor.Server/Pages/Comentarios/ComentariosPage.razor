@@ -43,7 +43,7 @@
                     <tr>
                         <th class="win-grid-row-header-th"></th>
                         <th style="width: 150px;">Bestia</th>
-                        <th style="width: 190px;">Título</th>
+                        <th style="width: 140px;">Fecha</th>
                         <th style="width: 170px;">Autor</th>
                         <th>Contenido</th>
                     </tr>
@@ -68,7 +68,7 @@
                                 @ondblclick="AbrirModalActualizar">
                                 <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
                                 <td><strong>@nombreBestia</strong></td>
-                                <td>@c.Titulo</td>
+                                <td style="font-size: 11px;">@c.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td style="font-size: 11px;">@(c.CorreoUsuario ?? "-")</td>
                                 <td style="font-size: 11px;">@c.Contenido</td>
                             </tr>
@@ -97,7 +97,7 @@
 
     <div class="win-statusbar">
         <span>@(comentariosMostrados?.Count ?? 0) comentario(s) encontrado(s)</span>
-        <span>@(selectedComentario != null ? $"Seleccionado: {selectedComentario.Titulo}" : "Ningún comentario seleccionado")</span>
+        <span>@(selectedComentario != null ? $"Seleccionado: {selectedComentario.CorreoUsuario ?? "-"} ({selectedComentario.FechaPublicacion:dd/MM/yyyy HH:mm})" : "Ningún comentario seleccionado")</span>
     </div>
 </div>
 
@@ -110,7 +110,7 @@
 
 <ConfirmModal IsOpen="@isConfirmDeleteOpen"
               Title="Confirmar eliminación"
-              Message="@($"¿Está seguro que desea eliminar el comentario '{selectedComentario?.Titulo}'?")"
+              Message="¿Está seguro que desea eliminar el comentario seleccionado?"
               ConfirmButtonText="Sí"
               OnConfirm="@EliminarComentarioConfirmado"
               OnCancel="@(() => isConfirmDeleteOpen = false)" />
@@ -233,7 +233,7 @@
                     BestiaNombre = fresco.BestiaNombre,
                     IdUsuario = fresco.IdUsuario,
                     CorreoUsuario = fresco.CorreoUsuario,
-                    Titulo = fresco.Titulo,
+                    FechaPublicacion = fresco.FechaPublicacion,
                     Contenido = fresco.Contenido
                 };
                 modalMode = FormMode.Update;
@@ -274,7 +274,7 @@
             isConfirmDeleteOpen = false;
             isLoading = true;
             await ComentarioApiClient.DeleteAsync(selectedComentario.Id);
-            feedbackMessage = $"Comentario '{selectedComentario.Titulo}' eliminado.";
+            feedbackMessage = "Comentario eliminado exitosamente.";
             isFeedbackError = false;
             selectedComentario = null;
             await CargarDatos();

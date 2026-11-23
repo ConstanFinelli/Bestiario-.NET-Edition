@@ -9,7 +9,7 @@ namespace DTOs
         public string? BestiaNombre { get; set; }
         public Guid IdUsuario { get; set; }
         public string? CorreoUsuario { get; set; }
-        public string Titulo { get; set; } = string.Empty;
+        public DateTime FechaPublicacion { get; set; }
         public string Contenido { get; set; } = string.Empty;
     }
 }

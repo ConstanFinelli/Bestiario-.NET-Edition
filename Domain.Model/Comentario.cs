@@ -7,7 +7,7 @@ namespace Domain.Model
         public Guid Id { get; set; }
         public Guid IdBestia { get; set; }
         public Guid IdUsuario { get; set; }
-        public string Titulo { get; private set; } = string.Empty;
+        public DateTime FechaPublicacion { get; set; } = DateTime.Now;
         public string Contenido { get; private set; } = string.Empty;
 
         public Bestia? Bestia { get; set; }
@@ -15,31 +15,22 @@ namespace Domain.Model
 
         public Comentario() { }
 
-        public Comentario(Guid id, Guid idBestia, Guid idUsuario, string titulo, string contenido)
+        public Comentario(Guid id, Guid idBestia, Guid idUsuario, string contenido, DateTime? fechaPublicacion = null)
         {
             Id = id;
             IdBestia = idBestia;
             IdUsuario = idUsuario;
-            SetTitulo(titulo);
+            FechaPublicacion = fechaPublicacion ?? DateTime.Now;
             SetContenido(contenido);
         }
 
-        public Comentario(Guid idBestia, Guid idUsuario, string titulo, string contenido)
+        public Comentario(Guid idBestia, Guid idUsuario, string contenido, DateTime? fechaPublicacion = null)
         {
             Id = Guid.NewGuid();
             IdBestia = idBestia;
             IdUsuario = idUsuario;
-            SetTitulo(titulo);
+            FechaPublicacion = fechaPublicacion ?? DateTime.Now;
             SetContenido(contenido);
-        }
-
-        public void SetTitulo(string titulo)
-        {
-            if (string.IsNullOrWhiteSpace(titulo))
-            {
-                throw new ArgumentException("El título del comentario no puede estar vacío");
-            }
-            Titulo = titulo.Trim();
         }
 
         public void SetContenido(string contenido)

@@ -80,7 +80,9 @@ namespace WindowsForms
 
             this.idTextBox.Text = this.Comentario.Id.ToString();
             this.autorTextBox.Text = this.Comentario.CorreoUsuario ?? LoginForm.UsuarioLogueado?.Correo ?? "-";
-            this.tituloTextBox.Text = this.Comentario.Titulo;
+            this.tituloLabel.Text = "Fecha:";
+            this.tituloTextBox.Text = (this.Comentario.FechaPublicacion == default ? DateTime.Now : this.Comentario.FechaPublicacion).ToString("dd/MM/yyyy HH:mm");
+            this.tituloTextBox.ReadOnly = true;
             this.contenidoTextBox.Text = this.Comentario.Contenido;
         }
 
@@ -111,7 +113,6 @@ namespace WindowsForms
 
                 var selectedBestia = bestiaComboBox.SelectedItem as BestiaComboItem;
                 this.Comentario.IdBestia = selectedBestia!.Id;
-                this.Comentario.Titulo = tituloTextBox.Text.Trim();
                 this.Comentario.Contenido = contenidoTextBox.Text.Trim();
 
                 if (this.Mode == FormMode.Update)
@@ -142,17 +143,11 @@ namespace WindowsForms
         {
             bool isValid = true;
             errorProvider.SetError(bestiaComboBox, string.Empty);
-            errorProvider.SetError(tituloTextBox, string.Empty);
             errorProvider.SetError(contenidoTextBox, string.Empty);
 
             if (bestiaComboBox.SelectedItem == null)
             {
                 errorProvider.SetError(bestiaComboBox, "Debe seleccionar una bestia");
-                isValid = false;
-            }
-            if (string.IsNullOrWhiteSpace(tituloTextBox.Text))
-            {
-                errorProvider.SetError(tituloTextBox, "El título es requerido");
                 isValid = false;
             }
             if (string.IsNullOrWhiteSpace(contenidoTextBox.Text))
@@ -168,7 +163,6 @@ namespace WindowsForms
             aceptarButton.Enabled = false;
             cancelarButton.Enabled = false;
             bestiaComboBox.Enabled = false;
-            tituloTextBox.Enabled = false;
             contenidoTextBox.Enabled = false;
         }
 
@@ -183,7 +177,6 @@ namespace WindowsForms
             cancelarButton.Text = puedeGuardar ? "Cancelar" : "Cerrar";
 
             bestiaComboBox.Enabled = puedeGuardar && Mode == FormMode.Add;
-            tituloTextBox.Enabled = puedeGuardar;
             contenidoTextBox.Enabled = puedeGuardar;
             if (!puedeGuardar) this.Text = "Detalle de Comentario";
         }

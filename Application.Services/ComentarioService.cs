@@ -41,8 +41,8 @@ namespace Application.Services
                 dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id,
                 dto.IdBestia,
                 dto.IdUsuario,
-                dto.Titulo,
-                dto.Contenido
+                dto.Contenido,
+                DateTime.Now
             );
 
             await comentarioRepository.AddAsync(comentario);
@@ -56,8 +56,8 @@ namespace Application.Services
                 dto.Id,
                 dto.IdBestia,
                 dto.IdUsuario,
-                dto.Titulo,
-                dto.Contenido
+                dto.Contenido,
+                dto.FechaPublicacion == default ? DateTime.Now : dto.FechaPublicacion
             );
 
             return await comentarioRepository.UpdateAsync(comentario);
@@ -77,7 +77,7 @@ namespace Application.Services
                 BestiaNombre = c.Bestia?.Nombre,
                 IdUsuario = c.IdUsuario,
                 CorreoUsuario = c.Usuario?.Correo,
-                Titulo = c.Titulo,
+                FechaPublicacion = c.FechaPublicacion,
                 Contenido = c.Contenido
             };
         }

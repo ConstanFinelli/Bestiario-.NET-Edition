@@ -57,10 +57,10 @@
                 </div>
 
                 <div class="row align-items-center mb-2">
-                    <div class="col-4"><label class="win-label">Título:</label></div>
+                    <div class="col-4"><label class="win-label">Fecha:</label></div>
                     <div class="col-8">
-                        <input type="text" class="win-textbox w-100 @(tituloInvalido ? "win-field-error" : "")"
-                               @bind="Comentario.Titulo" maxlength="100" disabled="@(isSaving || !PuedeEditar)" />
+                        <input type="text" class="win-textbox w-100"
+                               value="@((Comentario.FechaPublicacion == default ? DateTime.Now : Comentario.FechaPublicacion).ToString("dd/MM/yyyy HH:mm"))" readonly />
                     </div>
                 </div>
 
@@ -99,7 +99,6 @@
 
     private bool isSaving = false;
     private string? errorMessage;
-    private bool tituloInvalido = false;
     private bool contenidoInvalido = false;
 
     private bool PuedeEditar => Auth.EsInvestigador || (Mode == FormMode.Add && Auth.IsAuthenticated);
@@ -107,23 +106,16 @@
     protected override void OnParametersSet()
     {
         errorMessage = null;
-        tituloInvalido = false;
         contenidoInvalido = false;
     }
 
     private bool ValidateInput()
     {
-        tituloInvalido = string.IsNullOrWhiteSpace(Comentario.Titulo);
         contenidoInvalido = string.IsNullOrWhiteSpace(Comentario.Contenido);
 
         if (Comentario.IdBestia == Guid.Empty)
         {
             errorMessage = "Debe seleccionar una Bestia.";
-            return false;
-        }
-        if (tituloInvalido)
-        {
-            errorMessage = "El título es requerido.";
             return false;
         }
         if (contenidoInvalido)

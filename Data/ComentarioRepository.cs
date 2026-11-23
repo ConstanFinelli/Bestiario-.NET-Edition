@@ -21,6 +21,7 @@ namespace Data
             return await context.Comentarios
                 .Include(c => c.Bestia)
                 .Include(c => c.Usuario)
+                .OrderByDescending(c => c.FechaPublicacion)
                 .ToListAsync();
         }
 
@@ -30,6 +31,7 @@ namespace Data
                 .Include(c => c.Bestia)
                 .Include(c => c.Usuario)
                 .Where(c => c.IdBestia == idBestia)
+                .OrderByDescending(c => c.FechaPublicacion)
                 .ToListAsync();
         }
 
@@ -53,7 +55,7 @@ namespace Data
             if (existing == null)
                 return false;
 
-            existing.SetTitulo(comentario.Titulo);
+            existing.FechaPublicacion = comentario.FechaPublicacion;
             existing.SetContenido(comentario.Contenido);
             existing.IdBestia = comentario.IdBestia;
 
