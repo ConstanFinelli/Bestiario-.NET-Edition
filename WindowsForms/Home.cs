@@ -22,7 +22,10 @@ namespace WindowsForms
         private ToolStripMenuItem iniciarSesionMenuItem = null!;
         private ToolStripMenuItem cerrarSesionMenuItem = null!;
         private ToolStripMenuItem adminToolStripMenuItem = null!;
+        private ToolStripMenuItem solicitudesToolStripMenuItem = null!;
         private Button adminButton = null!;
+        private Button solicitudesButton = null!;
+        private Button reportesButton = null!;
 
         public Home()
         {
@@ -34,6 +37,21 @@ namespace WindowsForms
 
         private void InicializarAccesoAdmin()
         {
+            reportesToolStripMenuItem.DropDownItems.Clear();
+            reportesToolStripMenuItem.Click += (_, _) =>
+            {
+                using var repForm = new ReportesForm();
+                repForm.ShowDialog();
+            };
+
+            solicitudesToolStripMenuItem = new ToolStripMenuItem("Solicitudes");
+            solicitudesToolStripMenuItem.Click += (_, _) =>
+            {
+                using var solForm = new SolicitudesInvestigadorForm();
+                solForm.ShowDialog();
+            };
+            menuStrip1.Items.Add(solicitudesToolStripMenuItem);
+
             adminToolStripMenuItem = new ToolStripMenuItem("Admin");
             adminToolStripMenuItem.Click += (_, _) =>
             {
@@ -69,11 +87,23 @@ namespace WindowsForms
             menuStrip1.Items.Add(cerrarSesionMenuItem);
             menuStrip1.Items.Add(usuarioMenuLabel);
 
+            solicitudesButton = new Button
+            {
+                Text = "Solicitudes",
+                Font = noticiasButton.Font,
+                UseVisualStyleBackColor = true
+            };
+            solicitudesButton.Click += (_, _) =>
+            {
+                using var solForm = new SolicitudesInvestigadorForm();
+                solForm.ShowDialog();
+            };
+            cardPanel.Controls.Add(solicitudesButton);
+
             adminButton = new Button
             {
                 Text = "Admin",
-                Size = new Size(100, 28),
-                Location = new Point(230, 232),
+                Font = noticiasButton.Font,
                 UseVisualStyleBackColor = true
             };
             adminButton.Click += (_, _) =>
@@ -82,6 +112,19 @@ namespace WindowsForms
                 adminForm.ShowDialog();
             };
             cardPanel.Controls.Add(adminButton);
+
+            reportesButton = new Button
+            {
+                Text = "Reportes",
+                Font = noticiasButton.Font,
+                UseVisualStyleBackColor = true
+            };
+            reportesButton.Click += (_, _) =>
+            {
+                using var repForm = new ReportesForm();
+                repForm.ShowDialog();
+            };
+            cardPanel.Controls.Add(reportesButton);
         }
 
         private void InicializarBarraSesion()
@@ -131,6 +174,8 @@ namespace WindowsForms
 
             reportesToolStripMenuItem.Visible = esInvestigador;
             adminToolStripMenuItem.Visible = esInvestigador;
+            solicitudesToolStripMenuItem.Visible = user != null;
+            solicitudesToolStripMenuItem.Text = esInvestigador ? "Solicitudes" : "Volverse Investigador";
 
             categoriasButton.Visible = false;
             registrosButton.Visible = false;
@@ -140,9 +185,31 @@ namespace WindowsForms
             evidenciasButton.Visible = false;
             comentariosButton.Visible = false;
 
-            reporteEstadisticasButton.Visible = esInvestigador;
-            reporteRegistrosButton.Visible = esInvestigador;
+            reporteEstadisticasButton.Visible = false;
+            reporteRegistrosButton.Visible = false;
+            reportesButton.Visible = esInvestigador;
             adminButton.Visible = esInvestigador;
+            solicitudesButton.Visible = user != null;
+            solicitudesButton.Text = esInvestigador ? "Solicitudes" : "Volverse Investigador";
+
+            int yRow2 = noticiasButton.Bottom + Math.Max(10, (reporteEstadisticasButton.Top - noticiasButton.Bottom - noticiasButton.Height) / 2);
+            if (esInvestigador)
+            {
+                solicitudesButton.Size = noticiasButton.Size;
+                solicitudesButton.Location = new Point(noticiasButton.Left, yRow2);
+                adminButton.Size = bestiasButton.Size;
+                adminButton.Location = new Point(bestiasButton.Left, yRow2);
+
+                int wRep = bestiasButton.Right - noticiasButton.Left;
+                reportesButton.Size = new Size(wRep, noticiasButton.Height);
+                reportesButton.Location = new Point((cardPanel.ClientSize.Width - wRep) / 2, reporteEstadisticasButton.Top);
+            }
+            else if (user != null)
+            {
+                int w = (bestiasButton.Right - noticiasButton.Left);
+                solicitudesButton.Size = new Size(w, noticiasButton.Height);
+                solicitudesButton.Location = new Point((cardPanel.ClientSize.Width - w) / 2, yRow2);
+            }
 
             if (user == null)
             {
@@ -229,13 +296,13 @@ namespace WindowsForms
 
         private void EstadisticasBestiasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ReporteBestiasForm form = new ReporteBestiasForm();
+            using var form = new ReportesForm(0);
             form.ShowDialog();
         }
 
         private void RegistrosPorBestiaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ReporteRegistrosForm form = new ReporteRegistrosForm();
+            using var form = new ReportesForm(1);
             form.ShowDialog();
         }
 
