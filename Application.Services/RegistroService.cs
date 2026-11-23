@@ -89,7 +89,18 @@ namespace Application.Services
 
         public async Task<bool> DeleteAsync(Guid idBestia, int nroRegistro)
         {
-            return await registroRepository.DeleteAsync(idBestia, nroRegistro);
+            var existing = await registroRepository.GetAsync(idBestia, nroRegistro);
+            bool deleted = await registroRepository.DeleteAsync(idBestia, nroRegistro);
+            if (deleted && existing != null && !string.IsNullOrWhiteSpace(existing.MainPicture) && cloudinaryService != null)
+            {
+                var restantes = await registroRepository.GetByBestiaAsync(idBestia);
+                bool sigueEnUso = restantes.Any(r => string.Equals(r.MainPicture, existing.MainPicture, StringComparison.OrdinalIgnoreCase));
+                if (!sigueEnUso)
+                {
+                    await cloudinaryService.DeleteImageAsync(existing.MainPicture, "image");
+                }
+            }
+            return deleted;
         }
 
         public async Task<bool> AprobarAsync(Guid idBestia, int nroRegistro, Guid idInvestigador)

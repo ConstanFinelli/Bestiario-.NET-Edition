@@ -108,39 +108,30 @@ namespace Data
         public async Task<bool> UpdateAsync(Registro registro)
         {
             var existing = await context.Registros
-                .Include(r => r.Contenidos)
                 .FirstOrDefaultAsync(r => r.IdBestia == registro.IdBestia && r.NroRegistro == registro.NroRegistro);
 
             if (existing == null)
                 return false;
 
-            existing.SetEstado(registro.Estado);
-            existing.FechaAprobacion = registro.FechaAprobacion;
-            existing.FechaBaja = registro.FechaBaja;
-            existing.IdUsuarioPublicador = registro.IdUsuarioPublicador;
-            existing.IdInvestigadorAprobador = registro.IdInvestigadorAprobador;
-            if (!string.IsNullOrWhiteSpace(registro.MainPicture))
+            string nuevoEstado = registro.Estado.Trim().ToLowerInvariant();
+            if (nuevoEstado == "aprobado")
             {
-                existing.MainPicture = registro.MainPicture;
+                if (existing.Estado != "aprobado")
+                {
+                    Guid idInv = registro.IdInvestigadorAprobador ?? registro.IdUsuarioPublicador;
+                    return await AprobarAsync(existing.IdBestia, existing.NroRegistro, idInv);
+                }
+                return true;
             }
 
-            // Reemplazo maestro/detalle de contenidos
-            context.ContenidoRegistros.RemoveRange(existing.Contenidos);
-
-            int nroContenido = 1;
-            foreach (var cont in registro.Contenidos)
+            if (nuevoEstado == "pendiente")
             {
-                existing.Contenidos.Add(new ContenidoRegistro(
-                    existing.IdBestia,
-                    existing.NroRegistro,
-                    nroContenido++,
-                    cont.Titulo,
-                    cont.Contenido
-                ));
+                existing.DejarPendiente();
+                await context.SaveChangesAsync();
+                return true;
             }
 
-            await context.SaveChangesAsync();
-            return true;
+            throw new ArgumentException("El estado debe ser 'pendiente' o 'aprobado'");
         }
 
         public async Task<bool> DeleteAsync(Guid idBestia, int nroRegistro)
@@ -149,13 +140,17 @@ namespace Data
                 .Include(r => r.Contenidos)
                 .FirstOrDefaultAsync(r => r.IdBestia == idBestia && r.NroRegistro == nroRegistro);
 
-            if (registro != null)
+            if (registro == null)
+                return false;
+
+            if (!string.Equals(registro.Estado, "pendiente", StringComparison.OrdinalIgnoreCase))
             {
-                context.Registros.Remove(registro);
-                await context.SaveChangesAsync();
-                return true;
+                throw new InvalidOperationException("Solo se pueden eliminar físicamente registros en estado pendiente. Si está aprobado, déjelo pendiente primero.");
             }
-            return false;
+
+            context.Registros.Remove(registro);
+            await context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> AprobarAsync(Guid idBestia, int nroRegistro, Guid idInvestigador)
