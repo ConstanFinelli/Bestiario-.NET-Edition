@@ -115,17 +115,11 @@
                 <button class="win-btn" @onclick="VerRegistroVigenteDeBestia" disabled="@isLoading">
                     Ver Último Registro
                 </button>
-                @if (Auth.EsInvestigador)
-                {
-                    <button class="win-btn" @onclick="AbrirModalPendientes" disabled="@isLoading">
-                        Pendientes de Bestia
-                    </button>
-                }
             }
             @if (Auth.EsInvestigador)
             {
                 <button class="win-btn me-auto" @onclick="AbrirModalTodosPendientes" disabled="@isLoading">
-                    Ver Todos los Pendientes
+                    Ver registro pendientes
                 </button>
             }
             else
@@ -376,9 +370,21 @@
     private RegistroDTO registroActual = new();
 
     private bool isPendientesModalOpen = false;
-    private bool mostrandoTodosPendientes = false;
     private List<RegistroDTO> registrosPendientes = new();
+    private string filtroBestiaPendienteId = string.Empty;
     private bool isProcesandoPendiente = false;
+
+    private IEnumerable<RegistroDTO> RegistrosPendientesFiltrados
+    {
+        get
+        {
+            if (Guid.TryParse(filtroBestiaPendienteId, out var bestiaId))
+            {
+                return registrosPendientes.Where(r => r.IdBestia == bestiaId);
+            }
+            return registrosPendientes;
+        }
+    }
 
     private async Task VerRegistroVigenteDeBestia()
     {
@@ -437,38 +443,17 @@
 
         if (isPendientesModalOpen)
         {
-            await RecargarPendientesActualesAsync();
+            await CargarTodosPendientesAsync();
         }
-    }
-
-    private async Task AbrirModalPendientes()
-    {
-        if (selectedBestia == null || !Auth.EsInvestigador) return;
-
-        mostrandoTodosPendientes = false;
-        isPendientesModalOpen = true;
-        await CargarPendientesBestiaAsync(selectedBestia.Id);
     }
 
     private async Task AbrirModalTodosPendientes()
     {
         if (!Auth.EsInvestigador) return;
 
-        mostrandoTodosPendientes = true;
+        filtroBestiaPendienteId = string.Empty;
         isPendientesModalOpen = true;
         await CargarTodosPendientesAsync();
-    }
-
-    private async Task RecargarPendientesActualesAsync()
-    {
-        if (mostrandoTodosPendientes)
-        {
-            await CargarTodosPendientesAsync();
-        }
-        else if (selectedBestia != null)
-        {
-            await CargarPendientesBestiaAsync(selectedBestia.Id);
-        }
     }
 
     private async Task CargarTodosPendientesAsync()
@@ -502,29 +487,6 @@
         }
     }
 
-    private async Task CargarPendientesBestiaAsync(Guid idBestia)
-    {
-        try
-        {
-            isProcesandoPendiente = true;
-            var todos = await RegistroApiClient.GetByBestiaAsync(idBestia);
-            registrosPendientes = todos
-                .Where(r => r.Estado != null && r.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase))
-                .OrderBy(r => r.NroRegistro)
-                .ToList();
-        }
-        catch (Exception ex)
-        {
-            feedbackMessage = $"Error al cargar registros pendientes: {ex.Message}";
-            isFeedbackError = true;
-            registrosPendientes = new();
-        }
-        finally
-        {
-            isProcesandoPendiente = false;
-        }
-    }
-
     private void ExaminarPendiente(RegistroDTO reg)
     {
         registroActual = reg;
@@ -541,7 +503,7 @@
             await RegistroApiClient.AprobarAsync(reg.IdBestia, reg.NroRegistro, Auth.CurrentUser.Id);
             feedbackMessage = $"Registro #{reg.NroRegistro} aprobado y publicado.";
             isFeedbackError = false;
-            await RecargarPendientesActualesAsync();
+            await CargarTodosPendientesAsync();
         }
         catch (Exception ex)
         {
@@ -563,7 +525,7 @@
             await RegistroApiClient.DeleteAsync(reg.IdBestia, reg.NroRegistro);
             feedbackMessage = $"Registro #{reg.NroRegistro} rechazado y eliminado.";
             isFeedbackError = false;
-            await RecargarPendientesActualesAsync();
+            await CargarTodosPendientesAsync();
         }
         catch (Exception ex)
         {
@@ -592,21 +554,38 @@
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
                     <span class="oi oi-clock text-warning" style="font-size: 11px;"></span>
-                    <span>@(mostrandoTodosPendientes ? "Todos los Registros Pendientes" : $"Registros Pendientes — {selectedBestia?.Nombre ?? "-"}")</span>
+                    <span>Registros Pendientes</span>
                 </div>
                 <div class="win-titlebar-controls">
                     <button class="win-titlebar-btn close" @onclick="@(() => isPendientesModalOpen = false)">✕</button>
                 </div>
             </div>
             <div class="win-form-content" style="padding: 12px 16px;">
+                <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
+                    <label class="win-label fw-bold mb-0">Filtrar por Bestia:</label>
+                    <select class="win-textbox" style="min-width: 240px;" @bind="filtroBestiaPendienteId">
+                        <option value="">-- Todas las Bestias --</option>
+                        @foreach (var b in (bestias ?? Enumerable.Empty<BestiaDTO>()).OrderBy(x => x.Nombre))
+                        {
+                            <option value="@b.Id">@b.Nombre</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(filtroBestiaPendienteId))
+                    {
+                        <button class="win-btn" style="height: 22px; font-size: 11px;" @onclick="@(() => filtroBestiaPendienteId = string.Empty)">
+                            Quitar Filtro
+                        </button>
+                    }
+                </div>
+
                 @if (isProcesandoPendiente)
                 {
                     <div class="text-muted py-3 text-center" style="font-size: 12px;">Cargando...</div>
                 }
-                else if (!registrosPendientes.Any())
+                else if (!RegistrosPendientesFiltrados.Any())
                 {
                     <div class="text-muted py-3 text-center" style="font-size: 12px;">
-                        @(mostrandoTodosPendientes ? "No hay registros pendientes en el sistema." : "No hay registros pendientes para esta bestia.")
+                        @(string.IsNullOrEmpty(filtroBestiaPendienteId) ? "No hay registros pendientes en el sistema." : "No hay registros pendientes para la bestia seleccionada.")
                     </div>
                 }
                 else
@@ -623,7 +602,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var reg in registrosPendientes)
+                                @foreach (var reg in RegistrosPendientesFiltrados)
                                 {
                                     var bName = bestias?.FirstOrDefault(b => b.Id == reg.IdBestia)?.Nombre ?? reg.IdBestia.ToString().Substring(0, 8);
                                     <tr>
