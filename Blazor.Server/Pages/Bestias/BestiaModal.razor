@@ -2,7 +2,6 @@
 {
     <div class="win-modal-overlay">
         <div class="win-modal-dialog win-modal-md">
-            <!-- Barra de Título del Diálogo -->
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
                     <span class="oi oi-window text-primary win-title-icon"></span>
@@ -13,7 +12,6 @@
                 </div>
             </div>
 
-            <!-- Cuerpo del Formulario de Diálogo -->
             <div class="win-form-content win-modal-body-lg">
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
@@ -86,7 +84,6 @@
                     </div>
                 </div>
 
-                <!-- Categorías vinculadas (Muchos a Muchos) -->
                 <div class="row mb-2">
                     <div class="col-4 pt-1">
                         <label class="win-label">Categorías:</label>
@@ -117,7 +114,6 @@
                     </div>
                 </div>
 
-                <!-- Botones Aceptar / Cancelar -->
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
                     <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
                         @(isSaving ? "Guardando..." : "Aceptar")

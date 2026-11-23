@@ -32,7 +32,6 @@
             }
 
             <div class="row g-3">
-                <!-- Columna Izquierda: Menú Lateral -->
                 <div class="col-md-3">
                     <div class="p-2 border rounded" style="background-color: #f2f2f2;">
                         <div class="fw-bold mb-2 pb-1 border-bottom" style="font-size: 11px; color: #333;">
@@ -59,7 +58,6 @@
                     </div>
                 </div>
 
-                <!-- Columna Derecha: Contenido Principal -->
                 <div class="col-md-9">
                     @if (string.IsNullOrWhiteSpace(Crud))
                     {
@@ -481,26 +479,21 @@
     private List<LectorDTO> lectores = new();
     private List<TipoEvidenciaDTO> tiposEvidencia = new();
 
-    // Categorias forms
     private string catNuevaNombre = string.Empty;
     private string catNuevaDesc = string.Empty;
     private string catEditId = string.Empty;
     private string catEditNombre = string.Empty;
     private string catEditDesc = string.Empty;
 
-    // Habitats forms
     private string habNuevoNombre = string.Empty;
     private string habNuevaLoc = string.Empty;
     private string habEditId = string.Empty;
     private string habEditNombre = string.Empty;
     private string habEditLoc = string.Empty;
-
-    // Caracteristica Habitat forms
     private string carNuevaDesc = string.Empty;
     private int carEditNro = 0;
     private string carEditDesc = string.Empty;
 
-    // Lectores forms
     private string lecNuevoCorreo = string.Empty;
     private string lecNuevoPass = string.Empty;
     private bool lecNuevoNotif = true;
@@ -509,14 +502,12 @@
     private string lecEditPass = string.Empty;
     private bool lecEditNotif = true;
 
-    // Tipos Evidencia forms
     private string tipoNuevaDesc = string.Empty;
     private string tipoNuevoRes = "image";
     private string tipoEditId = string.Empty;
     private string tipoEditDesc = string.Empty;
     private string tipoEditRes = string.Empty;
 
-    // Confirmación eliminar
     private bool isConfirmDeleteOpen = false;
     private string deleteTipo = string.Empty;
     private Guid deleteId;
@@ -606,8 +597,6 @@
             isLoading = false;
         }
     }
-
-    // --- Categorias ---
     private void OnSeleccionarCatEdit(ChangeEventArgs e)
     {
         catEditId = e.Value?.ToString() ?? string.Empty;
@@ -647,7 +636,6 @@
         }, "Categoría actualizada correctamente.");
     }
 
-    // --- Habitats ---
     private void OnSeleccionarHabEdit(ChangeEventArgs e)
     {
         habEditId = e.Value?.ToString() ?? string.Empty;
@@ -692,7 +680,6 @@
         }, "Hábitat actualizado correctamente.");
     }
 
-    // --- Caracteristicas de Habitat ---
     private async Task CrearCaracteristicaAsync()
     {
         if (habitatActual == null || string.IsNullOrWhiteSpace(carNuevaDesc))
@@ -745,7 +732,6 @@
         }, "Característica eliminada.");
     }
 
-    // --- Lectores ---
     private void OnSeleccionarLecEdit(ChangeEventArgs e)
     {
         lecEditId = e.Value?.ToString() ?? string.Empty;
@@ -799,7 +785,6 @@
         }, "Lector actualizado correctamente.");
     }
 
-    // --- Tipos Evidencia ---
     private void OnSeleccionarTipoEdit(ChangeEventArgs e)
     {
         tipoEditId = e.Value?.ToString() ?? string.Empty;
@@ -838,8 +823,7 @@
             await TipoEvidenciaApiClient.UpdateAsync(new TipoEvidenciaDTO { Id = id, Descripcion = tipoEditDesc.Trim(), ResourceType = tipoEditRes.Trim() });
         }, "Tipo de evidencia actualizado.");
     }
-
-    // --- Eliminación genérica ---
+    
     private void SolicitarEliminar(string tipo, Guid id, string label)
     {
         deleteTipo = tipo;

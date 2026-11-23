@@ -5,7 +5,6 @@
 <PageTitle>NoticiaLista</PageTitle>
 
 <div class="win-form" style="width: 940px; max-width: 96vw;">
-    <!-- Barra de Título Windows -->
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
             <span class="oi oi-window text-primary"></span>
@@ -13,10 +12,8 @@
         </div>
     </div>
 
-    <!-- MenuStrip de Navegación -->
     <WinMenuStrip OnRefresh="CargarNoticias" IsLoading="@isLoading" />
 
-    <!-- Contenido del Formulario -->
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
@@ -25,7 +22,6 @@
             </div>
         }
 
-        <!-- Filtro por Fecha de Publicación -->
         <div class="d-flex flex-wrap align-items-center gap-3 mb-2 p-2 bg-light border">
             <div class="d-flex align-items-center gap-2">
                 <label class="win-label fw-bold mb-0">Desde:</label>
@@ -41,7 +37,6 @@
             }
         </div>
 
-        <!-- Grilla DataGridView -->
         <div class="win-grid-container" style="height: 280px;">
             <table class="win-grid">
                 <thead>
@@ -50,6 +45,7 @@
                         <th style="width: 130px;">ID</th>
                         <th style="width: 180px;">Título</th>
                         <th style="width: 140px;">Fecha Publicacion</th>
+                        <th style="width: 140px;">Publicado por</th>
                         <th>Contenido</th>
                     </tr>
                 </thead>
@@ -57,7 +53,7 @@
                     @if (isLoading)
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
+                            <td colspan="6" class="text-center py-4 text-muted">
                                 Cargando noticias...
                             </td>
                         </tr>
@@ -65,7 +61,7 @@
                     else if (!NoticiasFiltradas.Any())
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
+                            <td colspan="6" class="text-center py-4 text-muted">
                                 No hay noticias disponibles para el filtro seleccionado.
                             </td>
                         </tr>
@@ -84,6 +80,7 @@
                                 <td>@not.Id</td>
                                 <td>@not.Titulo</td>
                                 <td>@not.FechaPublicacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                <td>@(string.IsNullOrWhiteSpace(not.NombrePublicador) ? "-" : not.NombrePublicador)</td>
                                 <td>@not.Contenido</td>
                             </tr>
                         }
@@ -94,7 +91,6 @@
 
         @if (Auth.EsInvestigador)
         {
-            <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
             <div class="win-btn-action-bar">
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedNoticia == null || isLoading)">
                     Eliminar
@@ -109,21 +105,18 @@
         }
     </div>
 
-    <!-- Barra de Estado Inferior -->
     <div class="win-statusbar">
         <span>@(noticias?.Count ?? 0) elemento(s) cargado(s)</span>
         <span>@(selectedNoticia != null ? $"Seleccionado: {selectedNoticia.Titulo}" : "Ningún elemento seleccionado")</span>
     </div>
 </div>
 
-<!-- Modal Detalle (Estilo Ventana Diálogo Windows) -->
 <NoticiaModal IsOpen="@isModalOpen" 
               Mode="@modalMode" 
               Noticia="@noticiaParaEditar" 
               OnSaved="@OnNoticiaGuardada" 
               OnCancel="@CerrarModal" />
 
-<!-- Diálogo MessageBox Confirmación -->
 <ConfirmModal IsOpen="@isConfirmDeleteOpen"
               Title="Confirmar eliminación"
               Message="¿Está seguro que desea eliminar la noticia?"
@@ -246,7 +239,9 @@
                 Id = fresca.Id,
                 Titulo = fresca.Titulo,
                 Contenido = fresca.Contenido,
-                FechaPublicacion = fresca.FechaPublicacion
+                FechaPublicacion = fresca.FechaPublicacion,
+                PublicadorId = fresca.PublicadorId,
+                NombrePublicador = fresca.NombrePublicador
             };
             modalMode = FormMode.Update;
             isModalOpen = true;

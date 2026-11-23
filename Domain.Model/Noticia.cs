@@ -1,4 +1,4 @@
-﻿namespace Domain.Model
+namespace Domain.Model
 {
     public class Noticia
     {
@@ -6,34 +6,18 @@
         public string? Titulo { get; set; }
         public string? Contenido { get; set; }
         public DateTime FechaPublicacion { get; set; }
-        /*private Investigador _publicador; Aun no se desarrollo la clase investigador
-        private Guid _publicadorId;
-        public Guid PublicadorId
-        {
-            get =>  _publicador?.Id ?? _publicadorId;
-            private set => _publicadorId = value;
-        }
-        public Investigador Publicador
-        {
-             get => _publicador;
-            private set 
-            {
-                _publicador = value;
-                if (value != null && _publicadorId != value.Id)
-                {
-                    _publicadorId = value.Id;
-                }
-            }
-        }
-         */
+        public Guid? PublicadorId { get; set; }
+        public Investigador? Publicador { get; set; }
 
-        public Noticia(Guid inId, string inTitulo, string inContenido, DateTime inFechaPublicacion/*, Investigador inPublicador*/)
+        public Noticia() { }
+
+        public Noticia(Guid inId, string inTitulo, string inContenido, DateTime inFechaPublicacion, Guid? inPublicadorId = null)
         {
             Id = inId;
             Titulo = inTitulo;
             Contenido = inContenido;
             FechaPublicacion = inFechaPublicacion;
-            //Publicador = inPublicador
+            PublicadorId = inPublicadorId;
         }
 
         public Noticia(Guid id)
@@ -41,12 +25,12 @@
             Id = id;
         }
 
-        public Noticia(string inTitulo, string inContenido, DateTime inFechaPublicacion/*, Investigador inPublicador*/)
+        public Noticia(string inTitulo, string inContenido, DateTime inFechaPublicacion, Guid? inPublicadorId = null)
         {
             Titulo = inTitulo;
             Contenido = inContenido;
             FechaPublicacion = inFechaPublicacion;
-            //Publicador = inPublicador
+            PublicadorId = inPublicadorId;
         }
 
         public void SetTitulo(string inTitulo) { 

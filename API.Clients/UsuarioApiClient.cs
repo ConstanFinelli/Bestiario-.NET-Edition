@@ -241,7 +241,7 @@ namespace API.Clients
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception(ExtraerMensajeError(errorContent, $"Error al solicitar recuperación ({response.StatusCode})."));
+                    throw new Exception($"Error al solicitar recuperación ({response.StatusCode}). Detalle: {errorContent}");
                 }
             }
             catch (HttpRequestException ex)
@@ -270,7 +270,7 @@ namespace API.Clients
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception(ExtraerMensajeError(errorContent, $"Error al restablecer contraseña ({response.StatusCode})."));
+                    throw new Exception($"Error al restablecer contraseña ({response.StatusCode}). Detalle: {errorContent}");
                 }
             }
             catch (HttpRequestException ex)
@@ -281,23 +281,6 @@ namespace API.Clients
             {
                 throw new Exception($"Timeout al restablecer contraseña: {ex.Message}", ex);
             }
-        }
-
-        private static string ExtraerMensajeError(string jsonOrText, string fallback)
-        {
-            if (string.IsNullOrWhiteSpace(jsonOrText)) return fallback;
-            try
-            {
-                using var doc = System.Text.Json.JsonDocument.Parse(jsonOrText);
-                if (doc.RootElement.TryGetProperty("error", out var errProp) && !string.IsNullOrWhiteSpace(errProp.GetString()))
-                    return errProp.GetString()!;
-                if (doc.RootElement.TryGetProperty("detail", out var detailProp) && !string.IsNullOrWhiteSpace(detailProp.GetString()))
-                    return detailProp.GetString()!;
-            }
-            catch
-            {
-            }
-            return jsonOrText;
         }
     }
 }

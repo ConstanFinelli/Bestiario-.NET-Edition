@@ -70,7 +70,6 @@ namespace API.Clients
         protected static async Task ConfigureHttpClientAsync(HttpClient client)
         {
             await Task.CompletedTask;
-            // Leer URL base de configuración, si no existe usar localhost por defecto
             string baseUrl = GetBaseUrlFromConfig();
             client.BaseAddress = new Uri(baseUrl);
             client.DefaultRequestHeaders.Accept.Clear();
@@ -89,7 +88,6 @@ namespace API.Clients
             {
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Intentando leer configuración...");
 
-                // 1. Primero revisar variable de entorno
                 DotNetEnv.Env.TraversePath().Load(); 
                 string? envUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
                 if (!string.IsNullOrEmpty(envUrl))
@@ -98,7 +96,6 @@ namespace API.Clients
                     return envUrl;
                 }
 
-                // 2. Detectar si estamos en Android por el runtime
                 string runtimeInfo = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Runtime: {runtimeInfo}");
 
@@ -113,7 +110,6 @@ namespace API.Clients
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Error detectando plataforma: {ex.Message}");
             }
 
-            // URL por defecto para Windows/otras plataformas
             string defaultUrl = "http://localhost:5076/";
             System.Diagnostics.Debug.WriteLine($"[DEBUG] Usando URL por defecto: {defaultUrl}");
             return defaultUrl;

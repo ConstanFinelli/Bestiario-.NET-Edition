@@ -52,13 +52,11 @@ namespace Blazor.Server.Services
                 }
                 else if (expResult.Success && expResult.Value <= DateTime.UtcNow)
                 {
-                    // Token expirado (>60 min)
                     await LogoutAsync();
                 }
             }
             catch
             {
-                // Manejo silencioso en caso de interop previo a renderizado
             }
             finally
             {
@@ -98,7 +96,6 @@ namespace Blazor.Server.Services
             }
             catch
             {
-                // Fallback si la API aún no inicializó o en credenciales fijas
             }
 
             if (username == "admin" && password == "password")

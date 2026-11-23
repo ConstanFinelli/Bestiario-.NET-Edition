@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Components.Server.Circuits;
 
 namespace Blazor.Server.Services
 {
-    /// <summary>
-    /// Mantiene el token JWT aislado por circuito de usuario en Blazor Server.
-    /// </summary>
     public class AuthCircuitHandler : CircuitHandler
     {
         private readonly AuthService _authService;

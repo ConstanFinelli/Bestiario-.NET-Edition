@@ -61,12 +61,18 @@ namespace Data
                 entity.Property(e => e.Contenido).IsRequired().HasMaxLength(150);
                 entity.Property(e => e.FechaPublicacion).IsRequired();
 
+                entity.HasOne(e => e.Publicador)
+                    .WithMany()
+                    .HasForeignKey(e => e.PublicadorId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.SetNull);
+
                 entity.HasData(
-                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Artropodo", Contenido = "Invertebrados dotados de un esqueleto externo", FechaPublicacion = DateTime.Now },
-                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Anfibio", Contenido = "Animal que vive partes de su vida en agua y tierra", FechaPublicacion = DateTime.Now },
-                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Aereo", Contenido = "Puede volar", FechaPublicacion = DateTime.Now },
-                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Bipedo", Contenido = "Animal que se mueve en dos patas", FechaPublicacion = DateTime.Now },
-                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Cuadrupedo", Contenido = "Ser vivo que se mueve en cuatro patas", FechaPublicacion = DateTime.Now }
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Artropodo", Contenido = "Invertebrados dotados de un esqueleto externo", FechaPublicacion = DateTime.Now, PublicadorId = (Guid?)Guid.Parse("99999999-9999-9999-9999-999999999999") },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Anfibio", Contenido = "Animal que vive partes de su vida en agua y tierra", FechaPublicacion = DateTime.Now, PublicadorId = (Guid?)Guid.Parse("99999999-9999-9999-9999-999999999999") },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Aereo", Contenido = "Puede volar", FechaPublicacion = DateTime.Now, PublicadorId = (Guid?)Guid.Parse("99999999-9999-9999-9999-999999999999") },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Bipedo", Contenido = "Animal que se mueve en dos patas", FechaPublicacion = DateTime.Now, PublicadorId = (Guid?)Guid.Parse("99999999-9999-9999-9999-999999999999") },
+                    new { Id = Guid.NewGuid(), Titulo = "NUEVO Cuadrupedo", Contenido = "Ser vivo que se mueve en cuatro patas", FechaPublicacion = DateTime.Now, PublicadorId = (Guid?)Guid.Parse("99999999-9999-9999-9999-999999999999") }
                 );
             });
 

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Application.Services;
 using DTOs;
 
@@ -35,10 +36,15 @@ namespace WebAPI
             .Produces<List<NoticiaDTO>>(StatusCodes.Status200OK)
             .WithOpenApi();
 
-            app.MapPost("/noticias", async (NoticiaDTO dto, INoticiaService noticiaService) =>
+            app.MapPost("/noticias", async (NoticiaDTO dto, ClaimsPrincipal user, INoticiaService noticiaService) =>
             {
                 try
                 {
+                    if (Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+                    {
+                        dto.PublicadorId = userId;
+                    }
+
                     NoticiaDTO noticiaDTO = await noticiaService.AddAsync(dto);
 
                     return Results.Created($"/noticias/{noticiaDTO.Id}", noticiaDTO);

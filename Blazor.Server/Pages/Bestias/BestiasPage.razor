@@ -5,7 +5,6 @@
 <PageTitle>Bestias</PageTitle>
 
 <div class="win-form win-form-md">
-    <!-- Barra de Título Windows -->
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
             <span class="oi oi-bug text-primary"></span>
@@ -13,10 +12,8 @@
         </div>
     </div>
 
-    <!-- MenuStrip de Navegación -->
     <WinMenuStrip OnRefresh="CargarBestias" IsLoading="@isLoading" />
 
-    <!-- Contenido del Formulario -->
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
@@ -25,7 +22,6 @@
             </div>
         }
 
-        <!-- Filtros por Categoría y Hábitat -->
         <div class="d-flex flex-wrap align-items-center gap-3 mb-2 p-2 bg-light border">
             <div class="d-flex align-items-center gap-2">
                 <label class="win-label fw-bold mb-0">Filtrar por Categoría:</label>
@@ -49,7 +45,6 @@
             </div>
         </div>
 
-        <!-- Grilla DataGridView -->
         <div class="win-grid-container win-grid-h260">
             <table class="win-grid">
                 <thead>
@@ -108,7 +103,6 @@
             </table>
         </div>
 
-        <!-- Botones de Acción -->
         <div class="win-btn-action-bar">
             @if (selectedBestia != null)
             {
@@ -141,21 +135,18 @@
         </div>
     </div>
 
-    <!-- Barra de Estado Inferior -->
     <div class="win-statusbar">
         <span>@(bestias?.Count ?? 0) elemento(s) cargado(s)</span>
         <span>@(selectedBestia != null ? $"Seleccionado: {selectedBestia.Nombre}" : "Ningún elemento seleccionado")</span>
     </div>
 </div>
 
-<!-- Modal Detalle -->
 <BestiaModal IsOpen="@isModalOpen" 
              Mode="@modalMode" 
              Bestia="@bestiaParaEditar" 
              OnSaved="@OnBestiaGuardada" 
              OnCancel="@CerrarModal" />
 
-<!-- Diálogo Confirmación Eliminación -->
 <ConfirmModal IsOpen="@isConfirmDeleteOpen"
               Title="Confirmar eliminación"
               Message="@($"¿Está seguro que desea eliminar la bestia '{selectedBestia?.Nombre}'?")"

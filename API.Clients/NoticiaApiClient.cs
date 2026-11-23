@@ -66,7 +66,7 @@ namespace API.Clients
             }
         }
 
-        public async static Task AddAsync(NoticiaDTO noticia)
+        public static async Task AddAsync(NoticiaDTO noticia)
         {
             try
             {

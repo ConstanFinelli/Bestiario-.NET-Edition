@@ -5,7 +5,6 @@
 <PageTitle>@GetPageTitle()</PageTitle>
 
 <div class="win-form win-form-narrow">
-    <!-- Barra de Título Windows -->
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
             <span class="oi @GetTitleIcon() text-primary win-title-icon"></span>
@@ -13,7 +12,6 @@
         </div>
     </div>
 
-    <!-- Contenido del Formulario -->
     <div class="win-form-content login-body">
         @if (!string.IsNullOrEmpty(errorMessage))
         {
@@ -30,7 +28,6 @@
 
         @if (vistaActual == VistaLogin.Login)
         {
-            <!-- Formulario de Inicio de Sesión -->
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Nombre de usuario o correo</label>
             </div>
@@ -52,7 +49,6 @@
                 </a>
             </div>
 
-            <!-- Botones de Acción: Cancelar e Iniciar sesión -->
             <div class="d-flex justify-content-between px-3 mb-3">
                 <button type="button" class="win-btn login-btn-md" @onclick="Limpiar" disabled="@isLoading">
                     Cancelar
@@ -62,7 +58,6 @@
                 </button>
             </div>
 
-            <!-- Opción para registrarse como Lector o entrar como invitado -->
             <div class="text-center pt-2 d-flex justify-content-center align-items-center gap-3 login-divider">
                 <a href="javascript:void(0)" class="text-decoration-none login-link" @onclick="MostrarRegistroLector">
                     ¿No tienes una cuenta? Registrarse como Lector
@@ -75,7 +70,6 @@
         }
         else if (vistaActual == VistaLogin.RegistroLector)
         {
-            <!-- Formulario de Registro de Lector -->
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Correo electrónico</label>
             </div>
@@ -107,7 +101,6 @@
                 </label>
             </div>
 
-            <!-- Botones de Acción de Registro -->
             <div class="d-flex justify-content-between px-3 mb-3">
                 <button type="button" class="win-btn login-btn-md" @onclick="VolverALogin" disabled="@isLoading">
                     Volver
@@ -125,7 +118,6 @@
         }
         else if (vistaActual == VistaLogin.RecuperarPaso1)
         {
-            <!-- Paso 1: Solicitar código de verificación por Gmail -->
             <p class="text-muted text-center mb-3 win-text-sm">
                 Ingresá tu correo electrónico y te enviaremos un código de verificación para restablecer tu contraseña.
             </p>
@@ -155,7 +147,6 @@
         }
         else if (vistaActual == VistaLogin.RecuperarPaso2)
         {
-            <!-- Paso 2: Ingresar código y nueva contraseña -->
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Correo electrónico</label>
             </div>
@@ -225,7 +216,7 @@
     private bool usernameInvalido = false;
     private bool passwordInvalido = false;
 
-    // Variables de Registro de Lector
+
     private string regCorreo = "";
     private string regPassword = "";
     private string regConfirmPassword = "";
@@ -234,7 +225,6 @@
     private bool regPasswordInvalido = false;
     private bool regConfirmInvalido = false;
 
-    // Variables de Recuperación de Contraseña
     private string recCorreo = "";
     private string recCodigo = "";
     private string recNuevaPassword = "";
