@@ -6,55 +6,14 @@
 
 <div class="win-form win-form-md home-form-top">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <NavLink href="/" class="win-titlebar-link">
             <span class="oi oi-window me-1 text-primary"></span>
             <span>Bestiario-NET</span>
-        </div>
+        </NavLink>
     </div>
 
     <!-- MenuStrip Clásico -->
-    <div class="win-menustrip">
-        <NavLink href="/bestias" class="win-menu-item">
-            Bestias
-        </NavLink>
-        <NavLink href="/noticias" class="win-menu-item">
-            Noticias
-        </NavLink>
-        @if (Auth.EsLector)
-        {
-            <NavLink href="/solicitudes-investigador" class="win-menu-item">
-                Volverse Investigador
-            </NavLink>
-        }
-        @if (Auth.EsInvestigador)
-        {
-            <NavLink href="/reportes" class="win-menu-item">
-                Reportes
-            </NavLink>
-            <NavLink href="/solicitudes-investigador" class="win-menu-item">
-                Solicitudes
-            </NavLink>
-            <NavLink href="/admin" class="win-menu-item">
-                Admin
-            </NavLink>
-        }
-        <div class="ms-auto d-flex align-items-center gap-2 win-nowrap">
-            @if (Auth.IsAuthenticated)
-            {
-                <span class="text-muted win-text-sm">Usuario: <strong>@Auth.Username</strong></span>
-                <button class="win-btn win-btn-sm" @onclick="CerrarSesion">
-                    Cerrar sesión
-                </button>
-            }
-            else
-            {
-                <span class="text-muted win-text-sm">Modo <strong>Invitado</strong></span>
-                <button class="win-btn win-btn-sm" @onclick="@(() => Navigation.NavigateTo("/login"))">
-                    Iniciar sesión
-                </button>
-            }
-        </div>
-    </div>
+    <WinMenuStrip />
 
     <!-- Área de Trabajo Principal (Home) -->
     <div class="win-form-content home-content">
@@ -109,9 +68,6 @@
             <span class="oi oi-bullhorn home-news-icon"></span>
             <span>Últimas Noticias</span>
         </div>
-        <button class="win-btn win-btn-sm" @onclick="@(() => Navigation.NavigateTo("/noticias"))">
-            Ver todas
-        </button>
     </div>
 
     <div class="win-form-content home-news-body">

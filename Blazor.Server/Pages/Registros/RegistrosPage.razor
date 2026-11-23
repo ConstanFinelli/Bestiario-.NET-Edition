@@ -7,7 +7,12 @@
 <div class="win-form win-form-md">
     <!-- Barra de Título Windows -->
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span class="oi oi-list text-primary"></span>
             <span>Registros de Bestias</span>
         </div>
@@ -28,13 +33,11 @@
         <!-- Selector de Bestia para filtrar registros -->
         <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
             <label class="win-label fw-bold mb-0">Filtrar por Bestia:</label>
-            <select class="win-textbox win-filter-select-lg" @onchange="OnBestiaSeleccionadaCambiada">
-                <option value="">-- Todas las Bestias --</option>
-                @foreach (var b in bestias)
-                {
-                    <option value="@b.Id" selected="@(selectedFiltroBestiaId == b.Id)">@b.Nombre (@b.Peligrosidad)</option>
-                }
-            </select>
+            <div class="win-filter-select-lg">
+                <SearchableSelect TValue="Guid?" Value="@selectedFiltroBestiaId" ValueChanged="OnBestiaFiltroSelected"
+                                  Options="@(new[] { new SelectOption<Guid?>(null, "-- Todas las Bestias --") }.Concat(bestias.Select(b => new SelectOption<Guid?>(b.Id, $"{b.Nombre} ({b.Peligrosidad})"))))"
+                                  CssClass="win-textbox w-100" />
+            </div>
             @if (selectedFiltroBestiaId.HasValue)
             {
                 <button class="win-btn win-btn-md" @onclick="LimpiarFiltro">
@@ -49,12 +52,12 @@
                 <thead>
                     <tr>
                         <th class="win-grid-row-header-th"></th>
-                        <th style="width: 140px;">Bestia</th>
-                        <th style="width: 60px; text-align: center;">Nro</th>
-                        <th style="width: 90px; text-align: center;">Estado</th>
-                        <th style="width: 150px;">Publicado por</th>
-                        <th style="width: 150px;">Aprobado por</th>
-                        <th style="width: 70px; text-align: center;">Secciones</th>
+                        <th class="win-col-w140">Bestia</th>
+                        <th class="win-col-w60 text-center">Nro</th>
+                        <th class="win-col-w90 text-center">Estado</th>
+                        <th class="win-col-w150">Publicado por</th>
+                        <th class="win-col-w150">Aprobado por</th>
+                        <th class="win-col-w70 text-center">Secciones</th>
                         <th>Fecha Aprobación</th>
                     </tr>
                 </thead>
@@ -88,16 +91,16 @@
                                     @(isSelected ? "▶" : "")
                                 </td>
                                 <td><strong>@nombreBestia</strong></td>
-                                <td style="text-align: center; font-weight: bold;">@r.NroRegistro</td>
-                                <td style="text-align: center;">
-                                    <span class="badge @(r.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
+                                <td class="text-center fw-bold">@r.NroRegistro</td>
+                                <td class="text-center">
+                                    <span class="badge @(r.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark") win-badge-sm">
                                         @r.Estado
                                     </span>
                                 </td>
-                                <td style="font-size: 11px;">@(r.CorreoPublicador ?? "N/A")</td>
-                                <td style="font-size: 11px;">@(r.NombreInvestigadorAprobador ?? "-")</td>
-                                <td style="text-align: center; font-size: 11px;">@r.Contenidos.Count</td>
-                                <td style="font-size: 11px;">@(r.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                <td class="win-text-sm">@(r.CorreoPublicador ?? "N/A")</td>
+                                <td class="win-text-sm">@(r.NombreInvestigadorAprobador ?? "-")</td>
+                                <td class="text-center win-text-sm">@r.Contenidos.Count</td>
+                                <td class="win-text-sm">@(r.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
                             </tr>
                         }
                     }
@@ -107,12 +110,15 @@
 
         <!-- Botones de Acción -->
         <div class="win-btn-action-bar">
-            @if (Auth.EsInvestigador && selectedRegistro != null && selectedRegistro.Estado == "pendiente")
-            {
-                <button class="win-btn btn-success me-auto" style="border-color: #2e6b2e;" @onclick="AprobarRegistroSeleccionado" disabled="@isLoading">
-                    ✔ Aprobar Registro
-                </button>
-            }
+            <div class="me-auto d-flex gap-2">
+                <WinBackButton />
+                @if (Auth.EsInvestigador && selectedRegistro != null && selectedRegistro.Estado == "pendiente")
+                {
+                    <button class="win-btn btn-success win-btn-approve" @onclick="AprobarRegistroSeleccionado" disabled="@isLoading">
+                        ✔ Aprobar Registro
+                    </button>
+                }
+            </div>
             @if (Auth.EsInvestigador)
             {
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedRegistro == null || isLoading)">
@@ -262,17 +268,9 @@
         }
     }
 
-    private void OnBestiaSeleccionadaCambiada(ChangeEventArgs e)
+    private void OnBestiaFiltroSelected(Guid? id)
     {
-        var val = e.Value?.ToString();
-        if (Guid.TryParse(val, out Guid id))
-        {
-            selectedFiltroBestiaId = id;
-        }
-        else
-        {
-            selectedFiltroBestiaId = null;
-        }
+        selectedFiltroBestiaId = id;
         AplicarFiltro();
     }
 

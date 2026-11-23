@@ -7,7 +7,12 @@
 
 <div class="win-form win-form-lg">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span class="oi oi-badge text-primary"></span>
             <span>@(Auth.EsInvestigador ? "Solicitudes de Lectores para Investigador" : "Solicitar Rol de Investigador")</span>
         </div>
@@ -28,7 +33,7 @@
             <div class="win-error-msg mb-2">
                 <span class="oi oi-lock-locked me-1"></span> Debe iniciar sesión como Lector para solicitar el ascenso a Investigador, o como Investigador para aprobar solicitudes.
             </div>
-            <button class="win-btn" @onclick="@(() => Navigation.NavigateTo("/login"))">Iniciar Sesión</button>
+            <button class="win-btn" @onclick="@(() => Navigation.NavigateTo("/login"))">Iniciar sesión</button>
         }
         else if (Auth.EsLector)
         {
@@ -93,17 +98,17 @@
                 </div>
             </fieldset>
 
-            <div class="fw-bold mb-1" style="font-size: 11px;">Historial de mis solicitudes:</div>
-            <div class="win-grid-container" style="height: 190px;">
+            <div class="fw-bold mb-1 win-text-sm">Historial de mis solicitudes:</div>
+            <div class="win-grid-container win-grid-h190">
                 <table class="win-grid">
                     <thead>
                         <tr>
-                            <th style="width: 120px;">Fecha</th>
-                            <th style="width: 170px;">Nombre y Apellido</th>
-                            <th style="width: 90px;">DNI</th>
+                            <th class="win-col-w120">Fecha</th>
+                            <th class="win-col-w170">Nombre y Apellido</th>
+                            <th class="win-col-w90">DNI</th>
                             <th>Motivo</th>
-                            <th style="width: 90px; text-align: center;">Estado</th>
-                            <th style="width: 140px;">Resuelto por</th>
+                            <th class="win-col-w90 text-center">Estado</th>
+                            <th class="win-col-w140">Resuelto por</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -120,14 +125,14 @@
                             @foreach (var s in misSolicitudes)
                             {
                                 <tr>
-                                    <td style="font-size: 11px;">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="win-text-sm">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@s.Nombre @s.Apellido</td>
                                     <td>@s.Dni</td>
-                                    <td style="font-size: 11px;">@s.Motivo</td>
-                                    <td style="text-align: center;">
-                                        <span class="badge @GetEstadoBadgeClass(s.Estado)" style="font-size: 10px;">@s.Estado</span>
+                                    <td class="win-text-sm">@s.Motivo</td>
+                                    <td class="text-center">
+                                        <span class="badge @GetEstadoBadgeClass(s.Estado) win-badge-sm">@s.Estado</span>
                                     </td>
-                                    <td style="font-size: 11px;">@(s.NombreInvestigadorResolutor ?? "-")</td>
+                                    <td class="win-text-sm">@(s.NombreInvestigadorResolutor ?? "-")</td>
                                 </tr>
                             }
                         }
@@ -139,26 +144,25 @@
         {
             <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
                 <label class="win-label fw-bold mb-0">Filtrar por Estado:</label>
-                <select class="win-textbox" style="min-width: 180px;" value="@filtroEstado" @onchange="OnFiltroEstadoChanged">
-                    <option value="pendiente">Pendientes</option>
-                    <option value="">-- Todas --</option>
-                    <option value="aprobada">Aprobadas</option>
-                    <option value="rechazada">Rechazadas</option>
-                </select>
+                <div class="win-filter-select-sm">
+                    <SearchableSelect TValue="string" Value="@filtroEstado" ValueChanged="OnFiltroEstadoSelected"
+                                      Options="@(new[] { new SelectOption<string>("pendiente", "Pendientes"), new SelectOption<string>(string.Empty, "-- Todas --"), new SelectOption<string>("aprobada", "Aprobadas"), new SelectOption<string>("rechazada", "Rechazadas") })"
+                                      CssClass="win-textbox w-100" />
+                </div>
             </div>
 
-            <div class="win-grid-container" style="height: 270px;">
+            <div class="win-grid-container win-grid-h270">
                 <table class="win-grid">
                     <thead>
                         <tr>
                             <th class="win-grid-row-header-th"></th>
-                            <th style="width: 115px;">Fecha</th>
-                            <th style="width: 170px;">Correo Lector</th>
-                            <th style="width: 150px;">Nombre y Apellido</th>
-                            <th style="width: 85px;">DNI</th>
+                            <th class="win-col-w115">Fecha</th>
+                            <th class="win-col-w170">Correo Lector</th>
+                            <th class="win-col-w150">Nombre y Apellido</th>
+                            <th class="win-col-w85">DNI</th>
                             <th>Motivo</th>
-                            <th style="width: 85px; text-align: center;">Estado</th>
-                            <th style="width: 130px;">Resolutor</th>
+                            <th class="win-col-w85 text-center">Estado</th>
+                            <th class="win-col-w130">Resolutor</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -177,15 +181,15 @@
                                 bool isSelected = selectedSolicitud?.Id == s.Id;
                                 <tr class="@(isSelected ? "selected" : "")" @onclick="() => selectedSolicitud = s">
                                     <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
-                                    <td style="font-size: 11px;">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="win-text-sm">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@(s.CorreoLector ?? "-")</td>
                                     <td><strong>@s.Nombre @s.Apellido</strong></td>
                                     <td>@s.Dni</td>
-                                    <td style="font-size: 11px;">@s.Motivo</td>
-                                    <td style="text-align: center;">
-                                        <span class="badge @GetEstadoBadgeClass(s.Estado)" style="font-size: 10px;">@s.Estado</span>
+                                    <td class="win-text-sm">@s.Motivo</td>
+                                    <td class="text-center">
+                                        <span class="badge @GetEstadoBadgeClass(s.Estado) win-badge-sm">@s.Estado</span>
                                     </td>
-                                    <td style="font-size: 11px;">@(s.NombreInvestigadorResolutor ?? "-")</td>
+                                    <td class="win-text-sm">@(s.NombreInvestigadorResolutor ?? "-")</td>
                                 </tr>
                             }
                         }
@@ -193,22 +197,26 @@
                 </table>
             </div>
 
-            <div class="win-btn-action-bar">
-                @if (selectedSolicitud != null && selectedSolicitud.Estado == "pendiente")
+        }
+
+        <div class="win-btn-action-bar">
+            <div class="me-auto d-flex align-items-center gap-2">
+                <WinBackButton />
+                @if (Auth.EsInvestigador && (selectedSolicitud == null || selectedSolicitud.Estado != "pendiente"))
                 {
-                    <button class="win-btn btn-success" style="border-color: #2e6b2e;" @onclick="AprobarSeleccionada" disabled="@(isLoading || isSaving)">
-                        ✔ Aprobar Solicitud
-                    </button>
-                    <button class="win-btn text-danger" @onclick="RechazarSeleccionada" disabled="@(isLoading || isSaving)">
-                        ✕ Rechazar Solicitud
-                    </button>
-                }
-                else
-                {
-                    <span class="text-muted" style="font-size: 11px;">Seleccione una solicitud pendiente para aprobarla o rechazarla.</span>
+                    <span class="text-muted win-text-sm">Seleccione una solicitud pendiente para aprobarla o rechazarla.</span>
                 }
             </div>
-        }
+            @if (Auth.EsInvestigador && selectedSolicitud != null && selectedSolicitud.Estado == "pendiente")
+            {
+                <button class="win-btn btn-success win-btn-approve" @onclick="AprobarSeleccionada" disabled="@(isLoading || isSaving)">
+                    ✔ Aprobar Solicitud
+                </button>
+                <button class="win-btn text-danger" @onclick="RechazarSeleccionada" disabled="@(isLoading || isSaving)">
+                    ✕ Rechazar Solicitud
+                </button>
+            }
+        </div>
     </div>
 
     <div class="win-statusbar">
@@ -290,9 +298,9 @@
         }
     }
 
-    private async Task OnFiltroEstadoChanged(ChangeEventArgs e)
+    private async Task OnFiltroEstadoSelected(string? val)
     {
-        filtroEstado = e.Value?.ToString() ?? string.Empty;
+        filtroEstado = val ?? string.Empty;
         await CargarDatos();
     }
 

@@ -5,17 +5,22 @@
 
 <PageTitle>Admin Dashboard</PageTitle>
 
-<div class="win-form" style="width: 1020px; max-width: 98vw;">
+<div class="win-form win-form-xl">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
-            <span class="oi oi-wrench text-primary" style="font-size: 11px;"></span>
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
+            <span class="oi oi-wrench text-primary win-title-icon"></span>
             <span>Menú de Administrador — Bestiario</span>
         </div>
     </div>
 
     <WinMenuStrip OnRefresh="RecargarSeccionActualAsync" IsLoading="@isLoading" />
 
-    <div class="win-form-content" style="padding: 12px;">
+    <div class="win-form-content admin-content">
         @if (!Auth.EsInvestigador)
         {
             <div class="win-error-msg">
@@ -26,7 +31,7 @@
         {
             @if (!string.IsNullOrEmpty(feedbackMessage))
             {
-                <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                     @feedbackMessage
                 </div>
             }
@@ -34,25 +39,25 @@
             <div class="row g-3">
                 <!-- Columna Izquierda: Menú Lateral -->
                 <div class="col-md-3">
-                    <div class="p-2 border rounded" style="background-color: #f2f2f2;">
-                        <div class="fw-bold mb-2 pb-1 border-bottom" style="font-size: 11px; color: #333;">
+                    <div class="p-2 border rounded admin-sidebar">
+                        <div class="fw-bold mb-2 pb-1 border-bottom admin-sidebar-title">
                             Gestión CRUD
                         </div>
                         <div class="d-flex flex-column gap-1">
-                            <button class="win-btn text-start @(Crud == "categorias" ? "fw-bold border-primary" : "")"
-                                    style="height: 26px;" @onclick="@(() => IrASeccion("categorias"))">
+                            <button class="win-btn text-start admin-nav-btn @(Crud == "categorias" ? "fw-bold border-primary" : "")"
+                                    @onclick="@(() => IrASeccion("categorias"))">
                                 Categorías
                             </button>
-                            <button class="win-btn text-start @(Crud == "habitats" || Crud == "carHabitat" ? "fw-bold border-primary" : "")"
-                                    style="height: 26px;" @onclick="@(() => IrASeccion("habitats"))">
+                            <button class="win-btn text-start admin-nav-btn @(Crud == "habitats" || Crud == "carHabitat" ? "fw-bold border-primary" : "")"
+                                    @onclick="@(() => IrASeccion("habitats"))">
                                 Hábitats
                             </button>
-                            <button class="win-btn text-start @(Crud == "usuarios" ? "fw-bold border-primary" : "")"
-                                    style="height: 26px;" @onclick="@(() => IrASeccion("usuarios"))">
-                                Usuarios (Lectores)
+                            <button class="win-btn text-start admin-nav-btn @(Crud == "usuarios" ? "fw-bold border-primary" : "")"
+                                    @onclick="@(() => IrASeccion("usuarios"))">
+                                Usuarios
                             </button>
-                            <button class="win-btn text-start @(Crud == "tiposEvidencia" ? "fw-bold border-primary" : "")"
-                                    style="height: 26px;" @onclick="@(() => IrASeccion("tiposEvidencia"))">
+                            <button class="win-btn text-start admin-nav-btn @(Crud == "tiposEvidencia" ? "fw-bold border-primary" : "")"
+                                    @onclick="@(() => IrASeccion("tiposEvidencia"))">
                                 Tipos de Evidencia
                             </button>
                         </div>
@@ -63,34 +68,34 @@
                 <div class="col-md-9">
                     @if (string.IsNullOrWhiteSpace(Crud))
                     {
-                        <div class="p-4 border rounded text-center bg-white" style="min-height: 280px; display: flex; flex-direction: column; justify-content: center;">
-                            <span class="oi oi-cog text-primary mb-2" style="font-size: 32px;"></span>
-                            <h5 style="font-size: 15px; font-weight: bold;">Bienvenido al menú de Admin</h5>
-                            <p class="text-muted mb-0" style="font-size: 12px;">
+                        <div class="p-4 border rounded text-center bg-white admin-welcome">
+                            <span class="oi oi-cog mb-2 admin-welcome-icon"></span>
+                            <h5 class="admin-welcome-title">Bienvenido al menú de Admin</h5>
+                            <p class="text-muted mb-0 win-text-md">
                                 Seleccione una opción para gestionar en el menú de la izquierda.
                             </p>
                         </div>
                     }
                     else if (Crud == "categorias")
                     {
-                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Categorías</h6>
-                        <div class="win-grid-container mb-3" style="height: 170px;">
+                        <h6 class="fw-bold mb-2 win-text-lg">Categorías</h6>
+                        <div class="win-grid-container mb-3 win-grid-h170">
                             <table class="win-grid">
                                 <thead>
                                     <tr>
                                         <th>Nombre (ID)</th>
                                         <th>Descripción</th>
-                                        <th style="width: 90px;">Acción</th>
+                                        <th class="win-col-w90">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var c in categorias)
                                     {
                                         <tr>
-                                            <td><strong>@c.Nombre</strong> <span class="text-muted" style="font-size: 10px;">(ID: @c.Id.ToString().Substring(0, 8)...)</span></td>
-                                            <td style="font-size: 11px;">@c.Descripcion</td>
+                                            <td><strong>@c.Nombre</strong> <span class="text-muted win-text-xs">(ID: @c.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td class="win-text-sm">@c.Descripcion</td>
                                             <td>
-                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                <button class="win-btn text-danger win-btn-xs"
                                                         @onclick="@(() => SolicitarEliminar("categoria", c.Id, c.Nombre))">
                                                     Eliminar
                                                 </button>
@@ -103,8 +108,8 @@
 
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Categoría</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Crear Categoría</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Nombre:</label>
                                         <input class="win-textbox w-100" @bind="catNuevaNombre" maxlength="20" />
@@ -117,17 +122,12 @@
                                 </fieldset>
                             </div>
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Categoría</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Actualizar Categoría</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Seleccionar:</label>
-                                        <select class="win-textbox w-100" value="@catEditId" @onchange="OnSeleccionarCatEdit">
-                                            <option value="">-- Seleccione --</option>
-                                            @foreach (var c in categorias)
-                                            {
-                                                <option value="@c.Id">@c.Nombre (@c.Id.ToString().Substring(0, 8))</option>
-                                            }
-                                        </select>
+                                        <SearchableSelect TValue="string" Value="@catEditId" ValueChanged="OnSeleccionarCatEdit"
+                                                          Options="@(new[] { new SelectOption<string>(string.Empty, "-- Seleccione --") }.Concat(categorias.Select(c => new SelectOption<string>(c.Id.ToString(), $"{c.Nombre} ({c.Id.ToString().Substring(0, 8)})"))))" />
                                     </div>
                                     <div class="mb-2">
                                         <label class="win-label">Nombre:</label>
@@ -144,29 +144,29 @@
                     }
                     else if (Crud == "habitats")
                     {
-                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Hábitats</h6>
-                        <div class="win-grid-container mb-3" style="height: 170px;">
+                        <h6 class="fw-bold mb-2 win-text-lg">Hábitats</h6>
+                        <div class="win-grid-container mb-3 win-grid-h170">
                             <table class="win-grid">
                                 <thead>
                                     <tr>
                                         <th>Nombre (ID)</th>
                                         <th>Localización</th>
-                                        <th style="width: 155px;">Acciones</th>
+                                        <th class="win-col-w155">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var h in habitats)
                                     {
                                         <tr>
-                                            <td><strong>@h.Nombre</strong> <span class="text-muted" style="font-size: 10px;">(ID: @h.Id.ToString().Substring(0, 8)...)</span></td>
-                                            <td style="font-size: 11px;">@h.Localizacion</td>
+                                            <td><strong>@h.Nombre</strong> <span class="text-muted win-text-xs">(ID: @h.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td class="win-text-sm">@h.Localizacion</td>
                                             <td>
                                                 <div class="d-flex gap-1">
-                                                    <button class="win-btn" style="height: 20px; font-size: 10px;"
+                                                    <button class="win-btn win-btn-xs"
                                                             @onclick="@(() => IrACaracteristicasHabitat(h.Id))">
                                                         Ver más
                                                     </button>
-                                                    <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                    <button class="win-btn text-danger win-btn-xs"
                                                             @onclick="@(() => SolicitarEliminar("habitat", h.Id, h.Nombre))">
                                                         Eliminar
                                                     </button>
@@ -180,8 +180,8 @@
 
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Hábitat</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Crear Hábitat</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Nombre:</label>
                                         <input class="win-textbox w-100" @bind="habNuevoNombre" maxlength="60" />
@@ -194,17 +194,12 @@
                                 </fieldset>
                             </div>
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Hábitat</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Actualizar Hábitat</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Seleccionar:</label>
-                                        <select class="win-textbox w-100" value="@habEditId" @onchange="OnSeleccionarHabEdit">
-                                            <option value="">-- Seleccione --</option>
-                                            @foreach (var h in habitats)
-                                            {
-                                                <option value="@h.Id">@h.Nombre (@h.Id.ToString().Substring(0, 8))</option>
-                                            }
-                                        </select>
+                                        <SearchableSelect TValue="string" Value="@habEditId" ValueChanged="OnSeleccionarHabEdit"
+                                                          Options="@(new[] { new SelectOption<string>(string.Empty, "-- Seleccione --") }.Concat(habitats.Select(h => new SelectOption<string>(h.Id.ToString(), $"{h.Nombre} ({h.Id.ToString().Substring(0, 8)})"))))" />
                                     </div>
                                     <div class="mb-2">
                                         <label class="win-label">Nombre:</label>
@@ -222,21 +217,21 @@
                     else if (Crud == "carHabitat")
                     {
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="fw-bold mb-0" style="font-size: 13px;">
+                            <h6 class="fw-bold mb-0 win-text-lg">
                                 Características del Hábitat: @(habitatActual?.Nombre ?? "-")
                             </h6>
-                            <button class="win-btn" style="height: 22px;" @onclick="@(() => IrASeccion("habitats"))">
-                                ← Volver atrás
+                            <button class="win-btn win-btn-back win-btn-md" @onclick="@(() => IrASeccion("habitats"))">
+                                &lt;- Volver
                             </button>
                         </div>
 
-                        <div class="win-grid-container mb-3" style="height: 160px;">
+                        <div class="win-grid-container mb-3 win-grid-h160">
                             <table class="win-grid">
                                 <thead>
                                     <tr>
-                                        <th style="width: 60px;">Nro.</th>
+                                        <th class="win-col-w60">Nro.</th>
                                         <th>Descripción</th>
-                                        <th style="width: 90px;">Acción</th>
+                                        <th class="win-col-w90">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -250,9 +245,9 @@
                                         {
                                             <tr>
                                                 <td>#@ch.NroCaracteristica</td>
-                                                <td style="font-size: 11px;">@ch.Descripcion</td>
+                                                <td class="win-text-sm">@ch.Descripcion</td>
                                                 <td>
-                                                    <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                    <button class="win-btn text-danger win-btn-xs"
                                                             @onclick="@(() => EliminarCaracteristicaAsync(ch.NroCaracteristica))">
                                                         Eliminar
                                                     </button>
@@ -266,8 +261,8 @@
 
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Característica</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Crear Característica</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Descripción:</label>
                                         <input class="win-textbox w-100" @bind="carNuevaDesc" maxlength="200" />
@@ -276,20 +271,12 @@
                                 </fieldset>
                             </div>
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Característica</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Actualizar Característica</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Característica actual:</label>
-                                        <select class="win-textbox w-100" @bind="carEditNro">
-                                            <option value="0">-- Seleccione --</option>
-                                            @if (habitatActual != null)
-                                            {
-                                                @foreach (var ch in habitatActual.Caracteristicas.OrderBy(x => x.NroCaracteristica))
-                                                {
-                                                    <option value="@ch.NroCaracteristica">#@ch.NroCaracteristica — @ch.Descripcion</option>
-                                                }
-                                            }
-                                        </select>
+                                        <SearchableSelect TValue="int" @bind-Value="carEditNro"
+                                                          Options="@(new[] { new SelectOption<int>(0, "-- Seleccione --") }.Concat((habitatActual?.Caracteristicas ?? Enumerable.Empty<CaracteristicaHabitatDTO>()).OrderBy(x => x.NroCaracteristica).Select(ch => new SelectOption<int>(ch.NroCaracteristica, $"#{ch.NroCaracteristica} — {ch.Descripcion}"))))" />
                                     </div>
                                     <div class="mb-2">
                                         <label class="win-label">Nueva descripción:</label>
@@ -302,24 +289,24 @@
                     }
                     else if (Crud == "usuarios")
                     {
-                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Usuarios (Lectores)</h6>
-                        <div class="win-grid-container mb-3" style="height: 170px;">
+                        <h6 class="fw-bold mb-2 win-text-lg">Usuarios (Lectores)</h6>
+                        <div class="win-grid-container mb-3 win-grid-h170">
                             <table class="win-grid">
                                 <thead>
                                     <tr>
                                         <th>Correo (ID)</th>
-                                        <th style="width: 120px;">Notificaciones</th>
-                                        <th style="width: 90px;">Acción</th>
+                                        <th class="win-col-w120">Notificaciones</th>
+                                        <th class="win-col-w90">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var u in lectores)
                                     {
                                         <tr>
-                                            <td><strong>@u.Correo</strong> <span class="text-muted" style="font-size: 10px;">(ID: @u.Id.ToString().Substring(0, 8)...)</span></td>
-                                            <td style="font-size: 11px;">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
+                                            <td><strong>@u.Correo</strong> <span class="text-muted win-text-xs">(ID: @u.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td class="win-text-sm">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
                                             <td>
-                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                <button class="win-btn text-danger win-btn-xs"
                                                         @onclick="@(() => SolicitarEliminar("usuario", u.Id, u.Correo))">
                                                     Eliminar
                                                 </button>
@@ -332,8 +319,8 @@
 
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Lector</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Crear Lector</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Correo:</label>
                                         <input type="email" class="win-textbox w-100" @bind="lecNuevoCorreo" maxlength="100" />
@@ -350,17 +337,12 @@
                                 </fieldset>
                             </div>
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Lector</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Actualizar Lector</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Seleccionar:</label>
-                                        <select class="win-textbox w-100" value="@lecEditId" @onchange="OnSeleccionarLecEdit">
-                                            <option value="">-- Seleccione --</option>
-                                            @foreach (var u in lectores)
-                                            {
-                                                <option value="@u.Id">@u.Correo (@u.Id.ToString().Substring(0, 8))</option>
-                                            }
-                                        </select>
+                                        <SearchableSelect TValue="string" Value="@lecEditId" ValueChanged="OnSeleccionarLecEdit"
+                                                          Options="@(new[] { new SelectOption<string>(string.Empty, "-- Seleccione --") }.Concat(lectores.Select(u => new SelectOption<string>(u.Id.ToString(), $"{u.Correo} ({u.Id.ToString().Substring(0, 8)})"))))" />
                                     </div>
                                     <div class="mb-2">
                                         <label class="win-label">Correo:</label>
@@ -381,24 +363,24 @@
                     }
                     else if (Crud == "tiposEvidencia")
                     {
-                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Tipos de Evidencia</h6>
-                        <div class="win-grid-container mb-3" style="height: 170px;">
+                        <h6 class="fw-bold mb-2 win-text-lg">Tipos de Evidencia</h6>
+                        <div class="win-grid-container mb-3 win-grid-h170">
                             <table class="win-grid">
                                 <thead>
                                     <tr>
                                         <th>Descripción (ID)</th>
-                                        <th style="width: 130px;">ResourceType</th>
-                                        <th style="width: 90px;">Acción</th>
+                                        <th class="win-col-w130">ResourceType</th>
+                                        <th class="win-col-w90">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var t in tiposEvidencia)
                                     {
                                         <tr>
-                                            <td><strong>@t.Descripcion</strong> <span class="text-muted" style="font-size: 10px;">(ID: @t.Id.ToString().Substring(0, 8)...)</span></td>
-                                            <td style="font-size: 11px;">@t.ResourceType</td>
+                                            <td><strong>@t.Descripcion</strong> <span class="text-muted win-text-xs">(ID: @t.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td class="win-text-sm">@t.ResourceType</td>
                                             <td>
-                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                <button class="win-btn text-danger win-btn-xs"
                                                         @onclick="@(() => SolicitarEliminar("tipoEvidencia", t.Id, t.Descripcion))">
                                                     Eliminar
                                                 </button>
@@ -411,8 +393,8 @@
 
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Tipo de Evidencia</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Crear Tipo de Evidencia</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Descripción:</label>
                                         <input class="win-textbox w-100" @bind="tipoNuevaDesc" maxlength="80" />
@@ -425,17 +407,12 @@
                                 </fieldset>
                             </div>
                             <div class="col-md-6">
-                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
-                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Tipo de Evidencia</legend>
+                                <fieldset class="p-2 border bg-white admin-fieldset">
+                                    <legend class="fw-bold admin-legend">Actualizar Tipo de Evidencia</legend>
                                     <div class="mb-2">
                                         <label class="win-label">Seleccionar:</label>
-                                        <select class="win-textbox w-100" value="@tipoEditId" @onchange="OnSeleccionarTipoEdit">
-                                            <option value="">-- Seleccione --</option>
-                                            @foreach (var t in tiposEvidencia)
-                                            {
-                                                <option value="@t.Id">@t.Descripcion (@t.Id.ToString().Substring(0, 8))</option>
-                                            }
-                                        </select>
+                                        <SearchableSelect TValue="string" Value="@tipoEditId" ValueChanged="OnSeleccionarTipoEdit"
+                                                          Options="@(new[] { new SelectOption<string>(string.Empty, "-- Seleccione --") }.Concat(tiposEvidencia.Select(t => new SelectOption<string>(t.Id.ToString(), $"{t.Descripcion} ({t.Id.ToString().Substring(0, 8)})"))))" />
                                     </div>
                                     <div class="mb-2">
                                         <label class="win-label">Descripción:</label>
@@ -453,6 +430,11 @@
                 </div>
             </div>
         }
+        <div class="win-btn-action-bar">
+            <div class="me-auto">
+                <WinBackButton />
+            </div>
+        </div>
     </div>
 
     <div class="win-statusbar">
@@ -608,9 +590,9 @@
     }
 
     // --- Categorias ---
-    private void OnSeleccionarCatEdit(ChangeEventArgs e)
+    private void OnSeleccionarCatEdit(string? val)
     {
-        catEditId = e.Value?.ToString() ?? string.Empty;
+        catEditId = val ?? string.Empty;
         if (Guid.TryParse(catEditId, out var id))
         {
             var cat = categorias.FirstOrDefault(c => c.Id == id);
@@ -648,9 +630,9 @@
     }
 
     // --- Habitats ---
-    private void OnSeleccionarHabEdit(ChangeEventArgs e)
+    private void OnSeleccionarHabEdit(string? val)
     {
-        habEditId = e.Value?.ToString() ?? string.Empty;
+        habEditId = val ?? string.Empty;
         if (Guid.TryParse(habEditId, out var id))
         {
             var h = habitats.FirstOrDefault(x => x.Id == id);
@@ -746,9 +728,9 @@
     }
 
     // --- Lectores ---
-    private void OnSeleccionarLecEdit(ChangeEventArgs e)
+    private void OnSeleccionarLecEdit(string? val)
     {
-        lecEditId = e.Value?.ToString() ?? string.Empty;
+        lecEditId = val ?? string.Empty;
         if (Guid.TryParse(lecEditId, out var id))
         {
             var l = lectores.FirstOrDefault(x => x.Id == id);
@@ -800,9 +782,9 @@
     }
 
     // --- Tipos Evidencia ---
-    private void OnSeleccionarTipoEdit(ChangeEventArgs e)
+    private void OnSeleccionarTipoEdit(string? val)
     {
-        tipoEditId = e.Value?.ToString() ?? string.Empty;
+        tipoEditId = val ?? string.Empty;
         if (Guid.TryParse(tipoEditId, out var id))
         {
             var t = tiposEvidencia.FirstOrDefault(x => x.Id == id);

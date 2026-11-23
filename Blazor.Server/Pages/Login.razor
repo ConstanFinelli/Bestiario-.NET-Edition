@@ -109,8 +109,8 @@
 
             <!-- Botones de Acción de Registro -->
             <div class="d-flex justify-content-between px-3 mb-3">
-                <button type="button" class="win-btn login-btn-md" @onclick="VolverALogin" disabled="@isLoading">
-                    Volver
+                <button type="button" class="win-btn win-btn-back login-btn-md" @onclick="VolverALogin" disabled="@isLoading">
+                    &lt;- Volver
                 </button>
                 <button type="button" class="win-btn login-btn-lg" @onclick="RegistrarLector" disabled="@isLoading">
                     @(isLoading ? "Creando cuenta..." : "Crear y Entrar")
@@ -139,8 +139,8 @@
             </div>
 
             <div class="d-flex justify-content-between px-3 mb-3">
-                <button type="button" class="win-btn login-btn-md" @onclick="VolverALogin" disabled="@isLoading">
-                    Volver
+                <button type="button" class="win-btn win-btn-back login-btn-md" @onclick="VolverALogin" disabled="@isLoading">
+                    &lt;- Volver
                 </button>
                 <button type="button" class="win-btn login-btn-lg" @onclick="EnviarCodigoRecuperacion" disabled="@isLoading">
                     @(isLoading ? "Enviando..." : "Enviar código")
@@ -189,8 +189,8 @@
             </div>
 
             <div class="d-flex justify-content-between px-3 mb-3">
-                <button type="button" class="win-btn login-btn-sm" @onclick="MostrarRecuperarPaso1" disabled="@isLoading">
-                    Volver
+                <button type="button" class="win-btn win-btn-back login-btn-sm" @onclick="MostrarRecuperarPaso1" disabled="@isLoading">
+                    &lt;- Volver
                 </button>
                 <button type="button" class="win-btn login-btn-xl" @onclick="ConfirmarRestablecimiento" disabled="@isLoading">
                     @(isLoading ? "Guardando..." : "Restablecer contraseña")
@@ -201,6 +201,15 @@
                 <a href="javascript:void(0)" class="text-decoration-none login-link" @onclick="VolverALogin">
                     Volver al inicio de sesión
                 </a>
+            </div>
+        }
+
+        @if (vistaActual == VistaLogin.Login)
+        {
+            <div class="win-btn-action-bar mt-3">
+                <div class="me-auto">
+                    <WinBackButton OnClick="@(() => Navigation.NavigateTo("/"))" />
+                </div>
             </div>
         }
     </div>
