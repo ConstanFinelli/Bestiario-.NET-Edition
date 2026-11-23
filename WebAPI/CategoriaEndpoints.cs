@@ -49,7 +49,7 @@ namespace WebAPI
                 }
             })
             .WithName("AddCategoria")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces<CategoriaDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -74,7 +74,7 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateCategoria")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
@@ -93,7 +93,7 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteCategoria")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)

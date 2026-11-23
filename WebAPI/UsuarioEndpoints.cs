@@ -46,9 +46,11 @@ namespace WebAPI
                 }
             })
             .WithName("AddInvestigador")
-            .AllowAnonymous()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces<UsuarioDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .WithOpenApi();
 
             app.MapPost("/usuarios/lectores", async (LectorDTO dto, IUsuarioService usuarioService) =>

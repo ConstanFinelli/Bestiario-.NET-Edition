@@ -44,7 +44,7 @@ namespace WebAPI
                 }
             })
             .WithName("AddHabitat")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces<HabitatDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -66,7 +66,7 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateHabitat")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
@@ -82,7 +82,7 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteHabitat")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
