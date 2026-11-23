@@ -64,7 +64,7 @@ namespace WindowsForms
             // 
             tipoGraficoComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             tipoGraficoComboBox.FormattingEnabled = true;
-            tipoGraficoComboBox.Location = new Point(126, 35);
+            tipoGraficoComboBox.Location = new Point(155, 35);
             tipoGraficoComboBox.Name = "tipoGraficoComboBox";
             tipoGraficoComboBox.Size = new Size(190, 23);
             tipoGraficoComboBox.TabIndex = 2;

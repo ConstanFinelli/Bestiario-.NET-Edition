@@ -175,7 +175,7 @@ namespace WindowsForms
             int height = chartPictureBox.Height;
             int marginLeft = 52;
             int marginRight = 24;
-            int marginTop = 36;
+            int marginTop = 58;
             int marginBottom = 56;
             int plotW = Math.Max(100, width - marginLeft - marginRight);
             int plotH = Math.Max(80, height - marginTop - marginBottom);
