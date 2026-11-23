@@ -14,6 +14,9 @@ namespace DTOs
         public Guid? IdInvestigadorAprobador { get; set; }
         public string? NombreInvestigadorAprobador { get; set; }
         public string Estado { get; set; } = "pendiente";
+        public string? MainPicture { get; set; }
+        public string? MainPictureUrl { get; set; }
+        public string? DefaultPictureUrl { get; set; }
 
         public List<ContenidoRegistroDTO> Contenidos { get; set; } = new List<ContenidoRegistroDTO>();
     }

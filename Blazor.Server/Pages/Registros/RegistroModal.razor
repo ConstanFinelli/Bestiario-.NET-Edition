@@ -29,8 +29,29 @@
                     <!-- VISTA ENCICLOPEDIA -->
                     <div style="background-color: #f6f3eb; border: 1px solid #d5cfc0; padding: 20px 24px; border-radius: 3px;">
                         <!-- Encabezado con el nombre de la Bestia -->
-                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: bold; color: #2b2620; text-align: center; border-bottom: 1px solid #bdb6a7; padding-bottom: 8px; margin-bottom: 18px;">
+                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: bold; color: #2b2620; text-align: center; border-bottom: 1px solid #bdb6a7; padding-bottom: 8px; margin-bottom: 12px;">
                             @(bestiaActual?.Nombre ?? "Bestia")
+                        </div>
+
+                        <!-- Cargar registro en determinada fecha -->
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 p-2 rounded" style="background-color: #ebe6da; border: 1px solid #d0c9b8; font-size: 11px;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="fw-bold" style="color: #2b2620;">Cargar registro en determinada fecha:</span>
+                                <input type="datetime-local" class="win-textbox" style="height: 22px;" @bind="fechaConsulta" />
+                                <button type="button" class="win-btn" style="height: 22px;" @onclick="CargarRegistroEnFechaAsync" disabled="@isLoadingFecha">
+                                    @(isLoadingFecha ? "Buscando..." : "Cargar")
+                                </button>
+                                @if (mostrandoHistorico)
+                                {
+                                    <button type="button" class="win-btn" style="height: 22px;" @onclick="CargarRegistroVigenteActualAsync" disabled="@isLoadingFecha">
+                                        Vigente actual
+                                    </button>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(mensajeFecha))
+                            {
+                                <span class="text-danger fw-bold">@mensajeFecha</span>
+                            }
                         </div>
 
                         <div class="row g-4">
@@ -61,6 +82,16 @@
                             <!-- Derecha: Detalles de la Bestia y del Registro -->
                             <div class="col-md-4">
                                 <div style="background-color: #e4e0d8; border: 1px solid #c9c3b6; border-radius: 6px; padding: 14px 12px; text-align: center;">
+                                    @if (!string.IsNullOrWhiteSpace(Registro.MainPictureUrl))
+                                    {
+                                        var fallbackUrl = string.IsNullOrWhiteSpace(Registro.DefaultPictureUrl) ? Registro.MainPictureUrl : Registro.DefaultPictureUrl;
+                                        <div class="mb-2">
+                                            <img src="@Registro.MainPictureUrl"
+                                                 alt="@(bestiaActual?.Nombre ?? "Bestia")"
+                                                 onerror="this.onerror=null;this.src='@fallbackUrl';"
+                                                 style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 4px; border: 1px solid #bfb8a8;" />
+                                        </div>
+                                    }
                                     <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 14px; font-weight: bold; color: #2b2620; margin-bottom: 6px;">
                                         Detalles de la bestia
                                     </div>
@@ -120,9 +151,59 @@
 
                         <!-- Abajo: Evidencias de la Bestia -->
                         <div class="mt-4 pt-3" style="border-top: 1px solid #bdb6a7;">
-                            <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 15px; font-weight: bold; color: #2b2620; margin-bottom: 8px;">
-                                Evidencias registradas (@evidenciasBestia.Count)
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 15px; font-weight: bold; color: #2b2620;">
+                                    Evidencias registradas (@evidenciasBestia.Count)
+                                </div>
+                                @if (Auth.IsAuthenticated)
+                                {
+                                    <button type="button" class="win-btn" style="height: 22px; font-size: 11px;" @onclick="AbrirFormEvidenciaAsync">
+                                        + Proponer nueva evidencia
+                                    </button>
+                                }
                             </div>
+
+                            @if (!string.IsNullOrEmpty(evidenciaError))
+                            {
+                                <div class="win-error-msg mb-2" style="font-size: 11px;">
+                                    <span class="oi oi-warning me-1"></span> @evidenciaError
+                                </div>
+                            }
+
+                            @if (mostrandoFormEvidencia && Auth.IsAuthenticated)
+                            {
+                                <div class="p-2 border rounded mb-3" style="background-color: #efece3; font-size: 11px;">
+                                    <div class="fw-bold mb-2">Proponer nueva evidencia</div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-md-5">
+                                            <label class="win-label">Tipo de evidencia:</label>
+                                            <select class="win-textbox w-100" @bind="nuevaEvidenciaTipoId" disabled="@isProcesandoEvidencia">
+                                                <option value="">-- Seleccione --</option>
+                                                @foreach (var t in tiposEvidenciaDisponibles)
+                                                {
+                                                    <option value="@t.Id">@t.Descripcion (@t.ResourceType)</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="win-label">Fecha obtención:</label>
+                                            <input type="datetime-local" class="win-textbox w-100" @bind="nuevaEvidenciaFecha" disabled="@isProcesandoEvidencia" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="win-label">FileId / URL:</label>
+                                            <input type="text" class="win-textbox w-100" placeholder="ej. avistamiento_01" @bind="nuevaEvidenciaFileId" disabled="@isProcesandoEvidencia" />
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="win-btn" @onclick="ProponerEvidenciaAsync" disabled="@isProcesandoEvidencia">
+                                            @(isProcesandoEvidencia ? "Enviando..." : "Enviar evidencia")
+                                        </button>
+                                        <button type="button" class="win-btn" @onclick="@(() => mostrandoFormEvidencia = false)" disabled="@isProcesandoEvidencia">
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            }
 
                             @if (isLoadingEvidencias)
                             {
@@ -150,8 +231,24 @@
                                                 <div class="text-muted" style="font-family: monospace;">
                                                     [@(ev.TipoEvidenciaResourceType ?? "-")] @ev.FileId
                                                 </div>
-                                                <div class="text-muted mt-1">
-                                                    Obtenida: @ev.FechaObtencion.ToString("dd/MM/yyyy HH:mm")
+                                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                                    <span class="text-muted">Obtenida: @ev.FechaObtencion.ToString("dd/MM/yyyy HH:mm")</span>
+                                                    @if (Auth.EsInvestigador)
+                                                    {
+                                                        <div class="d-flex gap-1">
+                                                            @if (ev.Estado != null && ev.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase))
+                                                            {
+                                                                <button type="button" class="win-btn text-success" style="height: 19px; font-size: 10px; padding: 0 5px;"
+                                                                        @onclick="() => AprobarEvidenciaAsync(ev)" disabled="@isProcesandoEvidencia">
+                                                                    Aprobar
+                                                                </button>
+                                                            }
+                                                            <button type="button" class="win-btn text-danger" style="height: 19px; font-size: 10px; padding: 0 5px;"
+                                                                    @onclick="() => EliminarEvidenciaAsync(ev)" disabled="@isProcesandoEvidencia">
+                                                                Eliminar
+                                                            </button>
+                                                        </div>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -159,14 +256,92 @@
                                 </div>
                             }
                         </div>
+
+                        <!-- Abajo: Comentarios de la Bestia (solo si el registro está aprobado) -->
+                        @if (Registro.Estado != null && Registro.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div id="comentarios" class="mt-4 pt-3" style="border-top: 1px solid #bdb6a7;">
+                                <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 15px; font-weight: bold; color: #2b2620; margin-bottom: 8px;">
+                                    Comentarios (@comentariosBestia.Count)
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(comentarioError))
+                                {
+                                    <div class="win-error-msg mb-2" style="font-size: 11px;">
+                                        <span class="oi oi-warning me-1"></span> @comentarioError
+                                    </div>
+                                }
+
+                                @if (isLoadingComentarios)
+                                {
+                                    <div class="text-muted" style="font-size: 12px;">Cargando comentarios...</div>
+                                }
+                                else if (!comentariosBestia.Any())
+                                {
+                                    <div class="text-muted fst-italic mb-2" style="font-size: 12px;">
+                                        No hay comentarios para esta bestia.
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-column gap-2 mb-3">
+                                        @foreach (var com in comentariosBestia)
+                                        {
+                                            <div class="p-2 border rounded" style="background-color: #ffffff; font-size: 12px;">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div>
+                                                        <strong>@(string.IsNullOrWhiteSpace(com.CorreoUsuario) ? "Usuario" : com.CorreoUsuario)</strong>
+                                                        <span class="text-muted ms-1">- Publicado el @com.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")</span>
+                                                    </div>
+                                                    @if (Auth.EsInvestigador)
+                                                    {
+                                                        <button type="button" class="win-btn text-danger" style="height: 20px; font-size: 10px; padding: 0 6px;"
+                                                                @onclick="() => SolicitarEliminarComentario(com)" disabled="@isProcesandoComentario">
+                                                            Eliminar
+                                                        </button>
+                                                    }
+                                                </div>
+                                                <div style="white-space: pre-line; color: #2e2e2e;">
+                                                    @com.Contenido
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                @if (Auth.IsAuthenticated)
+                                {
+                                    <div class="p-2 border rounded" style="background-color: #efece3;">
+                                        <div style="font-size: 11px; font-weight: bold; margin-bottom: 6px; color: #2b2620;">
+                                            Agregar comentario
+                                        </div>
+                                        <div class="mb-2">
+                                            <textarea class="win-textbox w-100" rows="2" style="height: auto; padding: 4px;"
+                                                      placeholder="Escriba su comentario..." @bind="nuevoComentarioTexto" disabled="@isProcesandoComentario"></textarea>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="button" class="win-btn" @onclick="AgregarComentarioAsync" disabled="@isProcesandoComentario">
+                                                @(isProcesandoComentario ? "Publicando..." : "Publicar comentario")
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
 
                     <!-- Barra inferior de la vista Enciclopedia -->
                     <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
                         @if (Auth.EsInvestigador)
                         {
-                            <button type="button" class="win-btn me-auto" @onclick="() => isEditMode = true">
+                            <button type="button" class="win-btn" @onclick="() => { esPropuestaNueva = false; isEditMode = true; }">
                                 ✎ Editar Registro
+                            </button>
+                        }
+                        @if (Auth.IsAuthenticated)
+                        {
+                            <button type="button" class="win-btn me-auto" @onclick="IniciarPropuestaNuevoRegistro">
+                                + Proponer nuevo registro
                             </button>
                         }
                         <button type="button" class="win-btn" @onclick="Cancel">
@@ -234,6 +409,27 @@
                                     <option value="pendiente">pendiente</option>
                                     <option value="aprobado">aprobado</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center mb-2">
+                            <div class="col-3">
+                                <label class="win-label">Imagen:</label>
+                            </div>
+                            <div class="col-9">
+                                <InputFile OnChange="OnMainPicSelected" accept="image/*" disabled="@(isSaving || !PuedeEditar)" style="font-size: 11px;" />
+                                @if (!string.IsNullOrEmpty(selectedMainPicName))
+                                {
+                                    <div class="text-success" style="font-size: 10px; margin-top: 2px;">
+                                        Seleccionada: @selectedMainPicName
+                                    </div>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(Registro.MainPicture))
+                                {
+                                    <div class="text-muted" style="font-size: 10px; margin-top: 2px;">
+                                        Imagen actual conservada (sube otra para reemplazar).
+                                    </div>
+                                }
                             </div>
                         </div>
 
@@ -376,6 +572,12 @@
             </div>
         </div>
     </div>
+
+    <ConfirmModal IsOpen="@showConfirmEliminarComentario"
+                  Title="Confirmar eliminación"
+                  Message="¿Estás seguro que deseas eliminar este comentario?"
+                  OnConfirm="ConfirmarEliminarComentarioAsync"
+                  OnCancel="@(() => { showConfirmEliminarComentario = false; comentarioAEliminar = null; })" />
 }
 
 @code {
@@ -389,31 +591,55 @@
 
     private bool isSaving = false;
     private bool isEditMode = false;
+    private bool esPropuestaNueva = false;
     private bool wasOpen = false;
     private Guid? lastLoadedBestiaId;
     private int lastLoadedNroRegistro;
     private string? errorMessage;
-    private bool PuedeEditar => Auth.EsInvestigador || (Auth.EsLector && Mode == FormMode.Add);
+    private bool PuedeEditar => Auth.EsInvestigador || (Auth.EsLector && (Mode == FormMode.Add || esPropuestaNueva));
+
+    private DateTime? fechaConsulta = DateTime.Now;
+    private bool isLoadingFecha = false;
+    private bool mostrandoHistorico = false;
+    private string? mensajeFecha;
 
     private BestiaDTO? bestiaActual;
     private List<EvidenciaDTO> evidenciasBestia = new();
     private bool isLoadingEvidencias = false;
 
+    private List<ComentarioDTO> comentariosBestia = new();
+    private bool isLoadingComentarios = false;
+    private bool isProcesandoComentario = false;
+    private string? comentarioError;
+    private string nuevoComentarioTexto = string.Empty;
+    private ComentarioDTO? comentarioAEliminar;
+    private bool showConfirmEliminarComentario = false;
+
     private string nuevoTitulo = string.Empty;
     private string nuevoContenido = string.Empty;
+    private IBrowserFile? selectedMainPicFile;
+    private string? selectedMainPicName;
+
+    private void OnMainPicSelected(InputFileChangeEventArgs e)
+    {
+        selectedMainPicFile = e.File;
+        selectedMainPicName = e.File?.Name;
+    }
 
     protected override async Task OnParametersSetAsync()
     {
         if (!IsOpen)
         {
             wasOpen = false;
+            selectedMainPicFile = null;
+            selectedMainPicName = null;
             return;
         }
 
         if (Registro == null)
             Registro = new RegistroDTO();
 
-        if (!Auth.EsInvestigador && Mode == FormMode.Add)
+        if (!Auth.EsInvestigador && (Mode == FormMode.Add || esPropuestaNueva))
             Registro.Estado = "pendiente";
         else if (string.IsNullOrEmpty(Registro.Estado))
             Registro.Estado = "pendiente";
@@ -424,8 +650,16 @@
         if (recienAbierto)
         {
             errorMessage = null;
+            comentarioError = null;
+            mensajeFecha = null;
+            mostrandoHistorico = false;
+            fechaConsulta = DateTime.Now;
+            esPropuestaNueva = Mode == FormMode.Add;
             nuevoTitulo = string.Empty;
             nuevoContenido = string.Empty;
+            nuevoComentarioTexto = string.Empty;
+            showConfirmEliminarComentario = false;
+            comentarioAEliminar = null;
             isEditMode = Mode == FormMode.Add;
             lastLoadedBestiaId = Registro.IdBestia;
             lastLoadedNroRegistro = Registro.NroRegistro;
@@ -434,11 +668,110 @@
             if (Mode == FormMode.Update && Registro.IdBestia != Guid.Empty)
             {
                 await CargarEvidenciasBestiaAsync(Registro.IdBestia);
+                if (Registro.Estado != null && Registro.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
+                {
+                    await CargarComentariosBestiaAsync(Registro.IdBestia);
+                }
+                else
+                {
+                    comentariosBestia = new List<ComentarioDTO>();
+                }
             }
             else
             {
                 evidenciasBestia = new List<EvidenciaDTO>();
+                comentariosBestia = new List<ComentarioDTO>();
             }
+        }
+    }
+
+    private async Task CargarComentariosBestiaAsync(Guid idBestia)
+    {
+        try
+        {
+            isLoadingComentarios = true;
+            var res = await ComentarioApiClient.GetByBestiaAsync(idBestia);
+            comentariosBestia = res?.ToList() ?? new List<ComentarioDTO>();
+        }
+        catch (Exception ex)
+        {
+            comentarioError = $"Error al cargar comentarios: {ex.Message}";
+            comentariosBestia = new List<ComentarioDTO>();
+        }
+        finally
+        {
+            isLoadingComentarios = false;
+        }
+    }
+
+    private async Task AgregarComentarioAsync()
+    {
+        if (!Auth.IsAuthenticated) return;
+
+        if (string.IsNullOrWhiteSpace(nuevoComentarioTexto))
+        {
+            comentarioError = "El contenido del comentario es requerido.";
+            return;
+        }
+
+        try
+        {
+            isProcesandoComentario = true;
+            comentarioError = null;
+
+            var dto = new ComentarioDTO
+            {
+                IdBestia = Registro.IdBestia,
+                IdUsuario = Auth.CurrentUser?.Id ?? Guid.Empty,
+                Contenido = nuevoComentarioTexto.Trim()
+            };
+
+            await ComentarioApiClient.AddAsync(dto);
+            nuevoComentarioTexto = string.Empty;
+            await CargarComentariosBestiaAsync(Registro.IdBestia);
+        }
+        catch (Exception ex)
+        {
+            comentarioError = $"Error al publicar comentario: {ex.Message}";
+        }
+        finally
+        {
+            isProcesandoComentario = false;
+        }
+    }
+
+    private void SolicitarEliminarComentario(ComentarioDTO comentario)
+    {
+        if (!Auth.EsInvestigador) return;
+        comentarioAEliminar = comentario;
+        showConfirmEliminarComentario = true;
+    }
+
+    private async Task ConfirmarEliminarComentarioAsync()
+    {
+        if (comentarioAEliminar == null || !Auth.EsInvestigador)
+        {
+            showConfirmEliminarComentario = false;
+            return;
+        }
+
+        try
+        {
+            isProcesandoComentario = true;
+            comentarioError = null;
+            await ComentarioApiClient.DeleteAsync(comentarioAEliminar.Id);
+            showConfirmEliminarComentario = false;
+            comentarioAEliminar = null;
+            await CargarComentariosBestiaAsync(Registro.IdBestia);
+        }
+        catch (Exception ex)
+        {
+            comentarioError = $"Error al eliminar comentario: {ex.Message}";
+            showConfirmEliminarComentario = false;
+        }
+        finally
+        {
+            isProcesandoComentario = false;
         }
     }
 
@@ -533,10 +866,25 @@
     {
         if (!ValidateInput()) return;
 
+        string? uploadedPublicId = null;
         try
         {
             isSaving = true;
             errorMessage = null;
+
+            if (selectedMainPicFile != null)
+            {
+                const long maxFileSize = 25 * 1024 * 1024;
+                await using var stream = selectedMainPicFile.OpenReadStream(maxFileSize);
+                var contentType = string.IsNullOrWhiteSpace(selectedMainPicFile.ContentType)
+                    ? "image/jpeg"
+                    : selectedMainPicFile.ContentType;
+                uploadedPublicId = await CloudinaryApiClient.UploadImageAsync(stream, selectedMainPicFile.Name, contentType);
+                if (!string.IsNullOrWhiteSpace(uploadedPublicId))
+                {
+                    Registro.MainPicture = uploadedPublicId;
+                }
+            }
 
             // Asegurar que cada contenido tenga asignada la FK compuesta
             foreach (var c in Registro.Contenidos)
@@ -545,11 +893,19 @@
                 c.NroRegistro = Registro.NroRegistro;
             }
 
-            if (Mode == FormMode.Add)
+            if (Mode == FormMode.Add || esPropuestaNueva)
             {
-                if (!Auth.EsInvestigador)
+                if (Auth.EsInvestigador)
+                {
+                    Registro.Estado = "aprobado";
+                    Registro.FechaAprobacion = DateTime.Now;
+                    Registro.IdInvestigadorAprobador = Auth.CurrentUser?.Id;
+                }
+                else
                 {
                     Registro.Estado = "pendiente";
+                    Registro.FechaAprobacion = null;
+                    Registro.IdInvestigadorAprobador = null;
                 }
 
                 // Asignar publicador desde sesión si es nuevo
@@ -565,10 +921,16 @@
                 await RegistroApiClient.UpdateAsync(Registro);
             }
 
+            selectedMainPicFile = null;
+            selectedMainPicName = null;
             await OnSaved.InvokeAsync();
         }
         catch (Exception ex)
         {
+            if (!string.IsNullOrWhiteSpace(uploadedPublicId))
+            {
+                try { await CloudinaryApiClient.DeleteImageAsync(uploadedPublicId); } catch { }
+            }
             errorMessage = $"Error al guardar registro: {ex.Message}";
         }
         finally
@@ -577,8 +939,182 @@
         }
     }
 
+    private async Task CargarRegistroEnFechaAsync()
+    {
+        if (Registro.IdBestia == Guid.Empty) return;
+
+        try
+        {
+            isLoadingFecha = true;
+            mensajeFecha = null;
+            var encontrado = await RegistroApiClient.GetVigenteAsync(Registro.IdBestia, fechaConsulta ?? DateTime.Now);
+            if (encontrado == null)
+            {
+                mensajeFecha = "No existen registros aprobados para esta bestia en esa fecha.";
+                return;
+            }
+
+            Registro = encontrado;
+            lastLoadedNroRegistro = encontrado.NroRegistro;
+            mostrandoHistorico = true;
+            await CargarComentariosBestiaAsync(Registro.IdBestia);
+        }
+        catch (Exception ex)
+        {
+            mensajeFecha = $"Error al consultar fecha: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingFecha = false;
+        }
+    }
+
+    private async Task CargarRegistroVigenteActualAsync()
+    {
+        fechaConsulta = DateTime.Now;
+        await CargarRegistroEnFechaAsync();
+        mostrandoHistorico = false;
+    }
+
+    private void IniciarPropuestaNuevoRegistro()
+    {
+        if (!Auth.IsAuthenticated) return;
+
+        var contenidosCopia = Registro.Contenidos
+            .OrderBy(c => c.NroContenido)
+            .Select(c => new ContenidoRegistroDTO
+            {
+                IdBestia = Registro.IdBestia,
+                NroRegistro = 0,
+                NroContenido = c.NroContenido,
+                Titulo = c.Titulo,
+                Contenido = c.Contenido
+            })
+            .ToList();
+
+        Registro = new RegistroDTO
+        {
+            IdBestia = Registro.IdBestia,
+            NroRegistro = 0,
+            Estado = Auth.EsInvestigador ? "aprobado" : "pendiente",
+            IdUsuarioPublicador = Auth.CurrentUser?.Id ?? Guid.Empty,
+            Contenidos = contenidosCopia
+        };
+
+        esPropuestaNueva = true;
+        isEditMode = true;
+        errorMessage = null;
+    }
+
     private async Task Cancel()
     {
         await OnCancel.InvokeAsync();
+    }
+
+    private bool mostrandoFormEvidencia = false;
+    private bool isProcesandoEvidencia = false;
+    private string? evidenciaError;
+    private List<TipoEvidenciaDTO> tiposEvidenciaDisponibles = new();
+    private string nuevaEvidenciaTipoId = string.Empty;
+    private DateTime nuevaEvidenciaFecha = DateTime.Now;
+    private string nuevaEvidenciaFileId = string.Empty;
+
+    private async Task AbrirFormEvidenciaAsync()
+    {
+        evidenciaError = null;
+        nuevaEvidenciaFileId = string.Empty;
+        nuevaEvidenciaFecha = DateTime.Now;
+        if (!tiposEvidenciaDisponibles.Any())
+        {
+            try
+            {
+                tiposEvidenciaDisponibles = (await TipoEvidenciaApiClient.GetAllAsync()).ToList();
+            }
+            catch
+            {
+                tiposEvidenciaDisponibles = new();
+            }
+        }
+        mostrandoFormEvidencia = !mostrandoFormEvidencia;
+    }
+
+    private async Task ProponerEvidenciaAsync()
+    {
+        if (!Auth.IsAuthenticated) return;
+
+        if (!Guid.TryParse(nuevaEvidenciaTipoId, out var idTipo))
+        {
+            evidenciaError = "Debe seleccionar un tipo de evidencia.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(nuevaEvidenciaFileId))
+        {
+            evidenciaError = "El FileId / URL del archivo es requerido.";
+            return;
+        }
+
+        try
+        {
+            isProcesandoEvidencia = true;
+            evidenciaError = null;
+            await EvidenciaApiClient.AddAsync(new EvidenciaDTO
+            {
+                IdBestia = Registro.IdBestia,
+                IdTipoEvidencia = idTipo,
+                FechaObtencion = nuevaEvidenciaFecha,
+                FileId = nuevaEvidenciaFileId.Trim(),
+                Estado = Auth.EsInvestigador ? "aprobado" : "pendiente"
+            });
+            mostrandoFormEvidencia = false;
+            await CargarEvidenciasBestiaAsync(Registro.IdBestia);
+        }
+        catch (Exception ex)
+        {
+            evidenciaError = $"Error al proponer evidencia: {ex.Message}";
+        }
+        finally
+        {
+            isProcesandoEvidencia = false;
+        }
+    }
+
+    private async Task AprobarEvidenciaAsync(EvidenciaDTO ev)
+    {
+        if (!Auth.EsInvestigador) return;
+        try
+        {
+            isProcesandoEvidencia = true;
+            evidenciaError = null;
+            await EvidenciaApiClient.AprobarAsync(ev.IdBestia, ev.NroEvidencia);
+            await CargarEvidenciasBestiaAsync(Registro.IdBestia);
+        }
+        catch (Exception ex)
+        {
+            evidenciaError = $"Error al aprobar evidencia: {ex.Message}";
+        }
+        finally
+        {
+            isProcesandoEvidencia = false;
+        }
+    }
+
+    private async Task EliminarEvidenciaAsync(EvidenciaDTO ev)
+    {
+        if (!Auth.EsInvestigador) return;
+        try
+        {
+            isProcesandoEvidencia = true;
+            evidenciaError = null;
+            await EvidenciaApiClient.DeleteAsync(ev.IdBestia, ev.NroEvidencia);
+            await CargarEvidenciasBestiaAsync(Registro.IdBestia);
+        }
+        catch (Exception ex)
+        {
+            evidenciaError = $"Error al eliminar evidencia: {ex.Message}";
+        }
+        finally
+        {
+            isProcesandoEvidencia = false;
+        }
     }
 }

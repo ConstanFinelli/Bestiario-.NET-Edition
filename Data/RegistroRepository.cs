@@ -36,6 +36,22 @@ namespace Data
                 .FirstOrDefaultAsync(r => r.IdBestia == idBestia && r.NroRegistro == nroRegistro);
         }
 
+        public async Task<Registro?> GetVigenteAsync(Guid idBestia, DateTime? fecha = null)
+        {
+            DateTime fechaConsulta = fecha ?? DateTime.Now;
+            return await context.Registros
+                .Include(r => r.UsuarioPublicador)
+                .Include(r => r.InvestigadorAprobador)
+                .Include(r => r.Contenidos)
+                .Where(r => r.IdBestia == idBestia
+                    && r.Estado == "aprobado"
+                    && r.FechaAprobacion != null
+                    && r.FechaAprobacion <= fechaConsulta
+                    && (r.FechaBaja == null || r.FechaBaja > fechaConsulta))
+                .OrderByDescending(r => r.FechaAprobacion)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<int> GetNextNroRegistroAsync(Guid idBestia)
         {
             var max = await context.Registros
@@ -51,6 +67,30 @@ namespace Data
             if (registro.NroRegistro <= 0)
             {
                 registro.NroRegistro = await GetNextNroRegistroAsync(registro.IdBestia);
+            }
+
+            if (string.IsNullOrWhiteSpace(registro.MainPicture))
+            {
+                var vigente = await GetVigenteAsync(registro.IdBestia);
+                if (vigente != null && !string.IsNullOrWhiteSpace(vigente.MainPicture))
+                {
+                    registro.MainPicture = vigente.MainPicture;
+                }
+            }
+
+            if (registro.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
+            {
+                DateTime ahora = registro.FechaAprobacion ?? DateTime.Now;
+                registro.FechaAprobacion = ahora;
+
+                var vigentesAnteriores = await context.Registros
+                    .Where(r => r.IdBestia == registro.IdBestia && r.Estado == "aprobado" && r.FechaBaja == null)
+                    .ToListAsync();
+
+                foreach (var ant in vigentesAnteriores)
+                {
+                    ant.FechaBaja = ahora;
+                }
             }
 
             int nroContenido = 1;
@@ -79,6 +119,10 @@ namespace Data
             existing.FechaBaja = registro.FechaBaja;
             existing.IdUsuarioPublicador = registro.IdUsuarioPublicador;
             existing.IdInvestigadorAprobador = registro.IdInvestigadorAprobador;
+            if (!string.IsNullOrWhiteSpace(registro.MainPicture))
+            {
+                existing.MainPicture = registro.MainPicture;
+            }
 
             // Reemplazo maestro/detalle de contenidos
             context.ContenidoRegistros.RemoveRange(existing.Contenidos);
@@ -120,7 +164,21 @@ namespace Data
             if (registro == null)
                 return false;
 
+            DateTime ahora = DateTime.Now;
+            var vigentesAnteriores = await context.Registros
+                .Where(r => r.IdBestia == idBestia
+                    && r.NroRegistro != nroRegistro
+                    && r.Estado == "aprobado"
+                    && r.FechaBaja == null)
+                .ToListAsync();
+
+            foreach (var ant in vigentesAnteriores)
+            {
+                ant.FechaBaja = ahora;
+            }
+
             registro.Aprobar(idInvestigador);
+            registro.FechaAprobacion = ahora;
             await context.SaveChangesAsync();
             return true;
         }

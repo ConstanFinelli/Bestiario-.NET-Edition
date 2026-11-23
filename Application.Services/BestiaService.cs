@@ -11,10 +11,17 @@ namespace Application.Services
     public class BestiaService : IBestiaService
     {
         private readonly IBestiaRepository bestiaRepository;
+        private readonly IRegistroRepository? registroRepository;
+        private readonly ICloudinaryService? cloudinaryService;
 
-        public BestiaService(IBestiaRepository bestiaRepository)
+        public BestiaService(
+            IBestiaRepository bestiaRepository,
+            IRegistroRepository? registroRepository = null,
+            ICloudinaryService? cloudinaryService = null)
         {
             this.bestiaRepository = bestiaRepository;
+            this.registroRepository = registroRepository;
+            this.cloudinaryService = cloudinaryService;
         }
 
         public async Task<BestiaDTO> AddAsync(BestiaDTO dto)
@@ -53,6 +60,20 @@ namespace Application.Services
 
         public async Task<bool> DeleteAsync(Guid id)
         {
+            if (registroRepository != null && cloudinaryService != null)
+            {
+                var registros = await registroRepository.GetByBestiaAsync(id);
+                var publicIds = registros
+                    .Select(r => r.MainPicture)
+                    .Where(p => !string.IsNullOrWhiteSpace(p))
+                    .Distinct(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var publicId in publicIds)
+                {
+                    await cloudinaryService.DeleteImageAsync(publicId);
+                }
+            }
+
             return await bestiaRepository.DeleteAsync(id);
         }
 

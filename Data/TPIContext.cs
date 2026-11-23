@@ -215,6 +215,7 @@ namespace Data
                 entity.HasKey(r => new { r.IdBestia, r.NroRegistro });
 
                 entity.Property(r => r.Estado).IsRequired().HasMaxLength(20);
+                entity.Property(r => r.MainPicture).HasMaxLength(255);
 
                 // Relación con Bestia
                 entity.HasOne(r => r.Bestia)
@@ -244,7 +245,8 @@ namespace Data
                         FechaBaja = (DateTime?)null,
                         IdUsuarioPublicador = Guid.Parse("99999999-9999-9999-9999-999999999999"),
                         IdInvestigadorAprobador = (Guid?)Guid.Parse("99999999-9999-9999-9999-999999999999"),
-                        Estado = "aprobado"
+                        Estado = "aprobado",
+                        MainPicture = (string?)null
                     }
                 );
             });
@@ -326,7 +328,7 @@ namespace Data
             {
                 entity.HasKey(c => c.Id);
                 entity.Property(c => c.Id).ValueGeneratedOnAdd();
-                entity.Property(c => c.Titulo).IsRequired().HasMaxLength(100);
+                entity.Property(c => c.FechaPublicacion).IsRequired();
                 entity.Property(c => c.Contenido).IsRequired().HasMaxLength(500);
 
                 entity.HasOne(c => c.Bestia)
@@ -345,7 +347,7 @@ namespace Data
                         Id = Guid.Parse("cccc1111-1111-1111-1111-111111111111"),
                         IdBestia = Guid.Parse("11111111-0000-0000-0000-000000000001"),
                         IdUsuario = Guid.Parse("77777777-7777-7777-7777-777777777777"),
-                        Titulo = "Avistamiento en la sierra",
+                        FechaPublicacion = new DateTime(2026, 1, 16, 9, 30, 0),
                         Contenido = "Observé un ejemplar sobrevolando el paso montañoso al amanecer."
                     }
                 );

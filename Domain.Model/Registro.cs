@@ -12,6 +12,7 @@ namespace Domain.Model
         public Guid IdUsuarioPublicador { get; set; }
         public Guid? IdInvestigadorAprobador { get; set; }
         public string Estado { get; private set; } = "pendiente"; // "pendiente" | "aprobado"
+        public string? MainPicture { get; set; }
 
         public Bestia? Bestia { get; set; }
         public Usuario? UsuarioPublicador { get; set; }
@@ -20,15 +21,16 @@ namespace Domain.Model
 
         public Registro() { }
 
-        public Registro(Guid idBestia, int nroRegistro, Guid idUsuarioPublicador, string estado = "pendiente")
+        public Registro(Guid idBestia, int nroRegistro, Guid idUsuarioPublicador, string estado = "pendiente", string? mainPicture = null)
         {
             IdBestia = idBestia;
             NroRegistro = nroRegistro;
             IdUsuarioPublicador = idUsuarioPublicador;
+            MainPicture = mainPicture;
             SetEstado(estado);
         }
 
-        public Registro(Guid idBestia, int nroRegistro, Guid idUsuarioPublicador, Guid? idInvestigadorAprobador, DateTime? fechaAprobacion, DateTime? fechaBaja, string estado)
+        public Registro(Guid idBestia, int nroRegistro, Guid idUsuarioPublicador, Guid? idInvestigadorAprobador, DateTime? fechaAprobacion, DateTime? fechaBaja, string estado, string? mainPicture = null)
         {
             IdBestia = idBestia;
             NroRegistro = nroRegistro;
@@ -36,6 +38,7 @@ namespace Domain.Model
             IdInvestigadorAprobador = idInvestigadorAprobador;
             FechaAprobacion = fechaAprobacion;
             FechaBaja = fechaBaja;
+            MainPicture = mainPicture;
             SetEstado(estado);
         }
 

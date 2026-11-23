@@ -11,10 +11,12 @@ namespace Application.Services
     public class RegistroService : IRegistroService
     {
         private readonly IRegistroRepository registroRepository;
+        private readonly ICloudinaryService? cloudinaryService;
 
-        public RegistroService(IRegistroRepository registroRepository)
+        public RegistroService(IRegistroRepository registroRepository, ICloudinaryService? cloudinaryService = null)
         {
             this.registroRepository = registroRepository;
+            this.cloudinaryService = cloudinaryService;
         }
 
         public async Task<IEnumerable<RegistroDTO>> GetByBestiaAsync(Guid idBestia)
@@ -29,6 +31,12 @@ namespace Application.Services
             return registro != null ? MapToDTO(registro) : null;
         }
 
+        public async Task<RegistroDTO?> GetVigenteAsync(Guid idBestia, DateTime? fecha = null)
+        {
+            var registro = await registroRepository.GetVigenteAsync(idBestia, fecha);
+            return registro != null ? MapToDTO(registro) : null;
+        }
+
         public async Task<RegistroDTO> AddAsync(RegistroDTO dto)
         {
             var registro = new Registro(
@@ -38,7 +46,8 @@ namespace Application.Services
                 dto.IdInvestigadorAprobador,
                 dto.FechaAprobacion,
                 dto.FechaBaja,
-                string.IsNullOrWhiteSpace(dto.Estado) ? "pendiente" : dto.Estado
+                string.IsNullOrWhiteSpace(dto.Estado) ? "pendiente" : dto.Estado,
+                dto.MainPicture
             );
 
             if (dto.Contenidos != null)
@@ -63,7 +72,8 @@ namespace Application.Services
                 dto.IdInvestigadorAprobador,
                 dto.FechaAprobacion,
                 dto.FechaBaja,
-                dto.Estado
+                dto.Estado,
+                dto.MainPicture
             );
 
             if (dto.Contenidos != null)
@@ -87,7 +97,7 @@ namespace Application.Services
             return await registroRepository.AprobarAsync(idBestia, nroRegistro, idInvestigador);
         }
 
-        private static RegistroDTO MapToDTO(Registro r)
+        private RegistroDTO MapToDTO(Registro r)
         {
             return new RegistroDTO
             {
@@ -102,6 +112,9 @@ namespace Application.Services
                     ? $"{r.InvestigadorAprobador.Nombre} {r.InvestigadorAprobador.Apellido}".Trim()
                     : null,
                 Estado = r.Estado,
+                MainPicture = r.MainPicture,
+                MainPictureUrl = cloudinaryService?.GetImagenRegistro(r.MainPicture),
+                DefaultPictureUrl = cloudinaryService?.GetDefaultImage(),
                 Contenidos = r.Contenidos.Select(c => new ContenidoRegistroDTO
                 {
                     IdBestia = c.IdBestia,

@@ -6,7 +6,43 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using WebAPI;
 
+LoadDotEnv();
+
 var builder = WebApplication.CreateBuilder(args);
+
+static void LoadDotEnv()
+{
+    string[] candidates =
+    {
+        Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+        Path.Combine(Directory.GetCurrentDirectory(), "WebAPI", ".env"),
+        Path.Combine(AppContext.BaseDirectory, ".env")
+    };
+
+    var envPath = candidates.FirstOrDefault(File.Exists);
+    if (envPath == null) return;
+
+    foreach (var rawLine in File.ReadAllLines(envPath))
+    {
+        var line = rawLine.Trim();
+        if (string.IsNullOrEmpty(line) || line.StartsWith('#')) continue;
+
+        int idx = line.IndexOf('=');
+        if (idx <= 0) continue;
+
+        var key = line[..idx].Trim();
+        var value = line[(idx + 1)..].Trim();
+        if ((value.StartsWith('"') && value.EndsWith('"')) || (value.StartsWith('\'') && value.EndsWith('\'')))
+        {
+            if (value.Length >= 2) value = value[1..^1];
+        }
+
+        if (!string.IsNullOrWhiteSpace(key) && string.IsNullOrEmpty(Environment.GetEnvironmentVariable(key)))
+        {
+            Environment.SetEnvironmentVariable(key, value);
+        }
+    }
+}
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -92,6 +128,9 @@ builder.Services.AddScoped<ISolicitudInvestigadorService, SolicitudInvestigadorS
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 
+// Cloudinary
+builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -114,5 +153,6 @@ app.MapRegistroEndpoints();
 app.MapUsuarioEndpoints();
 app.MapSolicitudInvestigadorEndpoints();
 app.MapReporteEndpoints();
+app.MapCloudinaryEndpoints();
 
 app.Run();

@@ -14,10 +14,13 @@ namespace WindowsForms
 {
     public partial class RegistroDetalle : Form
     {
-        private RegistroDTO registro;
+        private RegistroDTO registro = null!;
         private FormMode mode;
         private List<BestiaDTO> bestias = new();
         private BindingList<ContenidoRegistroDTO> contenidosBindingList = new();
+        private string? _selectedImagePath;
+        private Button seleccionarImagenButton = null!;
+        private Label imagenNombreLabel = null!;
 
         public RegistroDTO Registro
         {
@@ -39,6 +42,42 @@ namespace WindowsForms
         {
             InitializeComponent();
             ConfigurarColumnasContenidos();
+            InitializeImagenPicker();
+        }
+
+        private void InitializeImagenPicker()
+        {
+            seleccionarImagenButton = new Button
+            {
+                Text = "Imagen...",
+                Size = new Size(90, 26),
+                Location = new Point(12, aceptarButton.Top)
+            };
+            seleccionarImagenButton.Click += (s, e) =>
+            {
+                using var ofd = new OpenFileDialog
+                {
+                    Title = "Seleccionar imagen de presentación",
+                    Filter = "Imágenes (*.jpg;*.jpeg;*.png;*.webp;*.gif)|*.jpg;*.jpeg;*.png;*.webp;*.gif"
+                };
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                {
+                    _selectedImagePath = ofd.FileName;
+                    imagenNombreLabel.Text = System.IO.Path.GetFileName(_selectedImagePath);
+                }
+            };
+
+            imagenNombreLabel = new Label
+            {
+                AutoSize = true,
+                MaximumSize = new Size(260, 0),
+                Location = new Point(108, aceptarButton.Top + 5),
+                ForeColor = Color.DimGray,
+                Text = "Sin imagen seleccionada"
+            };
+
+            this.Controls.Add(seleccionarImagenButton);
+            this.Controls.Add(imagenNombreLabel);
         }
 
         public RegistroDetalle(FormMode mode, RegistroDTO registro, List<BestiaDTO> bestias) : this()
@@ -221,9 +260,32 @@ namespace WindowsForms
         {
             if (!ValidateRegistro()) return;
 
+            string? uploadedPublicId = null;
             try
             {
                 DeshabilitarControles();
+
+                if (!string.IsNullOrWhiteSpace(_selectedImagePath) && System.IO.File.Exists(_selectedImagePath))
+                {
+                    string ext = System.IO.Path.GetExtension(_selectedImagePath).ToLowerInvariant();
+                    string contentType = ext switch
+                    {
+                        ".png" => "image/png",
+                        ".webp" => "image/webp",
+                        ".gif" => "image/gif",
+                        _ => "image/jpeg"
+                    };
+
+                    await using var stream = System.IO.File.OpenRead(_selectedImagePath);
+                    uploadedPublicId = await CloudinaryApiClient.UploadImageAsync(
+                        stream,
+                        System.IO.Path.GetFileName(_selectedImagePath),
+                        contentType);
+                    if (!string.IsNullOrWhiteSpace(uploadedPublicId))
+                    {
+                        this.Registro.MainPicture = uploadedPublicId;
+                    }
+                }
 
                 var selectedBestia = this.bestiaComboBox.SelectedItem as BestiaComboItem;
                 bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
@@ -253,6 +315,10 @@ namespace WindowsForms
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrWhiteSpace(uploadedPublicId))
+                {
+                    try { await CloudinaryApiClient.DeleteImageAsync(uploadedPublicId); } catch { }
+                }
                 MessageBox.Show($"Error al guardar registro: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -294,6 +360,7 @@ namespace WindowsForms
             estadoComboBox.Enabled = false;
             agregarContenidoButton.Enabled = false;
             quitarContenidoButton.Enabled = false;
+            seleccionarImagenButton.Enabled = false;
         }
 
         private void HabilitarControles()
@@ -313,6 +380,9 @@ namespace WindowsForms
             quitarContenidoButton.Enabled = puedeEditar;
             nuevoTituloTextBox.Enabled = puedeEditar;
             nuevoContenidoTextBox.Enabled = puedeEditar;
+            seleccionarImagenButton.Visible = puedeEditar;
+            seleccionarImagenButton.Enabled = puedeEditar;
+            imagenNombreLabel.Visible = puedeEditar;
             if (!puedeEditar)
             {
                 this.Text = "Detalle de Registro";
