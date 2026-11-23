@@ -9,7 +9,7 @@ namespace Application.Services
         string? DefaultPictureId { get; }
 
         Task<string?> UploadAsync(Stream fileStream, string fileName, string contentType);
-        Task DeleteImageAsync(string? publicId);
+        Task DeleteImageAsync(string? publicId, string? resourceType = null);
 
         string? GetImagenRegistro(string? publicId);
         string? GetImagenListadoBestia(string? publicId);

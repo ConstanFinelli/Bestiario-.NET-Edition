@@ -16,6 +16,11 @@ namespace WindowsForms
         private readonly List<BestiaDTO> _bestias;
         private Label _evidenciasLabel = null!;
         private ListBox _evidenciasListBox = null!;
+        private Button? _abrirEvidenciaBtn;
+        private Button? _proponerEvidenciaBtn;
+        private Button? _aprobarEvidenciaBtn;
+        private Button? _eliminarEvidenciaBtn;
+        private List<EvidenciaDTO> _evidenciasActuales = new();
         private Label _comentariosLabel = null!;
         private ListBox _comentariosListBox = null!;
         private TextBox? _comentarioTextoBox;
@@ -361,7 +366,7 @@ namespace WindowsForms
             var evidenciasPanel = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 105,
+                Height = 132,
                 Padding = new Padding(16, 4, 16, 4)
             };
 
@@ -379,8 +384,72 @@ namespace WindowsForms
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(250, 248, 243)
             };
+            _evidenciasListBox.SelectedIndexChanged += (_, _) => ActualizarBotonesEvidencia();
+            _evidenciasListBox.DoubleClick += (_, _) => AbrirEvidenciaSeleccionada();
+
+            var evActions = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Right,
+                Width = 140,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                Padding = new Padding(6, 0, 0, 0)
+            };
+
+            _abrirEvidenciaBtn = new Button
+            {
+                Text = "Ver / Descargar",
+                Width = 128,
+                Height = 25,
+                Enabled = false,
+                UseVisualStyleBackColor = true
+            };
+            _abrirEvidenciaBtn.Click += (_, _) => AbrirEvidenciaSeleccionada();
+            evActions.Controls.Add(_abrirEvidenciaBtn);
+
+            if (hayUsuario)
+            {
+                _proponerEvidenciaBtn = new Button
+                {
+                    Text = "+ Proponer",
+                    Width = 128,
+                    Height = 25,
+                    UseVisualStyleBackColor = true
+                };
+                _proponerEvidenciaBtn.Click += async (_, _) => await ProponerEvidenciaAsync();
+                evActions.Controls.Add(_proponerEvidenciaBtn);
+            }
+
+            if (esInvestigador)
+            {
+                _aprobarEvidenciaBtn = new Button
+                {
+                    Text = "Aprobar",
+                    Width = 128,
+                    Height = 25,
+                    Enabled = false,
+                    ForeColor = Color.DarkGreen,
+                    UseVisualStyleBackColor = true
+                };
+                _aprobarEvidenciaBtn.Click += async (_, _) => await AprobarEvidenciaSeleccionadaAsync();
+
+                _eliminarEvidenciaBtn = new Button
+                {
+                    Text = "Eliminar",
+                    Width = 128,
+                    Height = 25,
+                    Enabled = false,
+                    ForeColor = Color.DarkRed,
+                    UseVisualStyleBackColor = true
+                };
+                _eliminarEvidenciaBtn.Click += async (_, _) => await EliminarEvidenciaSeleccionadaAsync();
+
+                evActions.Controls.Add(_aprobarEvidenciaBtn);
+                evActions.Controls.Add(_eliminarEvidenciaBtn);
+            }
 
             evidenciasPanel.Controls.Add(_evidenciasListBox);
+            evidenciasPanel.Controls.Add(evActions);
             evidenciasPanel.Controls.Add(_evidenciasLabel);
 
             Panel? comentariosPanel = null;
@@ -478,30 +547,244 @@ namespace WindowsForms
                 bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO
                     || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
 
-                var filtradas = deLaBestia
+                _evidenciasActuales = deLaBestia
                     .Where(e => esInvestigador
                         || (e.Estado != null && e.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)))
                     .OrderBy(e => e.NroEvidencia)
                     .ToList();
 
-                _evidenciasLabel.Text = $"Evidencias registradas ({filtradas.Count})";
+                _evidenciasLabel.Text = $"Evidencias registradas ({_evidenciasActuales.Count})";
                 _evidenciasListBox.Items.Clear();
 
-                if (!filtradas.Any())
+                if (!_evidenciasActuales.Any())
                 {
                     _evidenciasListBox.Items.Add("No hay evidencias registradas para esta bestia.");
+                    ActualizarBotonesEvidencia();
                     return;
                 }
 
-                foreach (var ev in filtradas)
+                foreach (var ev in _evidenciasActuales)
                 {
                     string tipo = ev.TipoEvidenciaDescripcion ?? "Evidencia";
                     _evidenciasListBox.Items.Add($"#{ev.NroEvidencia} [{ev.Estado}] {tipo} — {ev.FechaObtencion:dd/MM/yyyy} ({ev.FileId})");
                 }
+                ActualizarBotonesEvidencia();
             }
             catch
             {
+                _evidenciasActuales = new List<EvidenciaDTO>();
                 _evidenciasLabel.Text = "Evidencias registradas (no disponibles)";
+                ActualizarBotonesEvidencia();
+            }
+        }
+
+        private EvidenciaDTO? ObtenerEvidenciaSeleccionada()
+        {
+            int idx = _evidenciasListBox.SelectedIndex;
+            if (idx < 0 || idx >= _evidenciasActuales.Count) return null;
+            return _evidenciasActuales[idx];
+        }
+
+        private void ActualizarBotonesEvidencia()
+        {
+            var sel = ObtenerEvidenciaSeleccionada();
+            if (_abrirEvidenciaBtn != null)
+            {
+                _abrirEvidenciaBtn.Enabled = sel != null && !string.IsNullOrWhiteSpace(sel.FileUrl);
+            }
+            if (_aprobarEvidenciaBtn != null)
+            {
+                _aprobarEvidenciaBtn.Enabled = sel != null && sel.Estado != null
+                    && sel.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase);
+            }
+            if (_eliminarEvidenciaBtn != null)
+            {
+                _eliminarEvidenciaBtn.Enabled = sel != null;
+            }
+        }
+
+        private void AbrirEvidenciaSeleccionada()
+        {
+            var sel = ObtenerEvidenciaSeleccionada();
+            if (sel == null || string.IsNullOrWhiteSpace(sel.FileUrl)) return;
+
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(sel.FileUrl)
+                {
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"No se pudo abrir la evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task ProponerEvidenciaAsync()
+        {
+            if (LoginForm.UsuarioLogueado == null) return;
+
+            try
+            {
+                var tipos = (await TipoEvidenciaApiClient.GetAllAsync()).ToList();
+                if (!tipos.Any())
+                {
+                    MessageBox.Show("No hay tipos de evidencia disponibles.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using var dlg = new Form
+                {
+                    Text = "Proponer nueva evidencia",
+                    Size = new Size(440, 230),
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    MaximizeBox = false,
+                    MinimizeBox = false,
+                    StartPosition = FormStartPosition.CenterParent
+                };
+
+                var lblTipo = new Label { Text = "Tipo de evidencia:", Location = new Point(16, 18), AutoSize = true };
+                var cboTipo = new ComboBox
+                {
+                    DropDownStyle = ComboBoxStyle.DropDownList,
+                    Location = new Point(140, 15),
+                    Width = 265,
+                    DisplayMember = "Descripcion",
+                    DataSource = tipos
+                };
+
+                var lblFecha = new Label { Text = "Fecha obtención:", Location = new Point(16, 54), AutoSize = true };
+                var dtpFecha = new DateTimePicker { Location = new Point(140, 50), Width = 265, Format = DateTimePickerFormat.Short };
+
+                string? selectedPath = null;
+                var lblArchivo = new Label { Text = "Archivo:", Location = new Point(16, 90), AutoSize = true };
+                var lblNombreArch = new Label { Text = "Ningún archivo seleccionado", Location = new Point(236, 90), Width = 175, ForeColor = Color.DimGray };
+                var btnArchivo = new Button { Text = "Seleccionar...", Location = new Point(140, 86), Width = 90, Height = 24 };
+                btnArchivo.Click += (_, _) =>
+                {
+                    using var ofd = new OpenFileDialog { Title = "Seleccionar archivo de evidencia" };
+                    if (ofd.ShowDialog(dlg) == DialogResult.OK)
+                    {
+                        selectedPath = ofd.FileName;
+                        lblNombreArch.Text = System.IO.Path.GetFileName(selectedPath);
+                    }
+                };
+
+                var btnEnviar = new Button { Text = "Enviar", Location = new Point(235, 140), Width = 80, Height = 28 };
+                var btnCancelar = new Button { Text = "Cancelar", Location = new Point(325, 140), Width = 80, Height = 28, DialogResult = DialogResult.Cancel };
+                btnEnviar.Click += (_, _) =>
+                {
+                    if (string.IsNullOrWhiteSpace(selectedPath))
+                    {
+                        MessageBox.Show(dlg, "Debe seleccionar un archivo.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    dlg.DialogResult = DialogResult.OK;
+                    dlg.Close();
+                };
+
+                dlg.Controls.AddRange(new Control[] { lblTipo, cboTipo, lblFecha, dtpFecha, lblArchivo, btnArchivo, lblNombreArch, btnEnviar, btnCancelar });
+                if (dlg.ShowDialog(this) != DialogResult.OK || string.IsNullOrWhiteSpace(selectedPath))
+                    return;
+
+                var tipoSel = (TipoEvidenciaDTO)cboTipo.SelectedItem!;
+                string ext = System.IO.Path.GetExtension(selectedPath).ToLowerInvariant();
+                string contentType = ext switch
+                {
+                    ".jpg" or ".jpeg" => "image/jpeg",
+                    ".png" => "image/png",
+                    ".gif" => "image/gif",
+                    ".webp" => "image/webp",
+                    ".mp4" => "video/mp4",
+                    ".webm" => "video/webm",
+                    ".mp3" => "audio/mpeg",
+                    ".pdf" => "application/pdf",
+                    _ => "application/octet-stream"
+                };
+
+                string? uploadedPublicId = null;
+                try
+                {
+                    if (_proponerEvidenciaBtn != null) _proponerEvidenciaBtn.Enabled = false;
+                    await using var stream = System.IO.File.OpenRead(selectedPath);
+                    uploadedPublicId = await CloudinaryApiClient.UploadImageAsync(
+                        stream,
+                        System.IO.Path.GetFileName(selectedPath),
+                        contentType);
+
+                    if (string.IsNullOrWhiteSpace(uploadedPublicId))
+                        throw new Exception("Cloudinary no devolvió un public_id válido.");
+
+                    bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO
+                        || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+
+                    await EvidenciaApiClient.AddAsync(new EvidenciaDTO
+                    {
+                        IdBestia = _registro.IdBestia,
+                        IdTipoEvidencia = tipoSel.Id,
+                        FechaObtencion = dtpFecha.Value,
+                        FileId = uploadedPublicId,
+                        Estado = esInvestigador ? "aprobado" : "pendiente"
+                    });
+
+                    await CargarEvidenciasAsync();
+                }
+                catch (Exception ex)
+                {
+                    if (!string.IsNullOrWhiteSpace(uploadedPublicId))
+                    {
+                        try { await CloudinaryApiClient.DeleteImageAsync(uploadedPublicId); } catch { }
+                    }
+                    MessageBox.Show($"Error al proponer evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    if (_proponerEvidenciaBtn != null) _proponerEvidenciaBtn.Enabled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al preparar propuesta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task AprobarEvidenciaSeleccionadaAsync()
+        {
+            var sel = ObtenerEvidenciaSeleccionada();
+            if (sel == null) return;
+
+            try
+            {
+                await EvidenciaApiClient.AprobarAsync(sel.IdBestia, sel.NroEvidencia);
+                await CargarEvidenciasAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al aprobar evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task EliminarEvidenciaSeleccionadaAsync()
+        {
+            var sel = ObtenerEvidenciaSeleccionada();
+            if (sel == null) return;
+
+            var confirm = MessageBox.Show(
+                $"¿Eliminar la evidencia #{sel.NroEvidencia}?",
+                "Confirmar eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                await EvidenciaApiClient.DeleteAsync(sel.IdBestia, sel.NroEvidencia);
+                await CargarEvidenciasAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

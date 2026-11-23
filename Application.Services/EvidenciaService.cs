@@ -11,10 +11,12 @@ namespace Application.Services
     public class EvidenciaService : IEvidenciaService
     {
         private readonly IEvidenciaRepository evidenciaRepository;
+        private readonly ICloudinaryService? cloudinaryService;
 
-        public EvidenciaService(IEvidenciaRepository evidenciaRepository)
+        public EvidenciaService(IEvidenciaRepository evidenciaRepository, ICloudinaryService? cloudinaryService = null)
         {
             this.evidenciaRepository = evidenciaRepository;
+            this.cloudinaryService = cloudinaryService;
         }
 
         public async Task<IEnumerable<EvidenciaDTO>> GetByBestiaAsync(Guid idBestia)
@@ -61,7 +63,13 @@ namespace Application.Services
 
         public async Task<bool> DeleteAsync(Guid idBestia, int nroEvidencia)
         {
-            return await evidenciaRepository.DeleteAsync(idBestia, nroEvidencia);
+            var existing = await evidenciaRepository.GetAsync(idBestia, nroEvidencia);
+            bool deleted = await evidenciaRepository.DeleteAsync(idBestia, nroEvidencia);
+            if (deleted && existing != null && !string.IsNullOrWhiteSpace(existing.FileId))
+            {
+                await (cloudinaryService?.DeleteImageAsync(existing.FileId, existing.TipoEvidencia?.ResourceType) ?? Task.CompletedTask);
+            }
+            return deleted;
         }
 
         public async Task<bool> AprobarAsync(Guid idBestia, int nroEvidencia)
@@ -69,8 +77,20 @@ namespace Application.Services
             return await evidenciaRepository.AprobarAsync(idBestia, nroEvidencia);
         }
 
-        private static EvidenciaDTO MapToDTO(Evidencia e)
+        private EvidenciaDTO MapToDTO(Evidencia e)
         {
+            string? resourceType = e.TipoEvidencia?.ResourceType;
+            string? fileUrl = null;
+            if (cloudinaryService != null && !string.IsNullOrWhiteSpace(e.FileId))
+            {
+                fileUrl = (resourceType ?? string.Empty).Trim().ToLowerInvariant() switch
+                {
+                    "image" => cloudinaryService.GetImagenEvidencia(e.FileId),
+                    "video" or "audio" => cloudinaryService.GetVideoEvidencia(e.FileId),
+                    _ => cloudinaryService.GetArchivoEvidencia(e.FileId)
+                };
+            }
+
             return new EvidenciaDTO
             {
                 IdBestia = e.IdBestia,
@@ -80,7 +100,8 @@ namespace Application.Services
                 FileId = e.FileId,
                 IdTipoEvidencia = e.IdTipoEvidencia,
                 TipoEvidenciaDescripcion = e.TipoEvidencia?.Descripcion,
-                TipoEvidenciaResourceType = e.TipoEvidencia?.ResourceType
+                TipoEvidenciaResourceType = resourceType,
+                FileUrl = fileUrl
             };
         }
     }

@@ -136,7 +136,7 @@ namespace Application.Services
             return false;
         }
 
-        public async Task DeleteImageAsync(string? publicId)
+        public async Task DeleteImageAsync(string? publicId, string? resourceType = null)
         {
             if (_cloudinary == null || string.IsNullOrWhiteSpace(publicId))
                 return;
@@ -147,9 +147,16 @@ namespace Application.Services
                 return;
             }
 
+            var resType = (resourceType ?? string.Empty).Trim().ToLowerInvariant() switch
+            {
+                "video" or "audio" => ResourceType.Video,
+                "raw" or "document" => ResourceType.Raw,
+                _ => ResourceType.Image
+            };
+
             var delParams = new DeletionParams(publicId.Trim())
             {
-                ResourceType = ResourceType.Image
+                ResourceType = resType
             };
 
             await _cloudinary.DestroyAsync(delParams);

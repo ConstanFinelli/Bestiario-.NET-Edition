@@ -12,6 +12,7 @@ namespace DTOs
         public Guid IdTipoEvidencia { get; set; }
         public string? TipoEvidenciaDescripcion { get; set; }
         public string? TipoEvidenciaResourceType { get; set; }
+        public string? FileUrl { get; set; }
     }
 }
 

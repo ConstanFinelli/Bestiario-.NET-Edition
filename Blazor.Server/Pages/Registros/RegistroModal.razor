@@ -189,14 +189,18 @@
                                             <label class="win-label">Fecha obtención:</label>
                                             <input type="datetime-local" class="win-textbox w-100" @bind="nuevaEvidenciaFecha" disabled="@isProcesandoEvidencia" />
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="win-label">FileId / URL:</label>
-                                            <input type="text" class="win-textbox w-100" placeholder="ej. avistamiento_01" @bind="nuevaEvidenciaFileId" disabled="@isProcesandoEvidencia" />
+                                        <div class="col-md-4">
+                                            <label class="win-label">Archivo:</label>
+                                            <InputFile OnChange="OnEvidenciaFileSelected" disabled="@isProcesandoEvidencia" style="font-size: 11px;" />
+                                            @if (!string.IsNullOrEmpty(nuevaEvidenciaFileName))
+                                            {
+                                                <div class="text-success" style="font-size: 10px;">@nuevaEvidenciaFileName</div>
+                                            }
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-end gap-2">
                                         <button type="button" class="win-btn" @onclick="ProponerEvidenciaAsync" disabled="@isProcesandoEvidencia">
-                                            @(isProcesandoEvidencia ? "Enviando..." : "Enviar evidencia")
+                                            @(isProcesandoEvidencia ? "Subiendo y enviando..." : "Enviar evidencia")
                                         </button>
                                         <button type="button" class="win-btn" @onclick="@(() => mostrandoFormEvidencia = false)" disabled="@isProcesandoEvidencia">
                                             Cancelar
@@ -220,6 +224,7 @@
                                 <div class="row g-2">
                                     @foreach (var ev in evidenciasBestia)
                                     {
+                                        var rType = (ev.TipoEvidenciaResourceType ?? string.Empty).Trim().ToLowerInvariant();
                                         <div class="col-md-6">
                                             <div class="p-2 border rounded" style="background-color: #ffffff; font-size: 11px;">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -228,9 +233,37 @@
                                                         @ev.Estado
                                                     </span>
                                                 </div>
-                                                <div class="text-muted" style="font-family: monospace;">
-                                                    [@(ev.TipoEvidenciaResourceType ?? "-")] @ev.FileId
-                                                </div>
+                                                @if (!string.IsNullOrWhiteSpace(ev.FileUrl))
+                                                {
+                                                    <div class="my-1">
+                                                        @if (rType == "image")
+                                                        {
+                                                            <a href="@ev.FileUrl" target="_blank">
+                                                                <img src="@ev.FileUrl" alt="Evidencia #@ev.NroEvidencia" style="width: 100%; max-height: 160px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" />
+                                                            </a>
+                                                        }
+                                                        else if (rType == "video")
+                                                        {
+                                                            <video controls src="@ev.FileUrl" style="width: 100%; max-height: 180px; border-radius: 4px;"></video>
+                                                        }
+                                                        else if (rType == "audio")
+                                                        {
+                                                            <audio controls src="@ev.FileUrl" style="width: 100%;"></audio>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="@ev.FileUrl" target="_blank" class="win-btn d-inline-block text-decoration-none" style="height: 20px; font-size: 10px; padding: 1px 6px;">
+                                                                Descargar / Ver archivo
+                                                            </a>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-muted" style="font-family: monospace;">
+                                                        [@(ev.TipoEvidenciaResourceType ?? "-")] @ev.FileId
+                                                    </div>
+                                                }
                                                 <div class="d-flex justify-content-between align-items-center mt-1">
                                                     <span class="text-muted">Obtenida: @ev.FechaObtencion.ToString("dd/MM/yyyy HH:mm")</span>
                                                     @if (Auth.EsInvestigador)
@@ -1017,12 +1050,20 @@
     private List<TipoEvidenciaDTO> tiposEvidenciaDisponibles = new();
     private string nuevaEvidenciaTipoId = string.Empty;
     private DateTime nuevaEvidenciaFecha = DateTime.Now;
-    private string nuevaEvidenciaFileId = string.Empty;
+    private IBrowserFile? nuevaEvidenciaFile;
+    private string? nuevaEvidenciaFileName;
+
+    private void OnEvidenciaFileSelected(InputFileChangeEventArgs e)
+    {
+        nuevaEvidenciaFile = e.File;
+        nuevaEvidenciaFileName = e.File?.Name;
+    }
 
     private async Task AbrirFormEvidenciaAsync()
     {
         evidenciaError = null;
-        nuevaEvidenciaFileId = string.Empty;
+        nuevaEvidenciaFile = null;
+        nuevaEvidenciaFileName = null;
         nuevaEvidenciaFecha = DateTime.Now;
         if (!tiposEvidenciaDisponibles.Any())
         {
@@ -1047,29 +1088,49 @@
             evidenciaError = "Debe seleccionar un tipo de evidencia.";
             return;
         }
-        if (string.IsNullOrWhiteSpace(nuevaEvidenciaFileId))
+        if (nuevaEvidenciaFile == null)
         {
-            evidenciaError = "El FileId / URL del archivo es requerido.";
+            evidenciaError = "Debe seleccionar un archivo para la evidencia.";
             return;
         }
 
+        string? uploadedPublicId = null;
         try
         {
             isProcesandoEvidencia = true;
             evidenciaError = null;
+
+            const long maxEvidenceSize = 50 * 1024 * 1024;
+            await using var stream = nuevaEvidenciaFile.OpenReadStream(maxEvidenceSize);
+            var contentType = string.IsNullOrWhiteSpace(nuevaEvidenciaFile.ContentType)
+                ? "application/octet-stream"
+                : nuevaEvidenciaFile.ContentType;
+            uploadedPublicId = await CloudinaryApiClient.UploadImageAsync(stream, nuevaEvidenciaFile.Name, contentType);
+            if (string.IsNullOrWhiteSpace(uploadedPublicId))
+            {
+                throw new Exception("Cloudinary no devolvió un public_id válido.");
+            }
+
             await EvidenciaApiClient.AddAsync(new EvidenciaDTO
             {
                 IdBestia = Registro.IdBestia,
                 IdTipoEvidencia = idTipo,
                 FechaObtencion = nuevaEvidenciaFecha,
-                FileId = nuevaEvidenciaFileId.Trim(),
+                FileId = uploadedPublicId,
                 Estado = Auth.EsInvestigador ? "aprobado" : "pendiente"
             });
+
+            nuevaEvidenciaFile = null;
+            nuevaEvidenciaFileName = null;
             mostrandoFormEvidencia = false;
             await CargarEvidenciasBestiaAsync(Registro.IdBestia);
         }
         catch (Exception ex)
         {
+            if (!string.IsNullOrWhiteSpace(uploadedPublicId))
+            {
+                try { await CloudinaryApiClient.DeleteImageAsync(uploadedPublicId); } catch { }
+            }
             evidenciaError = $"Error al proponer evidencia: {ex.Message}";
         }
         finally
