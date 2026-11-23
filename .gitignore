@@ -59,4 +59,5 @@ docsJava/
 docs/
 
 WebAPI/appsettings.json
-
+.env
+**/.env
