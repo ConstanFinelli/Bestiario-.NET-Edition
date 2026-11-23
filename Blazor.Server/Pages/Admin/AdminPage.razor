@@ -1,0 +1,892 @@
+@page "/admin"
+@inject AuthService Auth
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+<div class="win-form" style="width: 1020px; max-width: 98vw;">
+    <div class="win-titlebar">
+        <div class="d-flex align-items-center gap-1">
+            <span class="oi oi-wrench text-primary" style="font-size: 11px;"></span>
+            <span>Menú de Administrador — Bestiario</span>
+        </div>
+    </div>
+
+    <WinMenuStrip OnRefresh="RecargarSeccionActualAsync" IsLoading="@isLoading" />
+
+    <div class="win-form-content" style="padding: 12px;">
+        @if (!Auth.EsInvestigador)
+        {
+            <div class="win-error-msg">
+                <span class="oi oi-lock-locked me-1"></span> Acceso denegado. Redirigiendo al inicio...
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(feedbackMessage))
+            {
+                <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                    @feedbackMessage
+                </div>
+            }
+
+            <div class="row g-3">
+                <!-- Columna Izquierda: Menú Lateral -->
+                <div class="col-md-3">
+                    <div class="p-2 border rounded" style="background-color: #f2f2f2;">
+                        <div class="fw-bold mb-2 pb-1 border-bottom" style="font-size: 11px; color: #333;">
+                            Gestión CRUD
+                        </div>
+                        <div class="d-flex flex-column gap-1">
+                            <button class="win-btn text-start @(Crud == "categorias" ? "fw-bold border-primary" : "")"
+                                    style="height: 26px;" @onclick="@(() => IrASeccion("categorias"))">
+                                Categorías
+                            </button>
+                            <button class="win-btn text-start @(Crud == "habitats" || Crud == "carHabitat" ? "fw-bold border-primary" : "")"
+                                    style="height: 26px;" @onclick="@(() => IrASeccion("habitats"))">
+                                Hábitats
+                            </button>
+                            <button class="win-btn text-start @(Crud == "usuarios" ? "fw-bold border-primary" : "")"
+                                    style="height: 26px;" @onclick="@(() => IrASeccion("usuarios"))">
+                                Usuarios (Lectores)
+                            </button>
+                            <button class="win-btn text-start @(Crud == "tiposEvidencia" ? "fw-bold border-primary" : "")"
+                                    style="height: 26px;" @onclick="@(() => IrASeccion("tiposEvidencia"))">
+                                Tipos de Evidencia
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Contenido Principal -->
+                <div class="col-md-9">
+                    @if (string.IsNullOrWhiteSpace(Crud))
+                    {
+                        <div class="p-4 border rounded text-center bg-white" style="min-height: 280px; display: flex; flex-direction: column; justify-content: center;">
+                            <span class="oi oi-cog text-primary mb-2" style="font-size: 32px;"></span>
+                            <h5 style="font-size: 15px; font-weight: bold;">Bienvenido al menú de Admin</h5>
+                            <p class="text-muted mb-0" style="font-size: 12px;">
+                                Seleccione una opción para gestionar en el menú de la izquierda.
+                            </p>
+                        </div>
+                    }
+                    else if (Crud == "categorias")
+                    {
+                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Categorías</h6>
+                        <div class="win-grid-container mb-3" style="height: 170px;">
+                            <table class="win-grid">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre (ID)</th>
+                                        <th>Descripción</th>
+                                        <th style="width: 90px;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var c in categorias)
+                                    {
+                                        <tr>
+                                            <td><strong>@c.Nombre</strong> <span class="text-muted" style="font-size: 10px;">(ID: @c.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td style="font-size: 11px;">@c.Descripcion</td>
+                                            <td>
+                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                        @onclick="@(() => SolicitarEliminar("categoria", c.Id, c.Nombre))">
+                                                    Eliminar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Categoría</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Nombre:</label>
+                                        <input class="win-textbox w-100" @bind="catNuevaNombre" maxlength="20" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Descripción:</label>
+                                        <input class="win-textbox w-100" @bind="catNuevaDesc" maxlength="100" />
+                                    </div>
+                                    <button class="win-btn" @onclick="CrearCategoriaAsync" disabled="@isLoading">Crear</button>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Categoría</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Seleccionar:</label>
+                                        <select class="win-textbox w-100" value="@catEditId" @onchange="OnSeleccionarCatEdit">
+                                            <option value="">-- Seleccione --</option>
+                                            @foreach (var c in categorias)
+                                            {
+                                                <option value="@c.Id">@c.Nombre (@c.Id.ToString().Substring(0, 8))</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Nombre:</label>
+                                        <input class="win-textbox w-100" @bind="catEditNombre" maxlength="20" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Descripción:</label>
+                                        <input class="win-textbox w-100" @bind="catEditDesc" maxlength="100" />
+                                    </div>
+                                    <button class="win-btn" @onclick="ActualizarCategoriaAsync" disabled="@isLoading">Actualizar</button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    }
+                    else if (Crud == "habitats")
+                    {
+                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Hábitats</h6>
+                        <div class="win-grid-container mb-3" style="height: 170px;">
+                            <table class="win-grid">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre (ID)</th>
+                                        <th>Localización</th>
+                                        <th style="width: 155px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var h in habitats)
+                                    {
+                                        <tr>
+                                            <td><strong>@h.Nombre</strong> <span class="text-muted" style="font-size: 10px;">(ID: @h.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td style="font-size: 11px;">@h.Localizacion</td>
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    <button class="win-btn" style="height: 20px; font-size: 10px;"
+                                                            @onclick="@(() => IrACaracteristicasHabitat(h.Id))">
+                                                        Ver más
+                                                    </button>
+                                                    <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                            @onclick="@(() => SolicitarEliminar("habitat", h.Id, h.Nombre))">
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Hábitat</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Nombre:</label>
+                                        <input class="win-textbox w-100" @bind="habNuevoNombre" maxlength="60" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Localización:</label>
+                                        <input class="win-textbox w-100" @bind="habNuevaLoc" maxlength="120" />
+                                    </div>
+                                    <button class="win-btn" @onclick="CrearHabitatAsync" disabled="@isLoading">Crear</button>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Hábitat</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Seleccionar:</label>
+                                        <select class="win-textbox w-100" value="@habEditId" @onchange="OnSeleccionarHabEdit">
+                                            <option value="">-- Seleccione --</option>
+                                            @foreach (var h in habitats)
+                                            {
+                                                <option value="@h.Id">@h.Nombre (@h.Id.ToString().Substring(0, 8))</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Nombre:</label>
+                                        <input class="win-textbox w-100" @bind="habEditNombre" maxlength="60" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Localización:</label>
+                                        <input class="win-textbox w-100" @bind="habEditLoc" maxlength="120" />
+                                    </div>
+                                    <button class="win-btn" @onclick="ActualizarHabitatAsync" disabled="@isLoading">Actualizar</button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    }
+                    else if (Crud == "carHabitat")
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0" style="font-size: 13px;">
+                                Características del Hábitat: @(habitatActual?.Nombre ?? "-")
+                            </h6>
+                            <button class="win-btn" style="height: 22px;" @onclick="@(() => IrASeccion("habitats"))">
+                                ← Volver atrás
+                            </button>
+                        </div>
+
+                        <div class="win-grid-container mb-3" style="height: 160px;">
+                            <table class="win-grid">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">Nro.</th>
+                                        <th>Descripción</th>
+                                        <th style="width: 90px;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (habitatActual == null || !habitatActual.Caracteristicas.Any())
+                                    {
+                                        <tr><td colspan="3" class="text-center text-muted py-3">Sin características registradas.</td></tr>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var ch in habitatActual.Caracteristicas.OrderBy(x => x.NroCaracteristica))
+                                        {
+                                            <tr>
+                                                <td>#@ch.NroCaracteristica</td>
+                                                <td style="font-size: 11px;">@ch.Descripcion</td>
+                                                <td>
+                                                    <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                            @onclick="@(() => EliminarCaracteristicaAsync(ch.NroCaracteristica))">
+                                                        Eliminar
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Característica</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Descripción:</label>
+                                        <input class="win-textbox w-100" @bind="carNuevaDesc" maxlength="200" />
+                                    </div>
+                                    <button class="win-btn" @onclick="CrearCaracteristicaAsync" disabled="@isLoading">Crear</button>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Característica</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Característica actual:</label>
+                                        <select class="win-textbox w-100" @bind="carEditNro">
+                                            <option value="0">-- Seleccione --</option>
+                                            @if (habitatActual != null)
+                                            {
+                                                @foreach (var ch in habitatActual.Caracteristicas.OrderBy(x => x.NroCaracteristica))
+                                                {
+                                                    <option value="@ch.NroCaracteristica">#@ch.NroCaracteristica — @ch.Descripcion</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Nueva descripción:</label>
+                                        <input class="win-textbox w-100" @bind="carEditDesc" maxlength="200" />
+                                    </div>
+                                    <button class="win-btn" @onclick="ActualizarCaracteristicaAsync" disabled="@isLoading">Actualizar</button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    }
+                    else if (Crud == "usuarios")
+                    {
+                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Usuarios (Lectores)</h6>
+                        <div class="win-grid-container mb-3" style="height: 170px;">
+                            <table class="win-grid">
+                                <thead>
+                                    <tr>
+                                        <th>Correo (ID)</th>
+                                        <th style="width: 120px;">Notificaciones</th>
+                                        <th style="width: 90px;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var u in lectores)
+                                    {
+                                        <tr>
+                                            <td><strong>@u.Correo</strong> <span class="text-muted" style="font-size: 10px;">(ID: @u.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td style="font-size: 11px;">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
+                                            <td>
+                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                        @onclick="@(() => SolicitarEliminar("usuario", u.Id, u.Correo))">
+                                                    Eliminar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Lector</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Correo:</label>
+                                        <input type="email" class="win-textbox w-100" @bind="lecNuevoCorreo" maxlength="100" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Contraseña:</label>
+                                        <input type="password" class="win-textbox w-100" @bind="lecNuevoPass" maxlength="100" />
+                                    </div>
+                                    <div class="mb-2 form-check">
+                                        <input type="checkbox" class="form-check-input" id="chkLecNuevoNotif" @bind="lecNuevoNotif" />
+                                        <label class="form-check-label" for="chkLecNuevoNotif">Recibir notificaciones</label>
+                                    </div>
+                                    <button class="win-btn" @onclick="CrearLectorAsync" disabled="@isLoading">Crear</button>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Lector</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Seleccionar:</label>
+                                        <select class="win-textbox w-100" value="@lecEditId" @onchange="OnSeleccionarLecEdit">
+                                            <option value="">-- Seleccione --</option>
+                                            @foreach (var u in lectores)
+                                            {
+                                                <option value="@u.Id">@u.Correo (@u.Id.ToString().Substring(0, 8))</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Correo:</label>
+                                        <input type="email" class="win-textbox w-100" @bind="lecEditCorreo" maxlength="100" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Nueva contraseña (opcional):</label>
+                                        <input type="password" class="win-textbox w-100" @bind="lecEditPass" maxlength="100" />
+                                    </div>
+                                    <div class="mb-2 form-check">
+                                        <input type="checkbox" class="form-check-input" id="chkLecEditNotif" @bind="lecEditNotif" />
+                                        <label class="form-check-label" for="chkLecEditNotif">Recibir notificaciones</label>
+                                    </div>
+                                    <button class="win-btn" @onclick="ActualizarLectorAsync" disabled="@isLoading">Actualizar</button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    }
+                    else if (Crud == "tiposEvidencia")
+                    {
+                        <h6 class="fw-bold mb-2" style="font-size: 13px;">Tipos de Evidencia</h6>
+                        <div class="win-grid-container mb-3" style="height: 170px;">
+                            <table class="win-grid">
+                                <thead>
+                                    <tr>
+                                        <th>Descripción (ID)</th>
+                                        <th style="width: 130px;">ResourceType</th>
+                                        <th style="width: 90px;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var t in tiposEvidencia)
+                                    {
+                                        <tr>
+                                            <td><strong>@t.Descripcion</strong> <span class="text-muted" style="font-size: 10px;">(ID: @t.Id.ToString().Substring(0, 8)...)</span></td>
+                                            <td style="font-size: 11px;">@t.ResourceType</td>
+                                            <td>
+                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;"
+                                                        @onclick="@(() => SolicitarEliminar("tipoEvidencia", t.Id, t.Descripcion))">
+                                                    Eliminar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Crear Tipo de Evidencia</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Descripción:</label>
+                                        <input class="win-textbox w-100" @bind="tipoNuevaDesc" maxlength="80" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">ResourceType (ej. image, video, raw):</label>
+                                        <input class="win-textbox w-100" @bind="tipoNuevoRes" maxlength="40" />
+                                    </div>
+                                    <button class="win-btn" @onclick="CrearTipoEvidenciaAsync" disabled="@isLoading">Crear</button>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset class="p-2 border bg-white" style="font-size: 11px;">
+                                    <legend class="fw-bold" style="font-size: 11px; width: auto; padding: 0 4px;">Actualizar Tipo de Evidencia</legend>
+                                    <div class="mb-2">
+                                        <label class="win-label">Seleccionar:</label>
+                                        <select class="win-textbox w-100" value="@tipoEditId" @onchange="OnSeleccionarTipoEdit">
+                                            <option value="">-- Seleccione --</option>
+                                            @foreach (var t in tiposEvidencia)
+                                            {
+                                                <option value="@t.Id">@t.Descripcion (@t.Id.ToString().Substring(0, 8))</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">Descripción:</label>
+                                        <input class="win-textbox w-100" @bind="tipoEditDesc" maxlength="80" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="win-label">ResourceType:</label>
+                                        <input class="win-textbox w-100" @bind="tipoEditRes" maxlength="40" />
+                                    </div>
+                                    <button class="win-btn" @onclick="ActualizarTipoEvidenciaAsync" disabled="@isLoading">Actualizar</button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="win-statusbar">
+        <span>Admin Dashboard</span>
+        <span>@(string.IsNullOrWhiteSpace(Crud) ? "Inicio Admin" : $"Sección: {Crud}")</span>
+    </div>
+</div>
+
+<ConfirmModal IsOpen="@isConfirmDeleteOpen"
+              Title="Confirmar eliminación"
+              Message="@($"¿Está seguro que desea eliminar '{deleteTargetLabel}'?")"
+              OnConfirm="ConfirmarEliminarAsync"
+              OnCancel="@(() => isConfirmDeleteOpen = false)" />
+
+@code {
+    [SupplyParameterFromQuery(Name = "crud")] public string? Crud { get; set; }
+    [SupplyParameterFromQuery(Name = "idHabitat")] public Guid? IdHabitat { get; set; }
+
+    private bool isLoading = false;
+    private string? feedbackMessage;
+    private bool isFeedbackError = false;
+
+    private List<CategoriaDTO> categorias = new();
+    private List<HabitatDTO> habitats = new();
+    private HabitatDTO? habitatActual;
+    private List<LectorDTO> lectores = new();
+    private List<TipoEvidenciaDTO> tiposEvidencia = new();
+
+    // Categorias forms
+    private string catNuevaNombre = string.Empty;
+    private string catNuevaDesc = string.Empty;
+    private string catEditId = string.Empty;
+    private string catEditNombre = string.Empty;
+    private string catEditDesc = string.Empty;
+
+    // Habitats forms
+    private string habNuevoNombre = string.Empty;
+    private string habNuevaLoc = string.Empty;
+    private string habEditId = string.Empty;
+    private string habEditNombre = string.Empty;
+    private string habEditLoc = string.Empty;
+
+    // Caracteristica Habitat forms
+    private string carNuevaDesc = string.Empty;
+    private int carEditNro = 0;
+    private string carEditDesc = string.Empty;
+
+    // Lectores forms
+    private string lecNuevoCorreo = string.Empty;
+    private string lecNuevoPass = string.Empty;
+    private bool lecNuevoNotif = true;
+    private string lecEditId = string.Empty;
+    private string lecEditCorreo = string.Empty;
+    private string lecEditPass = string.Empty;
+    private bool lecEditNotif = true;
+
+    // Tipos Evidencia forms
+    private string tipoNuevaDesc = string.Empty;
+    private string tipoNuevoRes = "image";
+    private string tipoEditId = string.Empty;
+    private string tipoEditDesc = string.Empty;
+    private string tipoEditRes = string.Empty;
+
+    // Confirmación eliminar
+    private bool isConfirmDeleteOpen = false;
+    private string deleteTipo = string.Empty;
+    private Guid deleteId;
+    private string deleteTargetLabel = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Auth.OnChange += OnAuthChanged;
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= OnAuthChanged;
+    }
+
+    private void OnAuthChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            if (!Auth.IsInitializing && !Auth.EsInvestigador)
+            {
+                Navigation.NavigateTo("/");
+                return;
+            }
+            await RecargarSeccionActualAsync();
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!Auth.IsInitializing && !Auth.EsInvestigador)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+        await RecargarSeccionActualAsync();
+    }
+
+    private void IrASeccion(string seccion)
+    {
+        feedbackMessage = null;
+        Navigation.NavigateTo($"/admin?crud={seccion}");
+    }
+
+    private void IrACaracteristicasHabitat(Guid id)
+    {
+        feedbackMessage = null;
+        Navigation.NavigateTo($"/admin?crud=carHabitat&idHabitat={id}");
+    }
+
+    private async Task RecargarSeccionActualAsync()
+    {
+        if (!Auth.EsInvestigador || string.IsNullOrWhiteSpace(Crud)) return;
+
+        try
+        {
+            isLoading = true;
+            if (Crud == "categorias")
+            {
+                categorias = (await CategoriaApiClient.GetAllAsync()).ToList();
+            }
+            else if (Crud == "habitats")
+            {
+                habitats = (await HabitatApiClient.GetAllAsync()).ToList();
+            }
+            else if (Crud == "carHabitat" && IdHabitat.HasValue)
+            {
+                habitatActual = await HabitatApiClient.GetAsync(IdHabitat.Value);
+            }
+            else if (Crud == "usuarios")
+            {
+                var todos = await UsuarioApiClient.GetAllAsync();
+                lectores = todos.OfType<LectorDTO>().ToList();
+            }
+            else if (Crud == "tiposEvidencia")
+            {
+                tiposEvidencia = (await TipoEvidenciaApiClient.GetAllAsync()).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarError($"Error al cargar datos: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // --- Categorias ---
+    private void OnSeleccionarCatEdit(ChangeEventArgs e)
+    {
+        catEditId = e.Value?.ToString() ?? string.Empty;
+        if (Guid.TryParse(catEditId, out var id))
+        {
+            var cat = categorias.FirstOrDefault(c => c.Id == id);
+            catEditNombre = cat?.Nombre ?? string.Empty;
+            catEditDesc = cat?.Descripcion ?? string.Empty;
+        }
+    }
+
+    private async Task CrearCategoriaAsync()
+    {
+        if (string.IsNullOrWhiteSpace(catNuevaNombre) || string.IsNullOrWhiteSpace(catNuevaDesc))
+        {
+            MostrarError("Nombre y descripción son requeridos.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            await CategoriaApiClient.AddAsync(new CategoriaDTO { Nombre = catNuevaNombre.Trim(), Descripcion = catNuevaDesc.Trim() });
+            catNuevaNombre = string.Empty;
+            catNuevaDesc = string.Empty;
+        }, "Categoría creada correctamente.");
+    }
+
+    private async Task ActualizarCategoriaAsync()
+    {
+        if (!Guid.TryParse(catEditId, out var id) || string.IsNullOrWhiteSpace(catEditNombre) || string.IsNullOrWhiteSpace(catEditDesc))
+        {
+            MostrarError("Seleccione una categoría y complete nombre y descripción.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            await CategoriaApiClient.UpdateAsync(new CategoriaDTO { Id = id, Nombre = catEditNombre.Trim(), Descripcion = catEditDesc.Trim() });
+        }, "Categoría actualizada correctamente.");
+    }
+
+    // --- Habitats ---
+    private void OnSeleccionarHabEdit(ChangeEventArgs e)
+    {
+        habEditId = e.Value?.ToString() ?? string.Empty;
+        if (Guid.TryParse(habEditId, out var id))
+        {
+            var h = habitats.FirstOrDefault(x => x.Id == id);
+            habEditNombre = h?.Nombre ?? string.Empty;
+            habEditLoc = h?.Localizacion ?? string.Empty;
+        }
+    }
+
+    private async Task CrearHabitatAsync()
+    {
+        if (string.IsNullOrWhiteSpace(habNuevoNombre) || string.IsNullOrWhiteSpace(habNuevaLoc))
+        {
+            MostrarError("Nombre y localización son requeridos.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            await HabitatApiClient.AddAsync(new HabitatDTO { Nombre = habNuevoNombre.Trim(), Localizacion = habNuevaLoc.Trim() });
+            habNuevoNombre = string.Empty;
+            habNuevaLoc = string.Empty;
+        }, "Hábitat creado correctamente.");
+    }
+
+    private async Task ActualizarHabitatAsync()
+    {
+        if (!Guid.TryParse(habEditId, out var id) || string.IsNullOrWhiteSpace(habEditNombre) || string.IsNullOrWhiteSpace(habEditLoc))
+        {
+            MostrarError("Seleccione un hábitat y complete nombre y localización.");
+            return;
+        }
+        var existente = habitats.FirstOrDefault(x => x.Id == id);
+        if (existente == null) return;
+
+        await EjecutarAccionAsync(async () =>
+        {
+            existente.Nombre = habEditNombre.Trim();
+            existente.Localizacion = habEditLoc.Trim();
+            await HabitatApiClient.UpdateAsync(existente);
+        }, "Hábitat actualizado correctamente.");
+    }
+
+    // --- Caracteristicas de Habitat ---
+    private async Task CrearCaracteristicaAsync()
+    {
+        if (habitatActual == null || string.IsNullOrWhiteSpace(carNuevaDesc))
+        {
+            MostrarError("La descripción es requerida.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            int nextNro = habitatActual.Caracteristicas.Any()
+                ? habitatActual.Caracteristicas.Max(c => c.NroCaracteristica) + 1
+                : 1;
+            habitatActual.Caracteristicas.Add(new CaracteristicaHabitatDTO
+            {
+                IdHabitat = habitatActual.Id,
+                NroCaracteristica = nextNro,
+                Descripcion = carNuevaDesc.Trim()
+            });
+            await HabitatApiClient.UpdateAsync(habitatActual);
+            carNuevaDesc = string.Empty;
+        }, "Característica agregada.");
+    }
+
+    private async Task ActualizarCaracteristicaAsync()
+    {
+        if (habitatActual == null || carEditNro <= 0 || string.IsNullOrWhiteSpace(carEditDesc))
+        {
+            MostrarError("Seleccione una característica e ingrese la nueva descripción.");
+            return;
+        }
+        var item = habitatActual.Caracteristicas.FirstOrDefault(c => c.NroCaracteristica == carEditNro);
+        if (item == null) return;
+
+        await EjecutarAccionAsync(async () =>
+        {
+            item.Descripcion = carEditDesc.Trim();
+            await HabitatApiClient.UpdateAsync(habitatActual);
+            carEditNro = 0;
+            carEditDesc = string.Empty;
+        }, "Característica actualizada.");
+    }
+
+    private async Task EliminarCaracteristicaAsync(int nro)
+    {
+        if (habitatActual == null) return;
+        await EjecutarAccionAsync(async () =>
+        {
+            habitatActual.Caracteristicas.RemoveAll(c => c.NroCaracteristica == nro);
+            await HabitatApiClient.UpdateAsync(habitatActual);
+        }, "Característica eliminada.");
+    }
+
+    // --- Lectores ---
+    private void OnSeleccionarLecEdit(ChangeEventArgs e)
+    {
+        lecEditId = e.Value?.ToString() ?? string.Empty;
+        if (Guid.TryParse(lecEditId, out var id))
+        {
+            var l = lectores.FirstOrDefault(x => x.Id == id);
+            lecEditCorreo = l?.Correo ?? string.Empty;
+            lecEditNotif = l?.RecibirNotificaciones ?? true;
+            lecEditPass = string.Empty;
+        }
+    }
+
+    private async Task CrearLectorAsync()
+    {
+        if (string.IsNullOrWhiteSpace(lecNuevoCorreo) || string.IsNullOrWhiteSpace(lecNuevoPass))
+        {
+            MostrarError("Correo y contraseña son requeridos.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            await UsuarioApiClient.AddLectorAsync(new LectorDTO
+            {
+                Correo = lecNuevoCorreo.Trim(),
+                Contrasenia = lecNuevoPass,
+                RecibirNotificaciones = lecNuevoNotif
+            });
+            lecNuevoCorreo = string.Empty;
+            lecNuevoPass = string.Empty;
+            lecNuevoNotif = true;
+        }, "Usuario lector creado sin modificar la sesión actual.");
+    }
+
+    private async Task ActualizarLectorAsync()
+    {
+        if (!Guid.TryParse(lecEditId, out var id) || string.IsNullOrWhiteSpace(lecEditCorreo))
+        {
+            MostrarError("Seleccione un lector e ingrese el correo.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            await UsuarioApiClient.UpdateLectorAsync(new LectorDTO
+            {
+                Id = id,
+                Correo = lecEditCorreo.Trim(),
+                Contrasenia = string.IsNullOrWhiteSpace(lecEditPass) ? null : lecEditPass,
+                RecibirNotificaciones = lecEditNotif
+            });
+            lecEditPass = string.Empty;
+        }, "Lector actualizado correctamente.");
+    }
+
+    // --- Tipos Evidencia ---
+    private void OnSeleccionarTipoEdit(ChangeEventArgs e)
+    {
+        tipoEditId = e.Value?.ToString() ?? string.Empty;
+        if (Guid.TryParse(tipoEditId, out var id))
+        {
+            var t = tiposEvidencia.FirstOrDefault(x => x.Id == id);
+            tipoEditDesc = t?.Descripcion ?? string.Empty;
+            tipoEditRes = t?.ResourceType ?? string.Empty;
+        }
+    }
+
+    private async Task CrearTipoEvidenciaAsync()
+    {
+        if (string.IsNullOrWhiteSpace(tipoNuevaDesc) || string.IsNullOrWhiteSpace(tipoNuevoRes))
+        {
+            MostrarError("Descripción y ResourceType son requeridos.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            await TipoEvidenciaApiClient.AddAsync(new TipoEvidenciaDTO { Descripcion = tipoNuevaDesc.Trim(), ResourceType = tipoNuevoRes.Trim() });
+            tipoNuevaDesc = string.Empty;
+            tipoNuevoRes = "image";
+        }, "Tipo de evidencia creado.");
+    }
+
+    private async Task ActualizarTipoEvidenciaAsync()
+    {
+        if (!Guid.TryParse(tipoEditId, out var id) || string.IsNullOrWhiteSpace(tipoEditDesc) || string.IsNullOrWhiteSpace(tipoEditRes))
+        {
+            MostrarError("Seleccione un tipo de evidencia y complete los campos.");
+            return;
+        }
+        await EjecutarAccionAsync(async () =>
+        {
+            await TipoEvidenciaApiClient.UpdateAsync(new TipoEvidenciaDTO { Id = id, Descripcion = tipoEditDesc.Trim(), ResourceType = tipoEditRes.Trim() });
+        }, "Tipo de evidencia actualizado.");
+    }
+
+    // --- Eliminación genérica ---
+    private void SolicitarEliminar(string tipo, Guid id, string label)
+    {
+        deleteTipo = tipo;
+        deleteId = id;
+        deleteTargetLabel = label;
+        isConfirmDeleteOpen = true;
+    }
+
+    private async Task ConfirmarEliminarAsync()
+    {
+        isConfirmDeleteOpen = false;
+        await EjecutarAccionAsync(async () =>
+        {
+            switch (deleteTipo)
+            {
+                case "categoria": await CategoriaApiClient.DeleteAsync(deleteId); break;
+                case "habitat": await HabitatApiClient.DeleteAsync(deleteId); break;
+                case "usuario": await UsuarioApiClient.DeleteAsync(deleteId); break;
+                case "tipoEvidencia": await TipoEvidenciaApiClient.DeleteAsync(deleteId); break;
+            }
+        }, $"'{deleteTargetLabel}' eliminado correctamente.");
+    }
+
+    private async Task EjecutarAccionAsync(Func<Task> accion, string mensajeExito)
+    {
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            await accion();
+            isFeedbackError = false;
+            feedbackMessage = mensajeExito;
+            await RecargarSeccionActualAsync();
+        }
+        catch (Exception ex)
+        {
+            MostrarError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void MostrarError(string msg)
+    {
+        feedbackMessage = msg;
+        isFeedbackError = true;
+    }
+}

@@ -8,19 +8,169 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using API.Clients;
 using DTOs;
 
 namespace WindowsForms
 {
     public partial class Home : Form
     {
+        private StatusStrip statusStrip = null!;
+        private ToolStripStatusLabel listoStatusLabel = null!;
+        private ToolStripStatusLabel apiStatusLabel = null!;
+        private ToolStripLabel usuarioMenuLabel = null!;
+        private ToolStripMenuItem iniciarSesionMenuItem = null!;
+        private ToolStripMenuItem cerrarSesionMenuItem = null!;
+        private ToolStripMenuItem adminToolStripMenuItem = null!;
+        private Button adminButton = null!;
+
         public Home()
         {
             InitializeComponent();
-            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            InicializarBarraSesion();
+            InicializarAccesoAdmin();
+            ActualizarEstadoSesion();
+        }
+
+        private void InicializarAccesoAdmin()
+        {
+            adminToolStripMenuItem = new ToolStripMenuItem("Admin");
+            adminToolStripMenuItem.Click += (_, _) =>
+            {
+                using var adminForm = new AdminDashboardForm();
+                adminForm.ShowDialog();
+            };
+            menuStrip1.Items.Add(adminToolStripMenuItem);
+
+            // Controles de sesión alineados a la derecha en el MenuStrip (como en Web)
+            iniciarSesionMenuItem = new ToolStripMenuItem("Iniciar sesión")
+            {
+                Alignment = ToolStripItemAlignment.Right,
+                ForeColor = Color.FromArgb(13, 110, 253),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+            iniciarSesionMenuItem.Click += IniciarSesionToolButton_Click;
+
+            cerrarSesionMenuItem = new ToolStripMenuItem("Cerrar sesión")
+            {
+                Alignment = ToolStripItemAlignment.Right,
+                ForeColor = Color.FromArgb(220, 53, 69),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+            cerrarSesionMenuItem.Click += CerrarSesionToolButton_Click;
+
+            usuarioMenuLabel = new ToolStripLabel("Modo Invitado")
+            {
+                Alignment = ToolStripItemAlignment.Right,
+                ForeColor = Color.DimGray
+            };
+
+            menuStrip1.Items.Add(iniciarSesionMenuItem);
+            menuStrip1.Items.Add(cerrarSesionMenuItem);
+            menuStrip1.Items.Add(usuarioMenuLabel);
+
+            adminButton = new Button
+            {
+                Text = "Admin",
+                Size = new Size(100, 28),
+                Location = new Point(230, 232),
+                UseVisualStyleBackColor = true
+            };
+            adminButton.Click += (_, _) =>
+            {
+                using var adminForm = new AdminDashboardForm();
+                adminForm.ShowDialog();
+            };
+            cardPanel.Controls.Add(adminButton);
+        }
+
+        private void InicializarBarraSesion()
+        {
+            this.ClientSize = new Size(this.ClientSize.Width, this.ClientSize.Height + 24);
+
+            statusStrip = new StatusStrip
+            {
+                SizingGrip = false,
+                BackColor = Color.FromArgb(240, 240, 240)
+            };
+
+            listoStatusLabel = new ToolStripStatusLabel("Listo")
+            {
+                Spring = true,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            apiStatusLabel = new ToolStripStatusLabel("Conectado a WebAPI: 5076")
+            {
+                TextAlign = ContentAlignment.MiddleRight,
+                ForeColor = Color.DimGray
+            };
+
+            statusStrip.Items.AddRange(new ToolStripItem[]
+            {
+                listoStatusLabel,
+                apiStatusLabel
+            });
+
+            this.Controls.Add(statusStrip);
+        }
+
+        private void ActualizarEstadoSesion()
+        {
+            var user = LoginForm.UsuarioLogueado;
+            bool esInvestigador = user is InvestigadorDTO || user?.TipoUsuario == "Investigador";
+
+            // Toda opción gestionada desde Admin o dentro de Bestias/Registros desaparece del inicio
+            categoriasToolStripMenuItem.Visible = false;
+            registrosToolStripMenuItem.Visible = false;
+            habitatsToolStripMenuItem.Visible = false;
+            tiposEvidenciaToolStripMenuItem.Visible = false;
+            usuariosToolStripMenuItem.Visible = false;
+            evidenciasToolStripMenuItem.Visible = false;
+            comentariosToolStripMenuItem.Visible = false;
+
             reportesToolStripMenuItem.Visible = esInvestigador;
+            adminToolStripMenuItem.Visible = esInvestigador;
+
+            categoriasButton.Visible = false;
+            registrosButton.Visible = false;
+            habitatsButton.Visible = false;
+            tiposEvidenciaButton.Visible = false;
+            usuariosButton.Visible = false;
+            evidenciasButton.Visible = false;
+            comentariosButton.Visible = false;
+
             reporteEstadisticasButton.Visible = esInvestigador;
             reporteRegistrosButton.Visible = esInvestigador;
+            adminButton.Visible = esInvestigador;
+
+            if (user == null)
+            {
+                usuarioMenuLabel.Text = "Modo Invitado";
+                iniciarSesionMenuItem.Visible = true;
+                cerrarSesionMenuItem.Visible = false;
+            }
+            else
+            {
+                string rol = esInvestigador ? "Investigador" : "Lector";
+                usuarioMenuLabel.Text = $"Usuario: {user.Correo} ({rol})";
+                iniciarSesionMenuItem.Visible = false;
+                cerrarSesionMenuItem.Visible = true;
+            }
+        }
+
+        private void IniciarSesionToolButton_Click(object? sender, EventArgs e)
+        {
+            using var login = new LoginForm();
+            login.ShowDialog();
+            ActualizarEstadoSesion();
+        }
+
+        private void CerrarSesionToolButton_Click(object? sender, EventArgs e)
+        {
+            LoginForm.UsuarioLogueado = null;
+            BaseApiClient.ClearAuthToken();
+            ActualizarEstadoSesion();
         }
 
         private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)

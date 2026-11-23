@@ -5,34 +5,16 @@
     <NavLink href="/" class="win-menu-item" Match="NavLinkMatch.All">
         Inicio
     </NavLink>
-    <NavLink href="/categorias" class="win-menu-item">
-        Categorias
+    <NavLink href="/bestias" class="win-menu-item">
+        Bestias
     </NavLink>
     <NavLink href="/noticias" class="win-menu-item">
         Noticias
     </NavLink>
-    <NavLink href="/bestias" class="win-menu-item">
-        Bestias
-    </NavLink>
-    <NavLink href="/registros" class="win-menu-item">
-        Registros
-    </NavLink>
-    <NavLink href="/habitats" class="win-menu-item">
-        Hábitats
-    </NavLink>
-    <NavLink href="/tipos-evidencia" class="win-menu-item">
-        Tipos Evidencia
-    </NavLink>
-    <NavLink href="/evidencias" class="win-menu-item">
-        Evidencias
-    </NavLink>
-    <NavLink href="/comentarios" class="win-menu-item">
-        Comentarios
-    </NavLink>
     @if (Auth.EsLector)
     {
         <NavLink href="/solicitudes-investigador" class="win-menu-item">
-            Ser Investigador
+            Volverse Investigador
         </NavLink>
     }
     @if (Auth.EsInvestigador)
@@ -43,8 +25,8 @@
         <NavLink href="/solicitudes-investigador" class="win-menu-item">
             Solicitudes
         </NavLink>
-        <NavLink href="/usuarios" class="win-menu-item">
-            Usuarios
+        <NavLink href="/admin" class="win-menu-item">
+            Admin
         </NavLink>
     }
     @if (OnRefresh.HasDelegate)

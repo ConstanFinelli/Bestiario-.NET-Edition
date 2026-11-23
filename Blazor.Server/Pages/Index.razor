@@ -14,34 +14,16 @@
 
     <!-- MenuStrip Clásico -->
     <div class="win-menustrip">
-        <NavLink href="/categorias" class="win-menu-item">
-            Categorias
+        <NavLink href="/bestias" class="win-menu-item">
+            Bestias
         </NavLink>
         <NavLink href="/noticias" class="win-menu-item">
             Noticias
         </NavLink>
-        <NavLink href="/bestias" class="win-menu-item">
-            Bestias
-        </NavLink>
-        <NavLink href="/registros" class="win-menu-item">
-            Registros
-        </NavLink>
-        <NavLink href="/habitats" class="win-menu-item">
-            Hábitats
-        </NavLink>
-        <NavLink href="/tipos-evidencia" class="win-menu-item">
-            Tipos Evidencia
-        </NavLink>
-        <NavLink href="/evidencias" class="win-menu-item">
-            Evidencias
-        </NavLink>
-        <NavLink href="/comentarios" class="win-menu-item">
-            Comentarios
-        </NavLink>
         @if (Auth.EsLector)
         {
             <NavLink href="/solicitudes-investigador" class="win-menu-item">
-                Ser Investigador
+                Volverse Investigador
             </NavLink>
         }
         @if (Auth.EsInvestigador)
@@ -52,8 +34,8 @@
             <NavLink href="/solicitudes-investigador" class="win-menu-item">
                 Solicitudes
             </NavLink>
-            <NavLink href="/usuarios" class="win-menu-item">
-                Usuarios
+            <NavLink href="/admin" class="win-menu-item">
+                Admin
             </NavLink>
         }
         <div class="ms-auto d-flex align-items-center gap-2" style="white-space: nowrap;">
@@ -85,34 +67,16 @@
                 Seleccione una opción del menú superior para comenzar a gestionar el catálogo del bestiario.
             </p>
             <div class="d-flex justify-content-center flex-wrap gap-2">
-                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/categorias"))">
-                    Categorias
+                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/bestias"))">
+                    Bestias
                 </button>
                 <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/noticias"))">
                     Noticias
                 </button>
-                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/bestias"))">
-                    Bestias
-                </button>
-                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/registros"))">
-                    Registros
-                </button>
-                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/habitats"))">
-                    Hábitats
-                </button>
-                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/tipos-evidencia"))">
-                    Tipos Evidencia
-                </button>
-                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/evidencias"))">
-                    Evidencias
-                </button>
-                <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/comentarios"))">
-                    Comentarios
-                </button>
                 @if (Auth.EsLector)
                 {
-                    <button class="win-btn" style="min-width: 120px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/solicitudes-investigador"))">
-                        Ser Investigador
+                    <button class="win-btn" style="min-width: 140px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/solicitudes-investigador"))">
+                        Volverse Investigador
                     </button>
                 }
                 @if (Auth.EsInvestigador)
@@ -123,8 +87,8 @@
                     <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/solicitudes-investigador"))">
                         Solicitudes
                     </button>
-                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/usuarios"))">
-                        Usuarios
+                    <button class="win-btn" style="min-width: 100px; height: 26px;" @onclick="@(() => Navigation.NavigateTo("/admin"))">
+                        Admin
                     </button>
                 }
             </div>
@@ -139,9 +103,9 @@
 </div>
 
 @code {
-    private void CerrarSesion()
+    private async Task CerrarSesion()
     {
-        Auth.Logout();
+        await Auth.LogoutAsync();
         Navigation.NavigateTo("/login");
     }
 }
