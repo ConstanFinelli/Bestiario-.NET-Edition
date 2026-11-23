@@ -48,6 +48,20 @@ namespace WebAPI
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
+            app.MapGet("/bestias/{idBestia}/registros/vigente", async (Guid idBestia, DateTime? fecha, IRegistroService registroService) =>
+            {
+                var dto = await registroService.GetVigenteAsync(idBestia, fecha);
+                if (dto == null)
+                    return Results.NotFound();
+
+                return Results.Ok(dto);
+            })
+            .WithName("GetRegistroVigente")
+            .AllowAnonymous()
+            .Produces<RegistroDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+
             app.MapPost("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, ClaimsPrincipal user, IRegistroService registroService) =>
             {
                 try
@@ -59,6 +73,12 @@ namespace WebAPI
                         if (!esInvestigador || dto.IdUsuarioPublicador == Guid.Empty)
                         {
                             dto.IdUsuarioPublicador = uid;
+                        }
+
+                        if (esInvestigador && string.Equals(dto.Estado, "aprobado", StringComparison.OrdinalIgnoreCase))
+                        {
+                            dto.IdInvestigadorAprobador ??= uid;
+                            dto.FechaAprobacion ??= DateTime.Now;
                         }
                     }
 

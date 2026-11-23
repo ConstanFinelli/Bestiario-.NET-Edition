@@ -14,7 +14,7 @@ namespace WindowsForms
 {
     public partial class BestiaDetalle : Form
     {
-        private BestiaDTO bestia;
+        private BestiaDTO bestia = null!;
         private FormMode mode;
         private List<CategoriaDTO> categoriasDisponibles = new();
 

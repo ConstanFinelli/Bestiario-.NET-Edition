@@ -278,9 +278,13 @@ namespace WindowsForms
                 var fresco = await RegistroApiClient.GetAsync(vm.IdBestia, vm.NroRegistro);
                 if (fresco != null)
                 {
-                    RegistroDetalle detalleForm = new RegistroDetalle(FormMode.Update, fresco, bestias);
-                    detalleForm.ShowDialog();
-                    await CargarRegistros();
+                    var bestiaActual = bestias.FirstOrDefault(b => b.Id == fresco.IdBestia);
+                    using var enciclopediaForm = new RegistroEnciclopediaForm(fresco, bestiaActual, bestias);
+                    enciclopediaForm.ShowDialog();
+                    if (enciclopediaForm.SeEdito)
+                    {
+                        await CargarRegistros();
+                    }
                 }
             }
             catch (Exception ex)

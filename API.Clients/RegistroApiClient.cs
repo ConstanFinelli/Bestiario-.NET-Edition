@@ -68,6 +68,43 @@ namespace API.Clients
             }
         }
 
+        public static async Task<RegistroDTO?> GetVigenteAsync(Guid idBestia, DateTime? fecha = null)
+        {
+            try
+            {
+                using var client = await CreateHttpClientAsync();
+                string url = $"bestias/{idBestia}/registros/vigente";
+                if (fecha.HasValue)
+                {
+                    url += $"?fecha={Uri.EscapeDataString(fecha.Value.ToString("s"))}";
+                }
+
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<RegistroDTO>();
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+                else
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error al obtener registro vigente ({idBestia}). Status: {response.StatusCode}, Detalle: {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Error de conexión al obtener registro vigente: {ex.Message}", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new Exception($"Timeout al obtener registro vigente: {ex.Message}", ex);
+            }
+        }
+
         public static async Task AddAsync(RegistroDTO registro)
         {
             try

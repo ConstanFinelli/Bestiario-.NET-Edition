@@ -63,7 +63,7 @@
                             bool isSelected = selectedBestia?.Id == b.Id;
                             <tr class="@(isSelected ? "selected" : "")" 
                                 @onclick="() => SeleccionarFila(b)"
-                                @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
+                                @ondblclick="VerRegistroVigenteDeBestia">
                                 <td class="win-grid-row-header">
                                     @(isSelected ? "▶" : "")
                                 </td>
@@ -88,9 +88,25 @@
         <div class="win-btn-action-bar">
             @if (selectedBestia != null)
             {
-                <button class="win-btn me-auto" @onclick="VerRegistrosDeBestia">
-                    Ver Registros (@selectedBestia.Nombre)
+                <button class="win-btn" @onclick="VerRegistroVigenteDeBestia" disabled="@isLoading">
+                    Ver Último Registro
                 </button>
+                @if (Auth.EsInvestigador)
+                {
+                    <button class="win-btn" @onclick="AbrirModalPendientes" disabled="@isLoading">
+                        Pendientes de Bestia
+                    </button>
+                }
+            }
+            @if (Auth.EsInvestigador)
+            {
+                <button class="win-btn me-auto" @onclick="AbrirModalTodosPendientes" disabled="@isLoading">
+                    Ver Todos los Pendientes
+                </button>
+            }
+            else
+            {
+                <div class="me-auto"></div>
             }
             @if (Auth.EsInvestigador)
             {
@@ -294,4 +310,284 @@
             Navigation.NavigateTo($"/registros?bestiaId={selectedBestia.Id}");
         }
     }
+
+    private bool isRegistroModalOpen = false;
+    private FormMode registroModalMode = FormMode.Update;
+    private RegistroDTO registroActual = new();
+
+    private bool isPendientesModalOpen = false;
+    private bool mostrandoTodosPendientes = false;
+    private List<RegistroDTO> registrosPendientes = new();
+    private bool isProcesandoPendiente = false;
+
+    private async Task VerRegistroVigenteDeBestia()
+    {
+        if (selectedBestia == null) return;
+
+        try
+        {
+            isLoading = true;
+            feedbackMessage = null;
+            var vigente = await RegistroApiClient.GetVigenteAsync(selectedBestia.Id);
+            if (vigente == null)
+            {
+                if (Auth.IsAuthenticated)
+                {
+                    feedbackMessage = $"Aún no existen registros aprobados para '{selectedBestia.Nombre}'. Podés proponer el primer registro ahora.";
+                    isFeedbackError = false;
+                    registroActual = new RegistroDTO
+                    {
+                        IdBestia = selectedBestia.Id,
+                        Estado = Auth.EsInvestigador ? "aprobado" : "pendiente",
+                        Contenidos = new List<ContenidoRegistroDTO>()
+                    };
+                    registroModalMode = FormMode.Add;
+                    isRegistroModalOpen = true;
+                }
+                else
+                {
+                    feedbackMessage = "Aún no existen registros aprobados para esta bestia.";
+                    isFeedbackError = false;
+                }
+                return;
+            }
+
+            registroActual = vigente;
+            registroModalMode = FormMode.Update;
+            isRegistroModalOpen = true;
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar el registro vigente: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnRegistroModalSaved()
+    {
+        isRegistroModalOpen = false;
+        feedbackMessage = Auth.EsInvestigador
+            ? "Registro publicado/actualizado exitosamente."
+            : "Propuesta de registro enviada para revisión (estado pendiente).";
+        isFeedbackError = false;
+
+        if (isPendientesModalOpen)
+        {
+            await RecargarPendientesActualesAsync();
+        }
+    }
+
+    private async Task AbrirModalPendientes()
+    {
+        if (selectedBestia == null || !Auth.EsInvestigador) return;
+
+        mostrandoTodosPendientes = false;
+        isPendientesModalOpen = true;
+        await CargarPendientesBestiaAsync(selectedBestia.Id);
+    }
+
+    private async Task AbrirModalTodosPendientes()
+    {
+        if (!Auth.EsInvestigador) return;
+
+        mostrandoTodosPendientes = true;
+        isPendientesModalOpen = true;
+        await CargarTodosPendientesAsync();
+    }
+
+    private async Task RecargarPendientesActualesAsync()
+    {
+        if (mostrandoTodosPendientes)
+        {
+            await CargarTodosPendientesAsync();
+        }
+        else if (selectedBestia != null)
+        {
+            await CargarPendientesBestiaAsync(selectedBestia.Id);
+        }
+    }
+
+    private async Task CargarTodosPendientesAsync()
+    {
+        try
+        {
+            isProcesandoPendiente = true;
+            var acumulados = new List<RegistroDTO>();
+            if (bestias != null)
+            {
+                foreach (var b in bestias)
+                {
+                    var regs = await RegistroApiClient.GetByBestiaAsync(b.Id);
+                    acumulados.AddRange(regs.Where(r => r.Estado != null && r.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase)));
+                }
+            }
+            registrosPendientes = acumulados
+                .OrderBy(r => bestias?.FirstOrDefault(b => b.Id == r.IdBestia)?.Nombre)
+                .ThenBy(r => r.NroRegistro)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar registros pendientes: {ex.Message}";
+            isFeedbackError = true;
+            registrosPendientes = new();
+        }
+        finally
+        {
+            isProcesandoPendiente = false;
+        }
+    }
+
+    private async Task CargarPendientesBestiaAsync(Guid idBestia)
+    {
+        try
+        {
+            isProcesandoPendiente = true;
+            var todos = await RegistroApiClient.GetByBestiaAsync(idBestia);
+            registrosPendientes = todos
+                .Where(r => r.Estado != null && r.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(r => r.NroRegistro)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al cargar registros pendientes: {ex.Message}";
+            isFeedbackError = true;
+            registrosPendientes = new();
+        }
+        finally
+        {
+            isProcesandoPendiente = false;
+        }
+    }
+
+    private void ExaminarPendiente(RegistroDTO reg)
+    {
+        registroActual = reg;
+        registroModalMode = FormMode.Update;
+        isRegistroModalOpen = true;
+    }
+
+    private async Task AceptarPendienteAsync(RegistroDTO reg)
+    {
+        if (!Auth.EsInvestigador || Auth.CurrentUser == null) return;
+        try
+        {
+            isProcesandoPendiente = true;
+            await RegistroApiClient.AprobarAsync(reg.IdBestia, reg.NroRegistro, Auth.CurrentUser.Id);
+            feedbackMessage = $"Registro #{reg.NroRegistro} aprobado y publicado.";
+            isFeedbackError = false;
+            await RecargarPendientesActualesAsync();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al aprobar registro: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isProcesandoPendiente = false;
+        }
+    }
+
+    private async Task RechazarPendienteAsync(RegistroDTO reg)
+    {
+        if (!Auth.EsInvestigador) return;
+        try
+        {
+            isProcesandoPendiente = true;
+            await RegistroApiClient.DeleteAsync(reg.IdBestia, reg.NroRegistro);
+            feedbackMessage = $"Registro #{reg.NroRegistro} rechazado y eliminado.";
+            isFeedbackError = false;
+            await RecargarPendientesActualesAsync();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error al rechazar registro: {ex.Message}";
+            isFeedbackError = true;
+        }
+        finally
+        {
+            isProcesandoPendiente = false;
+        }
+    }
+}
+
+<Blazor.Server.Pages.Registros.RegistroModal
+    IsOpen="@isRegistroModalOpen"
+    Mode="@registroModalMode"
+    Registro="@registroActual"
+    Bestias="@(bestias ?? new List<BestiaDTO>())"
+    OnSaved="@OnRegistroModalSaved"
+    OnCancel="@(() => isRegistroModalOpen = false)" />
+
+@if (isPendientesModalOpen)
+{
+    <div class="win-modal-overlay">
+        <div class="win-modal-dialog" style="width: 720px; max-width: 95vw;">
+            <div class="win-titlebar">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="oi oi-clock text-warning" style="font-size: 11px;"></span>
+                    <span>@(mostrandoTodosPendientes ? "Todos los Registros Pendientes" : $"Registros Pendientes — {selectedBestia?.Nombre ?? "-"}")</span>
+                </div>
+                <div class="win-titlebar-controls">
+                    <button class="win-titlebar-btn close" @onclick="@(() => isPendientesModalOpen = false)">✕</button>
+                </div>
+            </div>
+            <div class="win-form-content" style="padding: 12px 16px;">
+                @if (isProcesandoPendiente)
+                {
+                    <div class="text-muted py-3 text-center" style="font-size: 12px;">Cargando...</div>
+                }
+                else if (!registrosPendientes.Any())
+                {
+                    <div class="text-muted py-3 text-center" style="font-size: 12px;">
+                        @(mostrandoTodosPendientes ? "No hay registros pendientes en el sistema." : "No hay registros pendientes para esta bestia.")
+                    </div>
+                }
+                else
+                {
+                    <div class="win-grid-container" style="height: 230px;">
+                        <table class="win-grid">
+                            <thead>
+                                <tr>
+                                    <th>Bestia</th>
+                                    <th style="width: 70px;">Nro.</th>
+                                    <th>Publicador</th>
+                                    <th style="width: 75px;">Secc.</th>
+                                    <th style="width: 220px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var reg in registrosPendientes)
+                                {
+                                    var bName = bestias?.FirstOrDefault(b => b.Id == reg.IdBestia)?.Nombre ?? reg.IdBestia.ToString().Substring(0, 8);
+                                    <tr>
+                                        <td><strong>@bName</strong></td>
+                                        <td>#@reg.NroRegistro</td>
+                                        <td style="font-size: 11px;">@(reg.CorreoPublicador ?? "-")</td>
+                                        <td>@reg.Contenidos.Count</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="win-btn" style="height: 20px; font-size: 10px;" @onclick="() => ExaminarPendiente(reg)">Examinar</button>
+                                                <button class="win-btn text-success" style="height: 20px; font-size: 10px;" @onclick="() => AceptarPendienteAsync(reg)">Aceptar</button>
+                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;" @onclick="() => RechazarPendienteAsync(reg)">Rechazar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                <div class="d-flex justify-content-end mt-3 pt-2 border-top">
+                    <button class="win-btn" @onclick="@(() => isPendientesModalOpen = false)">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }

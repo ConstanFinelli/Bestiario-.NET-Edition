@@ -9,6 +9,7 @@ namespace Data
     {
         Task<IEnumerable<Registro>> GetByBestiaAsync(Guid idBestia);
         Task<Registro?> GetAsync(Guid idBestia, int nroRegistro);
+        Task<Registro?> GetVigenteAsync(Guid idBestia, DateTime? fecha = null);
         Task<int> GetNextNroRegistroAsync(Guid idBestia);
         Task AddAsync(Registro registro);
         Task<bool> UpdateAsync(Registro registro);

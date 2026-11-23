@@ -153,7 +153,6 @@ namespace WindowsForms
             categoriasCheckedListBox.Name = "categoriasCheckedListBox";
             categoriasCheckedListBox.Size = new Size(260, 94);
             categoriasCheckedListBox.TabIndex = 11;
-            categoriasCheckedListBox.SelectedIndexChanged += this.categoriasCheckedListBox_SelectedIndexChanged;
             // 
             // aceptarButton
             // 

@@ -9,6 +9,7 @@ namespace Application.Services
     {
         Task<IEnumerable<RegistroDTO>> GetByBestiaAsync(Guid idBestia);
         Task<RegistroDTO?> GetAsync(Guid idBestia, int nroRegistro);
+        Task<RegistroDTO?> GetVigenteAsync(Guid idBestia, DateTime? fecha = null);
         Task<RegistroDTO> AddAsync(RegistroDTO dto);
         Task<bool> UpdateAsync(RegistroDTO dto);
         Task<bool> DeleteAsync(Guid idBestia, int nroRegistro);

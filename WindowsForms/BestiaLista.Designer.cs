@@ -47,7 +47,6 @@ namespace WindowsForms
             bestiasDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             bestiasDataGridView.Size = new Size(760, 330);
             bestiasDataGridView.TabIndex = 0;
-            bestiasDataGridView.DoubleClick += actualizarButton_Click;
             // 
             // verRegistrosButton
             // 

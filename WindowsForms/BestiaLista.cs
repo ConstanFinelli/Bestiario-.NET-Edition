@@ -18,6 +18,7 @@ namespace WindowsForms
         {
             InitializeComponent();
             ConfigurarColumnas();
+            this.bestiasDataGridView.CellDoubleClick += async (_, _) => await AbrirUltimoRegistroSeleccionadoAsync();
         }
 
         private void ConfigurarColumnas()
@@ -150,13 +151,75 @@ namespace WindowsForms
             }
         }
 
-        private void verRegistrosButton_Click(object sender, EventArgs e)
+        private async void verRegistrosButton_Click(object sender, EventArgs e)
         {
             if (this.bestiasDataGridView.SelectedRows.Count == 0) return;
 
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO
+                || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+
+            if (esInvestigador)
+            {
+                BestiaDTO bestia = this.SelectedItem();
+                using var registrosForm = new RegistroLista(bestia.Id);
+                registrosForm.ShowDialog();
+                return;
+            }
+
+            await AbrirUltimoRegistroSeleccionadoAsync();
+        }
+
+        private async Task AbrirUltimoRegistroSeleccionadoAsync()
+        {
+            if (this.bestiasDataGridView.SelectedRows.Count == 0) return;
             BestiaDTO bestia = this.SelectedItem();
-            RegistroLista registrosForm = new RegistroLista(bestia.Id);
-            registrosForm.ShowDialog();
+
+            try
+            {
+                DeshabilitarControles();
+                var vigente = await RegistroApiClient.GetVigenteAsync(bestia.Id);
+                if (vigente == null)
+                {
+                    if (LoginForm.UsuarioLogueado != null)
+                    {
+                        var resp = MessageBox.Show(
+                            $"Aún no existen registros aprobados para '{bestia.Nombre}'. ¿Desea proponer el primer registro?",
+                            "Sin registros aprobados",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Information);
+
+                        if (resp == DialogResult.Yes)
+                        {
+                            bool esInv = LoginForm.UsuarioLogueado is InvestigadorDTO
+                                || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+                            var nuevo = new RegistroDTO
+                            {
+                                IdBestia = bestia.Id,
+                                Estado = esInv ? "aprobado" : "pendiente",
+                                Contenidos = new List<ContenidoRegistroDTO>()
+                            };
+                            using var det = new RegistroDetalle(FormMode.Add, nuevo, new List<BestiaDTO> { bestia });
+                            det.ShowDialog();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Aún no existen registros aprobados para esta bestia.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    return;
+                }
+
+                using var enciclopedia = new RegistroEnciclopediaForm(vigente, bestia, new List<BestiaDTO> { bestia });
+                enciclopedia.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar registro de la bestia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                HabilitarControles();
+            }
         }
 
         private async Task GetBestiasAndLoad()
@@ -239,6 +302,9 @@ namespace WindowsForms
         private void HabilitarControles()
         {
             bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            agregarButton.Visible = esInvestigador;
+            actualizarButton.Visible = esInvestigador;
+            eliminarButton.Visible = esInvestigador;
             agregarButton.Enabled = esInvestigador;
             bestiasDataGridView.Enabled = true;
             if (bestiasDataGridView.Rows.Count > 0)
