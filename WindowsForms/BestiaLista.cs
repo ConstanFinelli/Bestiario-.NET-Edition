@@ -14,11 +14,66 @@ namespace WindowsForms
 {
     public partial class BestiaLista : Form
     {
+        private List<BestiaVM> _todasBestias = new();
+        private ComboBox _categoriaComboBox = null!;
+        private ComboBox _habitatComboBox = null!;
+        private bool _cargandoFiltro;
+
         public BestiaLista()
         {
             InitializeComponent();
+            InicializarFiltros();
             ConfigurarColumnas();
             this.bestiasDataGridView.CellDoubleClick += async (_, _) => await AbrirUltimoRegistroSeleccionadoAsync();
+        }
+
+        private void InicializarFiltros()
+        {
+            this.bestiasDataGridView.Top += 34;
+            this.bestiasDataGridView.Height -= 34;
+
+            var lblCat = new Label
+            {
+                Text = "Categoría:",
+                AutoSize = true,
+                Location = new Point(12, 14),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+
+            _categoriaComboBox = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(84, 10),
+                Width = 200
+            };
+            _categoriaComboBox.SelectedIndexChanged += (_, _) =>
+            {
+                if (!_cargandoFiltro) AplicarFiltros();
+            };
+
+            var lblHab = new Label
+            {
+                Text = "Hábitat:",
+                AutoSize = true,
+                Location = new Point(300, 14),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+
+            _habitatComboBox = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(360, 10),
+                Width = 200
+            };
+            _habitatComboBox.SelectedIndexChanged += (_, _) =>
+            {
+                if (!_cargandoFiltro) AplicarFiltros();
+            };
+
+            this.Controls.Add(lblCat);
+            this.Controls.Add(_categoriaComboBox);
+            this.Controls.Add(lblHab);
+            this.Controls.Add(_habitatComboBox);
         }
 
         private void ConfigurarColumnas()
@@ -229,6 +284,51 @@ namespace WindowsForms
                 DeshabilitarControles();
                 this.bestiasDataGridView.DataSource = null;
 
+                var cats = await CategoriaApiClient.GetAllAsync();
+                var habs = await HabitatApiClient.GetAllAsync();
+                Guid? prevCatId = (_categoriaComboBox.SelectedItem as FiltroItem)?.Id;
+                Guid? prevHabId = (_habitatComboBox.SelectedItem as FiltroItem)?.Id;
+
+                _cargandoFiltro = true;
+                try
+                {
+                    _categoriaComboBox.Items.Clear();
+                    _categoriaComboBox.Items.Add(new FiltroItem { Id = null, Nombre = "-- Todas --" });
+                    int selectedCatIdx = 0;
+                    if (cats != null)
+                    {
+                        foreach (var c in cats.OrderBy(x => x.Nombre))
+                        {
+                            int idx = _categoriaComboBox.Items.Add(new FiltroItem { Id = c.Id, Nombre = c.Nombre });
+                            if (prevCatId.HasValue && prevCatId.Value == c.Id)
+                            {
+                                selectedCatIdx = idx;
+                            }
+                        }
+                    }
+                    _categoriaComboBox.SelectedIndex = selectedCatIdx;
+
+                    _habitatComboBox.Items.Clear();
+                    _habitatComboBox.Items.Add(new FiltroItem { Id = null, Nombre = "-- Todos --" });
+                    int selectedHabIdx = 0;
+                    if (habs != null)
+                    {
+                        foreach (var h in habs.OrderBy(x => x.Nombre))
+                        {
+                            int idx = _habitatComboBox.Items.Add(new FiltroItem { Id = h.Id, Nombre = h.Nombre });
+                            if (prevHabId.HasValue && prevHabId.Value == h.Id)
+                            {
+                                selectedHabIdx = idx;
+                            }
+                        }
+                    }
+                    _habitatComboBox.SelectedIndex = selectedHabIdx;
+                }
+                finally
+                {
+                    _cargandoFiltro = false;
+                }
+
                 var result = await BestiaApiClient.GetAllAsync();
                 bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
                 if (!esInvestigador)
@@ -236,7 +336,7 @@ namespace WindowsForms
                     result = result?.Where(b => b.Estado != null && b.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
                 }
 
-                var list = result?.Select(b => new BestiaVM
+                _todasBestias = result?.Select(b => new BestiaVM
                 {
                     Id = b.Id,
                     Nombre = b.Nombre,
@@ -250,21 +350,7 @@ namespace WindowsForms
                     CategoriasTexto = b.CategoriasNombres.Any() ? string.Join(", ", b.CategoriasNombres) : "-"
                 }).ToList() ?? new List<BestiaVM>();
 
-                this.bestiasDataGridView.DataSource = list;
-
-                if (this.bestiasDataGridView.Rows.Count > 0)
-                {
-                    this.bestiasDataGridView.Rows[0].Selected = true;
-                    this.eliminarButton.Enabled = esInvestigador;
-                    this.actualizarButton.Enabled = esInvestigador;
-                    this.verRegistrosButton.Enabled = true;
-                }
-                else
-                {
-                    this.eliminarButton.Enabled = false;
-                    this.actualizarButton.Enabled = false;
-                    this.verRegistrosButton.Enabled = false;
-                }
+                AplicarFiltros();
             }
             catch (Exception ex)
             {
@@ -274,6 +360,46 @@ namespace WindowsForms
             {
                 HabilitarControles();
             }
+        }
+
+        private void AplicarFiltros()
+        {
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            Guid? catId = (_categoriaComboBox.SelectedItem as FiltroItem)?.Id;
+            Guid? habId = (_habitatComboBox.SelectedItem as FiltroItem)?.Id;
+
+            IEnumerable<BestiaVM> query = _todasBestias;
+            if (catId.HasValue)
+            {
+                query = query.Where(b => b.CategoriasIds.Contains(catId.Value));
+            }
+            if (habId.HasValue)
+            {
+                query = query.Where(b => b.IdHabitat == habId.Value);
+            }
+
+            this.bestiasDataGridView.DataSource = query.ToList();
+
+            if (this.bestiasDataGridView.Rows.Count > 0)
+            {
+                this.bestiasDataGridView.Rows[0].Selected = true;
+                this.eliminarButton.Enabled = esInvestigador;
+                this.actualizarButton.Enabled = esInvestigador;
+                this.verRegistrosButton.Enabled = true;
+            }
+            else
+            {
+                this.eliminarButton.Enabled = false;
+                this.actualizarButton.Enabled = false;
+                this.verRegistrosButton.Enabled = false;
+            }
+        }
+
+        private class FiltroItem
+        {
+            public Guid? Id { get; set; }
+            public string Nombre { get; set; } = string.Empty;
+            public override string ToString() => Nombre;
         }
 
         private BestiaDTO SelectedItem()
