@@ -6,7 +6,7 @@
 
 <PageTitle>Reportes</PageTitle>
 
-<div class="win-form" style="width: 980px; max-width: 96vw;">
+<div class="win-form win-form-lg">
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
             <span class="oi oi-bar-chart text-primary"></span>
@@ -19,7 +19,7 @@
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
@@ -37,13 +37,11 @@
         else
         {
             <div class="d-flex gap-1 mb-3 border-bottom pb-2">
-                <button class="win-btn @(activeTab == 1 ? "fw-bold border-primary" : "")"
-                        style="@(activeTab == 1 ? "background-color: #dbe8f9;" : "")"
+                <button class="win-btn @(activeTab == 1 ? "report-tab-active border-primary" : "")"
                         @onclick="() => CambiarTab(1)">
                     📊 Reporte 1: Estadísticas de Bestias (Gráficos)
                 </button>
-                <button class="win-btn @(activeTab == 2 ? "fw-bold border-primary" : "")"
-                        style="@(activeTab == 2 ? "background-color: #dbe8f9;" : "")"
+                <button class="win-btn @(activeTab == 2 ? "report-tab-active border-primary" : "")"
                         @onclick="() => CambiarTab(2)">
                     📋 Reporte 2: Registros por Bestia
                 </button>
@@ -61,32 +59,32 @@
                     <div class="row g-2 mb-3">
                         <div class="col">
                             <div class="border bg-white p-2 text-center">
-                                <div class="text-muted" style="font-size: 10px;">TOTAL BESTIAS</div>
-                                <div class="fw-bold text-primary" style="font-size: 18px;">@estadisticas.TotalBestias</div>
+                                <div class="text-muted report-stat-label">TOTAL BESTIAS</div>
+                                <div class="fw-bold text-primary report-stat-value">@estadisticas.TotalBestias</div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="border bg-white p-2 text-center">
-                                <div class="text-muted" style="font-size: 10px;">APROBADAS</div>
-                                <div class="fw-bold text-success" style="font-size: 18px;">@estadisticas.TotalAprobadas</div>
+                                <div class="text-muted report-stat-label">APROBADAS</div>
+                                <div class="fw-bold text-success report-stat-value">@estadisticas.TotalAprobadas</div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="border bg-white p-2 text-center">
-                                <div class="text-muted" style="font-size: 10px;">PENDIENTES</div>
-                                <div class="fw-bold text-warning" style="font-size: 18px;">@estadisticas.TotalPendientes</div>
+                                <div class="text-muted report-stat-label">PENDIENTES</div>
+                                <div class="fw-bold text-warning report-stat-value">@estadisticas.TotalPendientes</div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="border bg-white p-2 text-center">
-                                <div class="text-muted" style="font-size: 10px;">REGISTROS</div>
-                                <div class="fw-bold text-dark" style="font-size: 18px;">@estadisticas.TotalRegistros</div>
+                                <div class="text-muted report-stat-label">REGISTROS</div>
+                                <div class="fw-bold text-dark report-stat-value">@estadisticas.TotalRegistros</div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="border bg-white p-2 text-center">
-                                <div class="text-muted" style="font-size: 10px;">EVIDENCIAS</div>
-                                <div class="fw-bold text-dark" style="font-size: 18px;">@estadisticas.TotalEvidencias</div>
+                                <div class="text-muted report-stat-label">EVIDENCIAS</div>
+                                <div class="fw-bold text-dark report-stat-value">@estadisticas.TotalEvidencias</div>
                             </div>
                         </div>
                     </div>

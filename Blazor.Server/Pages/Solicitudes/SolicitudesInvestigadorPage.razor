@@ -5,7 +5,7 @@
 
 <PageTitle>Solicitudes a Investigador</PageTitle>
 
-<div class="win-form" style="width: 960px; max-width: 96vw;">
+<div class="win-form win-form-lg">
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
             <span class="oi oi-badge text-primary"></span>
@@ -18,7 +18,7 @@
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
@@ -37,7 +37,7 @@
 
             @if (tieneAprobada)
             {
-                <div class="alert alert-success py-2 mb-2 d-flex align-items-center justify-content-between" style="font-size: 11px;">
+                <div class="alert alert-success py-2 mb-2 d-flex align-items-center justify-content-between win-alert">
                     <span>
                         <strong>¡Tu solicitud fue aprobada!</strong> Cerrá sesión y volvé a iniciar sesión para activar tus permisos de Investigador.
                     </span>
@@ -46,13 +46,13 @@
             }
             else if (tienePendiente)
             {
-                <div class="alert alert-info py-2 mb-2" style="font-size: 11px;">
+                <div class="alert alert-info py-2 mb-2 win-alert">
                     Ya tenés una solicitud en estado <strong>pendiente</strong>. Un investigador revisará tu postulación pronto.
                 </div>
             }
 
-            <fieldset style="border: 1px solid #c0c0c0; padding: 12px 16px; margin-bottom: 14px; background: #fafafa;">
-                <legend style="font-size: 11px; font-weight: bold; width: auto; padding: 0 6px; margin-bottom: 4px;">
+            <fieldset class="win-fieldset">
+                <legend class="win-fieldset-legend">
                     Nueva Solicitud para ser Investigador
                 </legend>
 

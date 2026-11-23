@@ -3,10 +3,10 @@
 @if (IsOpen)
 {
     <div class="win-modal-overlay">
-        <div class="win-modal-dialog" style="width: 480px;">
+        <div class="win-modal-dialog win-modal-md">
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
-                    <span class="oi oi-camera-slr text-primary" style="font-size: 11px;"></span>
+                    <span class="oi oi-camera-slr text-primary win-title-icon"></span>
                     <span>Evidencia</span>
                 </div>
                 <div class="win-titlebar-controls">
@@ -14,7 +14,7 @@
                 </div>
             </div>
 
-            <div class="win-form-content" style="padding: 18px 24px;">
+            <div class="win-form-content win-modal-body-lg">
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
                     <div class="win-error-msg mb-2">
@@ -23,7 +23,7 @@
                 }
                 @if (Auth.EsLector && Mode == FormMode.Add)
                 {
-                    <div class="alert alert-info py-1 mb-2" style="font-size: 11px;">
+                    <div class="alert alert-info py-1 mb-2 win-alert">
                         Tu evidencia se enviará en estado <strong>pendiente</strong> para revisión de un investigador.
                     </div>
                 }

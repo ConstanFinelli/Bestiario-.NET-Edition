@@ -4,17 +4,17 @@
 
 <PageTitle>@GetPageTitle()</PageTitle>
 
-<div class="win-form" style="width: 460px; margin-top: 40px;">
+<div class="win-form win-form-narrow">
     <!-- Barra de Título Windows -->
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
-            <span class="oi @GetTitleIcon() text-primary" style="font-size: 11px;"></span>
+            <span class="oi @GetTitleIcon() text-primary win-title-icon"></span>
             <span>@GetPageTitle()</span>
         </div>
     </div>
 
     <!-- Contenido del Formulario -->
-    <div class="win-form-content" style="padding: 20px 30px;">
+    <div class="win-form-content login-body">
         @if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="win-error-msg text-center mb-3">
@@ -23,7 +23,7 @@
         }
         @if (!string.IsNullOrEmpty(successMessage))
         {
-            <div class="text-center mb-3" style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 6px 12px; font-size: 11px; border-radius: 2px;">
+            <div class="text-center mb-3 login-success-banner">
                 <span class="oi oi-check me-1"></span> @successMessage
             </div>
         }
@@ -35,40 +35,40 @@
                 <label class="win-label fw-bold">Nombre de usuario o correo</label>
             </div>
             <div class="text-center mb-3">
-                <input type="text" class="win-textbox text-center @(usernameInvalido ? "win-field-error" : "")" 
-                       style="width: 300px;" @bind="username" @onkeydown="HandleKeyDown" autofocus />
+                <input type="text" class="win-textbox text-center login-input @(usernameInvalido ? "win-field-error" : "")" 
+                       @bind="username" @onkeydown="HandleKeyDown" autofocus />
             </div>
 
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Contraseña</label>
             </div>
             <div class="text-center mb-2">
-                <input type="password" class="win-textbox text-center @(passwordInvalido ? "win-field-error" : "")" 
-                       style="width: 300px;" @bind="password" @onkeydown="HandleKeyDown" />
+                <input type="password" class="win-textbox text-center login-input @(passwordInvalido ? "win-field-error" : "")" 
+                       @bind="password" @onkeydown="HandleKeyDown" />
             </div>
             <div class="text-center mb-3">
-                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="MostrarRecuperarPaso1">
+                <a href="javascript:void(0)" class="text-decoration-none login-link" @onclick="MostrarRecuperarPaso1">
                     ¿Olvidaste tu contraseña?
                 </a>
             </div>
 
             <!-- Botones de Acción: Cancelar e Iniciar sesión -->
             <div class="d-flex justify-content-between px-3 mb-3">
-                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="Limpiar" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-md" @onclick="Limpiar" disabled="@isLoading">
                     Cancelar
                 </button>
-                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="IniciarSesion" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-md" @onclick="IniciarSesion" disabled="@isLoading">
                     @(isLoading ? "Iniciando..." : "Iniciar sesión")
                 </button>
             </div>
 
             <!-- Opción para registrarse como Lector o entrar como invitado -->
-            <div class="text-center pt-2 d-flex justify-content-center align-items-center gap-3" style="border-top: 1px solid #e0e0e0;">
-                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="MostrarRegistroLector">
+            <div class="text-center pt-2 d-flex justify-content-center align-items-center gap-3 login-divider">
+                <a href="javascript:void(0)" class="text-decoration-none login-link" @onclick="MostrarRegistroLector">
                     ¿No tienes una cuenta? Registrarse como Lector
                 </a>
-                <span class="text-muted" style="font-size: 11px;">|</span>
-                <NavLink href="/" class="text-decoration-none" style="font-size: 11px; color: #0066cc;">
+                <span class="text-muted win-text-sm">|</span>
+                <NavLink href="/" class="text-decoration-none login-link">
                     Continuar como invitado
                 </NavLink>
             </div>
@@ -80,45 +80,45 @@
                 <label class="win-label fw-bold">Correo electrónico</label>
             </div>
             <div class="text-center mb-3">
-                <input type="email" class="win-textbox text-center @(regCorreoInvalido ? "win-field-error" : "")" 
-                       style="width: 300px;" @bind="regCorreo" placeholder="ejemplo@correo.com" autofocus />
+                <input type="email" class="win-textbox text-center login-input @(regCorreoInvalido ? "win-field-error" : "")" 
+                       @bind="regCorreo" placeholder="ejemplo@correo.com" autofocus />
             </div>
 
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Contraseña</label>
             </div>
             <div class="text-center mb-3">
-                <input type="password" class="win-textbox text-center @(regPasswordInvalido ? "win-field-error" : "")" 
-                       style="width: 300px;" @bind="regPassword" />
+                <input type="password" class="win-textbox text-center login-input @(regPasswordInvalido ? "win-field-error" : "")" 
+                       @bind="regPassword" />
             </div>
 
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Confirmar contraseña</label>
             </div>
             <div class="text-center mb-3">
-                <input type="password" class="win-textbox text-center @(regConfirmInvalido ? "win-field-error" : "")" 
-                       style="width: 300px;" @bind="regConfirmPassword" />
+                <input type="password" class="win-textbox text-center login-input @(regConfirmInvalido ? "win-field-error" : "")" 
+                       @bind="regConfirmPassword" />
             </div>
 
             <div class="text-center mb-4">
-                <label style="cursor: pointer; font-size: 11px;">
-                    <input type="checkbox" @bind="regRecibirNotificaciones" style="vertical-align: middle; margin-right: 4px;" />
+                <label class="win-check-label">
+                    <input type="checkbox" @bind="regRecibirNotificaciones" class="win-check-input" />
                     Recibir notificaciones del Bestiario
                 </label>
             </div>
 
             <!-- Botones de Acción de Registro -->
             <div class="d-flex justify-content-between px-3 mb-3">
-                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="VolverALogin" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-md" @onclick="VolverALogin" disabled="@isLoading">
                     Volver
                 </button>
-                <button type="button" class="win-btn" style="min-width: 140px;" @onclick="RegistrarLector" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-lg" @onclick="RegistrarLector" disabled="@isLoading">
                     @(isLoading ? "Creando cuenta..." : "Crear y Entrar")
                 </button>
             </div>
 
-            <div class="text-center pt-2" style="border-top: 1px solid #e0e0e0;">
-                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="VolverALogin">
+            <div class="text-center pt-2 login-divider">
+                <a href="javascript:void(0)" class="text-decoration-none login-link" @onclick="VolverALogin">
                     ¿Ya tienes una cuenta? Iniciar sesión
                 </a>
             </div>
@@ -126,7 +126,7 @@
         else if (vistaActual == VistaLogin.RecuperarPaso1)
         {
             <!-- Paso 1: Solicitar código de verificación por Gmail -->
-            <p class="text-muted text-center mb-3" style="font-size: 11px;">
+            <p class="text-muted text-center mb-3 win-text-sm">
                 Ingresá tu correo electrónico y te enviaremos un código de verificación para restablecer tu contraseña.
             </p>
 
@@ -134,21 +134,21 @@
                 <label class="win-label fw-bold">Correo electrónico</label>
             </div>
             <div class="text-center mb-4">
-                <input type="email" class="win-textbox text-center @(recCorreoInvalido ? "win-field-error" : "")"
-                       style="width: 300px;" @bind="recCorreo" placeholder="ejemplo@correo.com" @onkeydown="HandleKeyDown" autofocus />
+                <input type="email" class="win-textbox text-center login-input @(recCorreoInvalido ? "win-field-error" : "")"
+                       @bind="recCorreo" placeholder="ejemplo@correo.com" @onkeydown="HandleKeyDown" autofocus />
             </div>
 
             <div class="d-flex justify-content-between px-3 mb-3">
-                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="VolverALogin" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-md" @onclick="VolverALogin" disabled="@isLoading">
                     Volver
                 </button>
-                <button type="button" class="win-btn" style="min-width: 140px;" @onclick="EnviarCodigoRecuperacion" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-lg" @onclick="EnviarCodigoRecuperacion" disabled="@isLoading">
                     @(isLoading ? "Enviando..." : "Enviar código")
                 </button>
             </div>
 
-            <div class="text-center pt-2" style="border-top: 1px solid #e0e0e0;">
-                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="() => vistaActual = VistaLogin.RecuperarPaso2">
+            <div class="text-center pt-2 login-divider">
+                <a href="javascript:void(0)" class="text-decoration-none login-link" @onclick="() => vistaActual = VistaLogin.RecuperarPaso2">
                     Ya tengo un código de verificación
                 </a>
             </div>
@@ -160,45 +160,45 @@
                 <label class="win-label fw-bold">Correo electrónico</label>
             </div>
             <div class="text-center mb-2">
-                <input type="email" class="win-textbox text-center @(recCorreoInvalido ? "win-field-error" : "")"
-                       style="width: 300px;" @bind="recCorreo" placeholder="ejemplo@correo.com" />
+                <input type="email" class="win-textbox text-center login-input @(recCorreoInvalido ? "win-field-error" : "")"
+                       @bind="recCorreo" placeholder="ejemplo@correo.com" />
             </div>
 
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Código de verificación (6 dígitos)</label>
             </div>
             <div class="text-center mb-2">
-                <input type="text" class="win-textbox text-center @(recCodigoInvalido ? "win-field-error" : "")"
-                       style="width: 180px; letter-spacing: 4px; font-weight: bold;" maxlength="6" @bind="recCodigo" placeholder="000000" autofocus />
+                <input type="text" class="win-textbox text-center login-code-input @(recCodigoInvalido ? "win-field-error" : "")"
+                       maxlength="6" @bind="recCodigo" placeholder="000000" autofocus />
             </div>
 
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Nueva contraseña</label>
             </div>
             <div class="text-center mb-2">
-                <input type="password" class="win-textbox text-center @(recPasswordInvalido ? "win-field-error" : "")"
-                       style="width: 300px;" @bind="recNuevaPassword" />
+                <input type="password" class="win-textbox text-center login-input @(recPasswordInvalido ? "win-field-error" : "")"
+                       @bind="recNuevaPassword" />
             </div>
 
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Confirmar nueva contraseña</label>
             </div>
             <div class="text-center mb-4">
-                <input type="password" class="win-textbox text-center @(recConfirmInvalido ? "win-field-error" : "")"
-                       style="width: 300px;" @bind="recConfirmPassword" @onkeydown="HandleKeyDown" />
+                <input type="password" class="win-textbox text-center login-input @(recConfirmInvalido ? "win-field-error" : "")"
+                       @bind="recConfirmPassword" @onkeydown="HandleKeyDown" />
             </div>
 
             <div class="d-flex justify-content-between px-3 mb-3">
-                <button type="button" class="win-btn" style="min-width: 110px;" @onclick="MostrarRecuperarPaso1" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-sm" @onclick="MostrarRecuperarPaso1" disabled="@isLoading">
                     Volver
                 </button>
-                <button type="button" class="win-btn" style="min-width: 165px;" @onclick="ConfirmarRestablecimiento" disabled="@isLoading">
+                <button type="button" class="win-btn login-btn-xl" @onclick="ConfirmarRestablecimiento" disabled="@isLoading">
                     @(isLoading ? "Guardando..." : "Restablecer contraseña")
                 </button>
             </div>
 
-            <div class="text-center pt-2" style="border-top: 1px solid #e0e0e0;">
-                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="VolverALogin">
+            <div class="text-center pt-2 login-divider">
+                <a href="javascript:void(0)" class="text-decoration-none login-link" @onclick="VolverALogin">
                     Volver al inicio de sesión
                 </a>
             </div>

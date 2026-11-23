@@ -1,0 +1,47 @@
+.login-body {
+    padding: 20px 30px;
+}
+
+.login-input {
+    width: 300px;
+}
+
+.login-code-input {
+    width: 180px;
+    letter-spacing: 4px;
+    font-weight: bold;
+}
+
+.login-success-banner {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 2px;
+}
+
+.login-divider {
+    border-top: 1px solid #e0e0e0;
+}
+
+.login-link {
+    font-size: 11px;
+    color: #0066cc;
+}
+
+.login-btn-sm {
+    min-width: 110px;
+}
+
+.login-btn-md {
+    min-width: 120px;
+}
+
+.login-btn-lg {
+    min-width: 140px;
+}
+
+.login-btn-xl {
+    min-width: 165px;
+}

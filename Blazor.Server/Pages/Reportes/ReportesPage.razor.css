@@ -1,0 +1,55 @@
+.report-tab-active {
+    background-color: #dbe8f9;
+    font-weight: bold;
+}
+
+.report-stat-label {
+    font-size: 10px;
+}
+
+.report-stat-value {
+    font-size: 18px;
+}
+
+.report-chart-title {
+    font-size: 12px;
+}
+
+.report-chart-svg {
+    max-height: 220px;
+}
+
+.report-legend {
+    font-size: 10px;
+}
+
+.report-legend-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+}
+
+.report-swatch-green {
+    background-color: #198754;
+}
+
+.report-swatch-blue {
+    background-color: #0d6efd;
+}
+
+.report-swatch-amber {
+    background-color: #ffc107;
+}
+
+.report-group-row {
+    background-color: #eef3fb;
+    font-weight: bold;
+}
+
+.report-filter-bestia {
+    min-width: 170px;
+}
+
+.report-filter-estado {
+    min-width: 120px;
+}

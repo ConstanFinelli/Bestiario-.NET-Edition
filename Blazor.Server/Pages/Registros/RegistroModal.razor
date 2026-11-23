@@ -3,11 +3,11 @@
 @if (IsOpen)
 {
     <div class="win-modal-overlay">
-        <div class="win-modal-dialog" style="width: @(isEditMode ? "640px" : "900px"); max-width: 95vw;">
+        <div class="win-modal-dialog @(isEditMode ? "win-modal-640" : "win-modal-lg")">
             <!-- Barra de Título del Diálogo -->
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
-                    <span class="oi @(isEditMode ? "oi-window" : "oi-book") text-primary" style="font-size: 11px;"></span>
+                    <span class="oi @(isEditMode ? "oi-window" : "oi-book") text-primary win-title-icon"></span>
                     <span>@(isEditMode ? "Registro de Bestia (Maestro / Detalle)" : $"Enciclopedia — {bestiaActual?.Nombre ?? "Registro"}")</span>
                 </div>
                 <div class="win-titlebar-controls">
@@ -16,7 +16,7 @@
             </div>
 
             <!-- Cuerpo del Formulario / Enciclopedia -->
-            <div class="win-form-content" style="padding: 16px 20px; max-height: 84vh; overflow-y: auto;">
+            <div class="win-form-content win-modal-body-scroll">
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
                     <div class="win-error-msg mb-2">
@@ -27,23 +27,23 @@
                 @if (!isEditMode && Mode == FormMode.Update)
                 {
                     <!-- VISTA ENCICLOPEDIA -->
-                    <div style="background-color: #f6f3eb; border: 1px solid #d5cfc0; padding: 20px 24px; border-radius: 3px;">
+                    <div class="enc-paper">
                         <!-- Encabezado con el nombre de la Bestia -->
-                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: bold; color: #2b2620; text-align: center; border-bottom: 1px solid #bdb6a7; padding-bottom: 8px; margin-bottom: 12px;">
+                        <div class="enc-title">
                             @(bestiaActual?.Nombre ?? "Bestia")
                         </div>
 
                         <!-- Cargar registro en determinada fecha -->
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 p-2 rounded" style="background-color: #ebe6da; border: 1px solid #d0c9b8; font-size: 11px;">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 p-2 rounded enc-date-bar">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                <span class="fw-bold" style="color: #2b2620;">Cargar registro en determinada fecha:</span>
-                                <input type="datetime-local" class="win-textbox" style="height: 22px;" @bind="fechaConsulta" />
-                                <button type="button" class="win-btn" style="height: 22px;" @onclick="CargarRegistroEnFechaAsync" disabled="@isLoadingFecha">
+                                <span class="fw-bold enc-date-label">Cargar registro en determinada fecha:</span>
+                                <input type="datetime-local" class="win-textbox" @bind="fechaConsulta" />
+                                <button type="button" class="win-btn win-btn-md" @onclick="CargarRegistroEnFechaAsync" disabled="@isLoadingFecha">
                                     @(isLoadingFecha ? "Buscando..." : "Cargar")
                                 </button>
                                 @if (mostrandoHistorico)
                                 {
-                                    <button type="button" class="win-btn" style="height: 22px;" @onclick="CargarRegistroVigenteActualAsync" disabled="@isLoadingFecha">
+                                    <button type="button" class="win-btn win-btn-md" @onclick="CargarRegistroVigenteActualAsync" disabled="@isLoadingFecha">
                                         Vigente actual
                                     </button>
                                 }
@@ -59,7 +59,7 @@
                             <div class="col-md-8">
                                 @if (!Registro.Contenidos.Any())
                                 {
-                                    <p class="text-muted fst-italic" style="font-size: 13px;">
+                                    <p class="text-muted fst-italic">
                                         Este registro aún no posee secciones de contenido.
                                     </p>
                                 }
@@ -68,12 +68,8 @@
                                     @foreach (var cont in Registro.Contenidos.OrderBy(c => c.NroContenido))
                                     {
                                         <section class="mb-3">
-                                            <h5 style="font-family: Georgia, 'Times New Roman', serif; font-size: 16px; font-weight: bold; color: #2c2721; margin-bottom: 6px;">
-                                                @cont.Titulo
-                                            </h5>
-                                            <p style="font-size: 13px; line-height: 1.65; color: #2e2e2e; white-space: pre-line; text-align: justify; margin-bottom: 0;">
-                                                @cont.Contenido
-                                            </p>
+                                            <h5 class="enc-section-title">@cont.Titulo</h5>
+                                            <p class="enc-section-body">@cont.Contenido</p>
                                         </section>
                                     }
                                 }
@@ -81,7 +77,7 @@
 
                             <!-- Derecha: Detalles de la Bestia y del Registro -->
                             <div class="col-md-4">
-                                <div style="background-color: #e4e0d8; border: 1px solid #c9c3b6; border-radius: 6px; padding: 14px 12px; text-align: center;">
+                                <div class="enc-sidebar">
                                     @if (!string.IsNullOrWhiteSpace(Registro.MainPictureUrl))
                                     {
                                         var fallbackUrl = string.IsNullOrWhiteSpace(Registro.DefaultPictureUrl) ? Registro.MainPictureUrl : Registro.DefaultPictureUrl;
@@ -89,21 +85,21 @@
                                             <img src="@Registro.MainPictureUrl"
                                                  alt="@(bestiaActual?.Nombre ?? "Bestia")"
                                                  onerror="this.onerror=null;this.src='@fallbackUrl';"
-                                                 style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 4px; border: 1px solid #bfb8a8;" />
+                                                 class="enc-main-img" />
                                         </div>
                                     }
-                                    <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 14px; font-weight: bold; color: #2b2620; margin-bottom: 6px;">
+                                    <div class="enc-sidebar-heading">
                                         Detalles de la bestia
                                     </div>
-                                    <div style="font-size: 12px; color: #333; margin-bottom: 2px;">
+                                    <div class="enc-sidebar-text mb-1">
                                         <strong>Nombre:</strong> @(bestiaActual?.Nombre ?? "-")
                                     </div>
-                                    <div style="font-size: 12px; color: #333; margin-bottom: 12px;">
+                                    <div class="enc-sidebar-text mb-3">
                                         <strong>Peligrosidad:</strong>
-                                        <span class="badge bg-secondary ms-1" style="font-size: 10px;">@(bestiaActual?.Peligrosidad ?? "-")</span>
+                                        <span class="badge bg-secondary ms-1 win-badge-sm">@(bestiaActual?.Peligrosidad ?? "-")</span>
                                     </div>
 
-                                    <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 13px; font-weight: bold; color: #2b2620; margin-bottom: 6px; border-top: 1px solid #ccc5b8; padding-top: 10px;">
+                                    <div class="enc-sidebar-subhead">
                                         Categorías
                                     </div>
                                     <div class="d-flex flex-wrap justify-content-center gap-1 mb-3">
@@ -111,30 +107,30 @@
                                         {
                                             @foreach (var cat in bestiaActual.CategoriasNombres)
                                             {
-                                                <span class="badge bg-light text-dark border" style="font-size: 11px;">▶ @cat</span>
+                                                <span class="badge bg-light text-dark border win-text-sm">▶ @cat</span>
                                             }
                                         }
                                         else
                                         {
-                                            <span class="text-muted" style="font-size: 11px;">Sin categorías</span>
+                                            <span class="text-muted win-text-sm">Sin categorías</span>
                                         }
                                     </div>
 
-                                    <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 13px; font-weight: bold; color: #2b2620; margin-bottom: 4px; border-top: 1px solid #ccc5b8; padding-top: 10px;">
+                                    <div class="enc-sidebar-subhead">
                                         Hábitat localizado
                                     </div>
-                                    <div style="font-size: 12px; color: #333; margin-bottom: 12px;">
+                                    <div class="enc-sidebar-text mb-3">
                                         @(string.IsNullOrWhiteSpace(bestiaActual?.HabitatNombre) ? "Sin hábitat asignado" : bestiaActual.HabitatNombre)
                                     </div>
 
-                                    <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 13px; font-weight: bold; color: #2b2620; margin-bottom: 6px; border-top: 1px solid #ccc5b8; padding-top: 10px;">
+                                    <div class="enc-sidebar-subhead">
                                         Detalles de registro
                                     </div>
-                                    <div style="font-size: 11px; color: #333; line-height: 1.55;">
+                                    <div class="enc-sidebar-meta">
                                         <div><strong>Nro. Registro:</strong> #@Registro.NroRegistro</div>
                                         <div>
                                             <strong>Estado:</strong>
-                                            <span class="badge @(Registro.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
+                                            <span class="badge @(Registro.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark") win-badge-sm">
                                                 @Registro.Estado
                                             </span>
                                         </div>
@@ -150,14 +146,14 @@
                         </div>
 
                         <!-- Abajo: Evidencias de la Bestia -->
-                        <div class="mt-4 pt-3" style="border-top: 1px solid #bdb6a7;">
+                        <div class="mt-4 pt-3 enc-evidences-section">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 15px; font-weight: bold; color: #2b2620;">
+                                <div class="enc-evidences-title mb-0">
                                     Evidencias registradas (@evidenciasBestia.Count)
                                 </div>
                                 @if (Auth.IsAuthenticated)
                                 {
-                                    <button type="button" class="win-btn" style="height: 22px; font-size: 11px;" @onclick="AbrirFormEvidenciaAsync">
+                                    <button type="button" class="win-btn win-btn-md" @onclick="AbrirFormEvidenciaAsync">
                                         + Proponer nueva evidencia
                                     </button>
                                 }
@@ -165,7 +161,7 @@
 
                             @if (!string.IsNullOrEmpty(evidenciaError))
                             {
-                                <div class="win-error-msg mb-2" style="font-size: 11px;">
+                                <div class="win-error-msg mb-2 win-alert">
                                     <span class="oi oi-warning me-1"></span> @evidenciaError
                                 </div>
                             }
