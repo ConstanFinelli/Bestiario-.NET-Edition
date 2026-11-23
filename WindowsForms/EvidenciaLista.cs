@@ -227,8 +227,8 @@ namespace WindowsForms
                 FechaObtencion = DateTime.Now
             };
 
-            EvidenciaDetalle detalle = new EvidenciaDetalle(FormMode.Add, nueva, bestias);
-            detalle.ShowDialog();
+            using var detalle = new EvidenciaDetalle(FormMode.Add, nueva, bestias);
+            ThemeHelper.ShowSingleWindow(this, detalle);
             await CargarEvidencias();
         }
 
@@ -243,8 +243,8 @@ namespace WindowsForms
                 var fresca = await EvidenciaApiClient.GetAsync(vm.IdBestia, vm.NroEvidencia);
                 if (fresca != null)
                 {
-                    EvidenciaDetalle detalle = new EvidenciaDetalle(FormMode.Update, fresca, bestias);
-                    detalle.ShowDialog();
+                    using var detalle = new EvidenciaDetalle(FormMode.Update, fresca, bestias);
+                    ThemeHelper.ShowSingleWindow(this, detalle);
                     await CargarEvidencias();
                 }
             }

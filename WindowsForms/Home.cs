@@ -30,6 +30,7 @@ namespace WindowsForms
         private Panel ultimasNoticiasContainer = null!;
         private TableLayoutPanel ultimasNoticiasGrid = null!;
         private Label ultimasNoticiasStatusLabel = null!;
+        private Label ultimasNoticiasCountLabel = null!;
 
         public Home()
         {
@@ -52,19 +53,11 @@ namespace WindowsForms
             };
 
             solicitudesToolStripMenuItem = new ToolStripMenuItem("Solicitudes");
-            solicitudesToolStripMenuItem.Click += (_, _) =>
-            {
-                using var solForm = new SolicitudesInvestigadorForm();
-                solForm.ShowDialog();
-            };
+            solicitudesToolStripMenuItem.Click += (_, _) => NavigateToForm(new SolicitudesInvestigadorForm());
             menuStrip1.Items.Add(solicitudesToolStripMenuItem);
 
             adminToolStripMenuItem = new ToolStripMenuItem("Admin");
-            adminToolStripMenuItem.Click += (_, _) =>
-            {
-                using var adminForm = new AdminDashboardForm();
-                adminForm.ShowDialog();
-            };
+            adminToolStripMenuItem.Click += (_, _) => NavigateToForm(new AdminDashboardForm());
             menuStrip1.Items.Add(adminToolStripMenuItem);
 
             // Controles de sesión alineados a la derecha en el MenuStrip (como en Web)
@@ -100,11 +93,7 @@ namespace WindowsForms
                 Font = noticiasButton.Font,
                 UseVisualStyleBackColor = true
             };
-            solicitudesButton.Click += (_, _) =>
-            {
-                using var solForm = new SolicitudesInvestigadorForm();
-                solForm.ShowDialog();
-            };
+            solicitudesButton.Click += (_, _) => NavigateToForm(new SolicitudesInvestigadorForm());
             cardPanel.Controls.Add(solicitudesButton);
 
             adminButton = new Button
@@ -113,11 +102,7 @@ namespace WindowsForms
                 Font = noticiasButton.Font,
                 UseVisualStyleBackColor = true
             };
-            adminButton.Click += (_, _) =>
-            {
-                using var adminForm = new AdminDashboardForm();
-                adminForm.ShowDialog();
-            };
+            adminButton.Click += (_, _) => NavigateToForm(new AdminDashboardForm());
             cardPanel.Controls.Add(adminButton);
 
             reportesButton = new Button
@@ -126,11 +111,7 @@ namespace WindowsForms
                 Font = noticiasButton.Font,
                 UseVisualStyleBackColor = true
             };
-            reportesButton.Click += (_, _) =>
-            {
-                using var repForm = new ReportesForm();
-                repForm.ShowDialog();
-            };
+            reportesButton.Click += (_, _) => NavigateToForm(new ReportesForm());
             cardPanel.Controls.Add(reportesButton);
         }
 
@@ -204,17 +185,6 @@ namespace WindowsForms
                 Location = new Point(0, 5)
             };
 
-            var verTodasButton = new Button
-            {
-                Text = "Ver todas",
-                Font = new Font("Segoe UI", 8.5F),
-                Size = new Size(82, 24),
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Location = new Point(headerPanel.Width - 82, 1),
-                UseVisualStyleBackColor = true
-            };
-            verTodasButton.Click += NoticiasToolStripMenuItem_Click;
-
             var divider = new Panel
             {
                 Dock = DockStyle.Bottom,
@@ -223,7 +193,6 @@ namespace WindowsForms
             };
 
             headerPanel.Controls.Add(headerLabel);
-            headerPanel.Controls.Add(verTodasButton);
             headerPanel.Controls.Add(divider);
 
             ultimasNoticiasStatusLabel = new Label
@@ -257,7 +226,49 @@ namespace WindowsForms
             bodyPanel.Controls.Add(ultimasNoticiasGrid);
             bodyPanel.Controls.Add(ultimasNoticiasStatusLabel);
 
+            var footerPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 26,
+                BackColor = ThemeHelper.Bone
+            };
+
+            var footerDivider = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 1,
+                BackColor = ThemeHelper.BoneBorder
+            };
+
+            ultimasNoticiasCountLabel = new Label
+            {
+                Text = "Mostrando 0 noticia(s) reciente(s)",
+                Font = new Font("Segoe UI", 8.25F),
+                ForeColor = ThemeHelper.TextMuted,
+                AutoSize = true,
+                Location = new Point(0, 6)
+            };
+
+            var irListadoLink = new LinkLabel
+            {
+                Text = "Ir al listado completo →",
+                Font = new Font("Segoe UI", 8.25F, FontStyle.Regular),
+                LinkColor = ThemeHelper.OuterBrownDark,
+                ActiveLinkColor = ThemeHelper.OuterBrown,
+                VisitedLinkColor = ThemeHelper.OuterBrownDark,
+                LinkBehavior = LinkBehavior.HoverUnderline,
+                AutoSize = true,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            irListadoLink.Location = new Point(footerPanel.Width - irListadoLink.PreferredWidth, 6);
+            irListadoLink.Click += NoticiasToolStripMenuItem_Click;
+
+            footerPanel.Controls.Add(ultimasNoticiasCountLabel);
+            footerPanel.Controls.Add(irListadoLink);
+            footerPanel.Controls.Add(footerDivider);
+
             ultimasNoticiasContainer.Controls.Add(bodyPanel);
+            ultimasNoticiasContainer.Controls.Add(footerPanel);
             ultimasNoticiasContainer.Controls.Add(headerPanel);
             Controls.Add(ultimasNoticiasContainer);
 
@@ -339,6 +350,7 @@ namespace WindowsForms
 
                 if (!ultimas.Any())
                 {
+                    ultimasNoticiasCountLabel.Text = "Mostrando 0 noticia(s) reciente(s)";
                     ultimasNoticiasStatusLabel.Text = "No hay noticias publicadas aún.";
                     return;
                 }
@@ -403,6 +415,7 @@ namespace WindowsForms
                 }
 
                 ultimasNoticiasGrid.ResumeLayout();
+                ultimasNoticiasCountLabel.Text = $"Mostrando {ultimas.Count} noticia(s) reciente(s)";
                 ultimasNoticiasStatusLabel.Visible = false;
                 ultimasNoticiasGrid.Visible = true;
             }
@@ -486,7 +499,7 @@ namespace WindowsForms
         private void IniciarSesionToolButton_Click(object? sender, EventArgs e)
         {
             using var login = new LoginForm();
-            login.ShowDialog();
+            ThemeHelper.ShowSingleWindow(this, login);
             ActualizarEstadoSesion();
         }
 
@@ -497,71 +510,79 @@ namespace WindowsForms
             ActualizarEstadoSesion();
         }
 
-        private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)
+        private void NavigateToForm(Form form, Func<Task>? onReturn = null)
         {
-            CategoriaLista categoriasForm = new CategoriaLista();
-            categoriasForm.ShowDialog();
+            form.StartPosition = FormStartPosition.CenterScreen;
+            form.FormClosed += async (_, _) =>
+            {
+                if (!this.IsDisposed)
+                {
+                    this.Show();
+                    this.Activate();
+                    if (onReturn != null)
+                    {
+                        await onReturn();
+                    }
+                }
+                form.Dispose();
+            };
+            this.Hide();
+            form.Show();
         }
 
-        private async void NoticiasToolStripMenuItem_Click(object? sender, EventArgs e)
+        private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using NoticiaLista noticiasForm = new NoticiaLista();
-            noticiasForm.ShowDialog();
-            await CargarUltimasNoticiasAsync();
+            NavigateToForm(new CategoriaLista());
+        }
+
+        private void NoticiasToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            NavigateToForm(new NoticiaLista(), CargarUltimasNoticiasAsync);
         }
 
         private void BestiasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BestiaLista bestiasForm = new BestiaLista();
-            bestiasForm.ShowDialog();
+            NavigateToForm(new BestiaLista());
         }
 
         private void RegistrosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            RegistroLista registrosForm = new RegistroLista();
-            registrosForm.ShowDialog();
+            NavigateToForm(new RegistroLista());
         }
 
         private void HabitatsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HabitatLista habitatsForm = new HabitatLista();
-            habitatsForm.ShowDialog();
+            NavigateToForm(new HabitatLista());
         }
 
         private void TiposEvidenciaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TipoEvidenciaLista tiposForm = new TipoEvidenciaLista();
-            tiposForm.ShowDialog();
+            NavigateToForm(new TipoEvidenciaLista());
         }
 
         private void EvidenciasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            EvidenciaLista evidenciasForm = new EvidenciaLista();
-            evidenciasForm.ShowDialog();
+            NavigateToForm(new EvidenciaLista());
         }
 
         private void ComentariosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ComentarioLista comentariosForm = new ComentarioLista();
-            comentariosForm.ShowDialog();
+            NavigateToForm(new ComentarioLista());
         }
 
         private void UsuariosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UsuarioLista usuariosForm = new UsuarioLista();
-            usuariosForm.ShowDialog();
+            NavigateToForm(new UsuarioLista());
         }
 
         private void EstadisticasBestiasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using var form = new ReportesForm(0);
-            form.ShowDialog();
+            NavigateToForm(new ReportesForm(0));
         }
 
         private void RegistrosPorBestiaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using var form = new ReportesForm(1);
-            form.ShowDialog();
+            NavigateToForm(new ReportesForm(1));
         }
 
         private void IconPictureBox_Paint(object? sender, PaintEventArgs e)

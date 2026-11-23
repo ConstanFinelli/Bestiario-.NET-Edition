@@ -17,6 +17,8 @@ namespace WindowsForms
         private BestiaDTO bestia = null!;
         private FormMode mode;
         private List<CategoriaDTO> categoriasDisponibles = new();
+        private readonly HashSet<Guid> categoriasSeleccionadasIds = new();
+        private TextBox buscarCategoriaTextBox = null!;
 
         public BestiaDTO Bestia
         {
@@ -37,8 +39,57 @@ namespace WindowsForms
         public BestiaDetalle()
         {
             InitializeComponent();
+            InicializarBuscadorCategorias();
             this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarCombos();
+        }
+
+        private void InicializarBuscadorCategorias()
+        {
+            buscarCategoriaTextBox = new TextBox
+            {
+                Location = new Point(categoriasCheckedListBox.Left, categoriasCheckedListBox.Top),
+                Width = categoriasCheckedListBox.Width,
+                PlaceholderText = "Escribir para buscar categoría...",
+                Anchor = categoriasCheckedListBox.Anchor
+            };
+            buscarCategoriaTextBox.TextChanged += (_, _) => RefrescarCategoriasFiltradas();
+            categoriasCheckedListBox.Top += 27;
+            categoriasCheckedListBox.Height = Math.Max(60, categoriasCheckedListBox.Height - 27);
+            categoriasCheckedListBox.ItemCheck += CategoriasCheckedListBox_ItemCheck;
+            this.Controls.Add(buscarCategoriaTextBox);
+        }
+
+        private void CategoriasCheckedListBox_ItemCheck(object? sender, ItemCheckEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= categoriasCheckedListBox.Items.Count) return;
+            if (categoriasCheckedListBox.Items[e.Index] is CategoriaCheckItem item)
+            {
+                if (e.NewValue == CheckState.Checked)
+                    categoriasSeleccionadasIds.Add(item.Id);
+                else
+                    categoriasSeleccionadasIds.Remove(item.Id);
+            }
+        }
+
+        private void RefrescarCategoriasFiltradas()
+        {
+            string filtro = buscarCategoriaTextBox?.Text?.Trim() ?? string.Empty;
+            var filtradas = string.IsNullOrEmpty(filtro)
+                ? categoriasDisponibles
+                : categoriasDisponibles.Where(c => c.Nombre.Contains(filtro, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            categoriasCheckedListBox.ItemCheck -= CategoriasCheckedListBox_ItemCheck;
+            categoriasCheckedListBox.Items.Clear();
+            foreach (var cat in filtradas)
+            {
+                int idx = categoriasCheckedListBox.Items.Add(new CategoriaCheckItem { Id = cat.Id, Nombre = cat.Nombre });
+                if (categoriasSeleccionadasIds.Contains(cat.Id))
+                {
+                    categoriasCheckedListBox.SetItemChecked(idx, true);
+                }
+            }
+            categoriasCheckedListBox.ItemCheck += CategoriasCheckedListBox_ItemCheck;
         }
 
         public BestiaDetalle(FormMode mode, BestiaDTO bestia) : this()
@@ -81,12 +132,7 @@ namespace WindowsForms
             {
                 var result = await CategoriaApiClient.GetAllAsync();
                 categoriasDisponibles = result?.ToList() ?? new List<CategoriaDTO>();
-
-                this.categoriasCheckedListBox.Items.Clear();
-                foreach (var cat in categoriasDisponibles)
-                {
-                    this.categoriasCheckedListBox.Items.Add(new CategoriaCheckItem { Id = cat.Id, Nombre = cat.Nombre });
-                }
+                RefrescarCategoriasFiltradas();
             }
             catch
             {
@@ -134,14 +180,12 @@ namespace WindowsForms
             }
 
             // Marcar categorías asignadas
-            for (int i = 0; i < this.categoriasCheckedListBox.Items.Count; i++)
+            categoriasSeleccionadasIds.Clear();
+            foreach (var catId in this.Bestia.CategoriasIds)
             {
-                if (this.categoriasCheckedListBox.Items[i] is CategoriaCheckItem item)
-                {
-                    bool isChecked = this.Bestia.CategoriasIds.Contains(item.Id);
-                    this.categoriasCheckedListBox.SetItemChecked(i, isChecked);
-                }
+                categoriasSeleccionadasIds.Add(catId);
             }
+            RefrescarCategoriasFiltradas();
         }
 
         private void SetFormMode(FormMode value)
@@ -178,14 +222,11 @@ namespace WindowsForms
                     this.Bestia.Estado = estadoComboBox.SelectedItem?.ToString() ?? "pendiente";
                     this.Bestia.IdHabitat = (habitatComboBox.SelectedItem as HabitatComboItem)?.Id;
 
-                    // Extraer categorías seleccionadas
+                    // Extraer categorías seleccionadas (incluyendo las no visibles por filtro)
                     this.Bestia.CategoriasIds.Clear();
-                    for (int i = 0; i < categoriasCheckedListBox.CheckedItems.Count; i++)
+                    foreach (var catId in categoriasSeleccionadasIds)
                     {
-                        if (categoriasCheckedListBox.CheckedItems[i] is CategoriaCheckItem item)
-                        {
-                            this.Bestia.CategoriasIds.Add(item.Id);
-                        }
+                        this.Bestia.CategoriasIds.Add(catId);
                     }
 
                     if (this.Mode == FormMode.Update)

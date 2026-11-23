@@ -64,9 +64,9 @@ namespace WindowsForms
         private async void agregarButton_Click(object sender, EventArgs e)
         {
             CategoriaDTO categoriaNuevo = new CategoriaDTO();
-            CategoriaDetalle categoriaDetalle = new CategoriaDetalle(FormMode.Add, categoriaNuevo);
+            using var categoriaDetalle = new CategoriaDetalle(FormMode.Add, categoriaNuevo);
 
-            categoriaDetalle.ShowDialog();
+            ThemeHelper.ShowSingleWindow(this, categoriaDetalle);
 
             await this.GetCategoriesAndLoad();
         }
@@ -80,8 +80,8 @@ namespace WindowsForms
                 Guid id = this.SelectedItem().Id;
                 CategoriaDTO categoria = await CategoriaApiClient.GetAsync(id);
 
-                CategoriaDetalle categoriaDetalle = new CategoriaDetalle(FormMode.Update, categoria);
-                categoriaDetalle.ShowDialog();
+                using var categoriaDetalle = new CategoriaDetalle(FormMode.Update, categoria);
+                ThemeHelper.ShowSingleWindow(this, categoriaDetalle);
 
                 await this.GetCategoriesAndLoad();
             }

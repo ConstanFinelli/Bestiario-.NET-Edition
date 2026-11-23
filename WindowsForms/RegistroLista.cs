@@ -23,6 +23,23 @@ namespace WindowsForms
             InitializeComponent();
             this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarColumnas();
+            int btnY = this.aprobarButton.Top;
+            int btnHeight = this.aprobarButton.Height;
+            var volverBtn = new Button
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                MinimumSize = new Size(90, btnHeight),
+                Height = btnHeight,
+                Padding = new Padding(8, 0, 8, 0),
+                Location = new Point(this.aprobarButton.Left, btnY),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left
+            };
+            ThemeHelper.StyleBackButton(volverBtn);
+            volverBtn.Click += (_, _) => this.Close();
+            this.Controls.Add(volverBtn);
+            volverBtn.BringToFront();
+            this.aprobarButton.Left = volverBtn.Right + 8;
         }
 
         public RegistroLista(Guid idBestia) : this()
@@ -261,8 +278,8 @@ namespace WindowsForms
                 Contenidos = new List<ContenidoRegistroDTO>()
             };
 
-            RegistroDetalle detalleForm = new RegistroDetalle(FormMode.Add, nuevoRegistro, bestias);
-            detalleForm.ShowDialog();
+            using var detalleForm = new RegistroDetalle(FormMode.Add, nuevoRegistro, bestias);
+            ThemeHelper.ShowSingleWindow(this, detalleForm);
 
             await CargarRegistros();
         }
@@ -281,7 +298,7 @@ namespace WindowsForms
                 {
                     var bestiaActual = bestias.FirstOrDefault(b => b.Id == fresco.IdBestia);
                     using var enciclopediaForm = new RegistroEnciclopediaForm(fresco, bestiaActual, bestias);
-                    enciclopediaForm.ShowDialog();
+                    ThemeHelper.ShowSingleWindow(this, enciclopediaForm);
                     if (enciclopediaForm.SeEdito)
                     {
                         await CargarRegistros();

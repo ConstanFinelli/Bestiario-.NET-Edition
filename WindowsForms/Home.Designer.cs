@@ -216,7 +216,7 @@ namespace WindowsForms
             categoriasButton.Name = "categoriasButton";
             categoriasButton.Size = new Size(120, 28);
             categoriasButton.TabIndex = 3;
-            categoriasButton.Text = "Categorias";
+            categoriasButton.Text = "Categorías";
             categoriasButton.UseVisualStyleBackColor = true;
             categoriasButton.Click += CategoriasToolStripMenuItem_Click;
             // 
@@ -271,7 +271,7 @@ namespace WindowsForms
             tiposEvidenciaButton.Name = "tiposEvidenciaButton";
             tiposEvidenciaButton.Size = new Size(120, 28);
             tiposEvidenciaButton.TabIndex = 8;
-            tiposEvidenciaButton.Text = "Tipos Evidencia";
+            tiposEvidenciaButton.Text = "Tipos de Evidencia";
             tiposEvidenciaButton.UseVisualStyleBackColor = true;
             tiposEvidenciaButton.Click += TiposEvidenciaToolStripMenuItem_Click;
             // 

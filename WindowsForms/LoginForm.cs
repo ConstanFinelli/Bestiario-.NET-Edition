@@ -54,7 +54,7 @@ namespace WindowsForms
                 finally
                 {
                     loginButton.Enabled = true;
-                    loginButton.Text = "Iniciar Sesión";
+                    loginButton.Text = "Iniciar sesión";
                 }
             }
         }
@@ -68,7 +68,7 @@ namespace WindowsForms
         private void registerLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             using var regForm = new RegistroLectorForm();
-            if (regForm.ShowDialog() == DialogResult.OK)
+            if (ThemeHelper.ShowSingleWindow(this, regForm) == DialogResult.OK)
             {
                 this.DialogResult = DialogResult.OK;
                 this.Close();
@@ -86,7 +86,7 @@ namespace WindowsForms
         private void forgotPasswordLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             using var recForm = new RecuperarContraseniaForm(usernameTextBox.Text);
-            if (recForm.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(recForm.CorreoRestablecido))
+            if (ThemeHelper.ShowSingleWindow(this, recForm) == DialogResult.OK && !string.IsNullOrWhiteSpace(recForm.CorreoRestablecido))
             {
                 usernameTextBox.Text = recForm.CorreoRestablecido;
                 passwordTextBox.Clear();

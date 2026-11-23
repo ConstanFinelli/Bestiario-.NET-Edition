@@ -55,7 +55,7 @@ namespace WindowsForms
             verRegistrosButton.Name = "verRegistrosButton";
             verRegistrosButton.Size = new Size(130, 26);
             verRegistrosButton.TabIndex = 4;
-            verRegistrosButton.Text = "Ver Registros";
+            verRegistrosButton.Text = "Ver Último Registro";
             verRegistrosButton.UseVisualStyleBackColor = true;
             verRegistrosButton.Click += verRegistrosButton_Click;
             // 

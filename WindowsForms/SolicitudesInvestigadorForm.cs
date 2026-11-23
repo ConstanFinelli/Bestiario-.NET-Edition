@@ -197,9 +197,9 @@ namespace WindowsForms
 
             _statusLabel = new Label
             {
-                Dock = DockStyle.Left,
-                Width = 360,
+                Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(10, 0, 0, 0),
                 ForeColor = Color.DimGray,
                 Text = "Cargando..."
             };
@@ -207,11 +207,10 @@ namespace WindowsForms
 
             var cerrarBtn = new Button
             {
-                Text = "Cerrar",
-                Dock = DockStyle.Right,
-                Width = 90,
-                UseVisualStyleBackColor = true
+                Dock = DockStyle.Left,
+                Width = 92
             };
+            ThemeHelper.StyleBackButton(cerrarBtn);
             cerrarBtn.Click += (_, _) => this.Close();
             bottomPanel.Controls.Add(cerrarBtn);
 
@@ -219,9 +218,9 @@ namespace WindowsForms
             {
                 _rechazarButton = new Button
                 {
-                    Text = "Rechazar Solicitud",
+                    Text = "✕ Rechazar Solicitud",
                     Dock = DockStyle.Right,
-                    Width = 135,
+                    Width = 155,
                     Enabled = false,
                     ForeColor = Color.DarkRed,
                     UseVisualStyleBackColor = true
@@ -230,9 +229,9 @@ namespace WindowsForms
 
                 _aprobarButton = new Button
                 {
-                    Text = "Aprobar Solicitud",
+                    Text = "✔ Aprobar Solicitud",
                     Dock = DockStyle.Right,
-                    Width = 135,
+                    Width = 155,
                     Enabled = false,
                     ForeColor = Color.DarkGreen,
                     UseVisualStyleBackColor = true
