@@ -229,5 +229,75 @@ namespace API.Clients
                 throw new Exception($"Timeout al eliminar usuario con Id {id}: {ex.Message}", ex);
             }
         }
+
+        public static async Task SolicitarRecuperacionAsync(string correo)
+        {
+            try
+            {
+                using var client = await CreateHttpClientAsync();
+                var req = new SolicitarRecuperacionDTO { Correo = correo };
+                HttpResponseMessage response = await client.PostAsJsonAsync("usuarios/solicitar-recuperacion", req);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception(ExtraerMensajeError(errorContent, $"Error al solicitar recuperación ({response.StatusCode})."));
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Error de conexión al solicitar recuperación: {ex.Message}", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new Exception($"Timeout al solicitar recuperación: {ex.Message}", ex);
+            }
+        }
+
+        public static async Task RestablecerContraseniaAsync(string correo, string codigo, string nuevaContrasenia)
+        {
+            try
+            {
+                using var client = await CreateHttpClientAsync();
+                var req = new RestablecerContraseniaDTO
+                {
+                    Correo = correo,
+                    Codigo = codigo,
+                    NuevaContrasenia = nuevaContrasenia
+                };
+                HttpResponseMessage response = await client.PostAsJsonAsync("usuarios/restablecer-contrasenia", req);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception(ExtraerMensajeError(errorContent, $"Error al restablecer contraseña ({response.StatusCode})."));
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Error de conexión al restablecer contraseña: {ex.Message}", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new Exception($"Timeout al restablecer contraseña: {ex.Message}", ex);
+            }
+        }
+
+        private static string ExtraerMensajeError(string jsonOrText, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(jsonOrText)) return fallback;
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(jsonOrText);
+                if (doc.RootElement.TryGetProperty("error", out var errProp) && !string.IsNullOrWhiteSpace(errProp.GetString()))
+                    return errProp.GetString()!;
+                if (doc.RootElement.TryGetProperty("detail", out var detailProp) && !string.IsNullOrWhiteSpace(detailProp.GetString()))
+                    return detailProp.GetString()!;
+            }
+            catch
+            {
+            }
+            return jsonOrText;
+        }
     }
 }

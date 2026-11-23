@@ -41,4 +41,16 @@ namespace DTOs
         public string Correo { get; set; } = string.Empty;
         public string Contrasenia { get; set; } = string.Empty;
     }
+
+    public class SolicitarRecuperacionDTO
+    {
+        public string Correo { get; set; } = string.Empty;
+    }
+
+    public class RestablecerContraseniaDTO
+    {
+        public string Correo { get; set; } = string.Empty;
+        public string Codigo { get; set; } = string.Empty;
+        public string NuevaContrasenia { get; set; } = string.Empty;
+    }
 }

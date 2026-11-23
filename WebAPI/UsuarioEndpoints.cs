@@ -152,6 +152,46 @@ namespace WebAPI
             .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
+
+            app.MapPost("/usuarios/solicitar-recuperacion", async (SolicitarRecuperacionDTO dto, IUsuarioService usuarioService) =>
+            {
+                try
+                {
+                    await usuarioService.SolicitarRecuperacionContraseniaAsync(dto.Correo);
+                    return Results.Ok(new { message = "Si el correo está registrado, enviamos un código de verificación a tu casilla." });
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.Problem(detail: ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+                }
+            })
+            .WithName("SolicitarRecuperacionContrasenia")
+            .AllowAnonymous()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
+            app.MapPost("/usuarios/restablecer-contrasenia", async (RestablecerContraseniaDTO dto, IUsuarioService usuarioService) =>
+            {
+                try
+                {
+                    await usuarioService.RestablecerContraseniaAsync(dto.Correo, dto.Codigo, dto.NuevaContrasenia);
+                    return Results.Ok(new { message = "Contraseña restablecida correctamente." });
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
+            })
+            .WithName("RestablecerContrasenia")
+            .AllowAnonymous()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
         }
     }
 }

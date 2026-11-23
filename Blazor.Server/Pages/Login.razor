@@ -2,14 +2,14 @@
 @inject AuthService Auth
 @inject NavigationManager Navigation
 
-<PageTitle>@(esRegistroLector ? "Crear cuenta de Lector" : "Iniciar sesión")</PageTitle>
+<PageTitle>@GetPageTitle()</PageTitle>
 
-<div class="win-form" style="width: 450px; margin-top: 40px;">
+<div class="win-form" style="width: 460px; margin-top: 40px;">
     <!-- Barra de Título Windows -->
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
-            <span class="oi @(esRegistroLector ? "oi-person" : "oi-key") text-primary" style="font-size: 11px;"></span>
-            <span>@(esRegistroLector ? "Registro de Lector" : "Iniciar sesión")</span>
+            <span class="oi @GetTitleIcon() text-primary" style="font-size: 11px;"></span>
+            <span>@GetPageTitle()</span>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
             </div>
         }
 
-        @if (!esRegistroLector)
+        @if (vistaActual == VistaLogin.Login)
         {
             <!-- Formulario de Inicio de Sesión -->
             <div class="text-center mb-1">
@@ -42,9 +42,14 @@
             <div class="text-center mb-1">
                 <label class="win-label fw-bold">Contraseña</label>
             </div>
-            <div class="text-center mb-4">
+            <div class="text-center mb-2">
                 <input type="password" class="win-textbox text-center @(passwordInvalido ? "win-field-error" : "")" 
                        style="width: 300px;" @bind="password" @onkeydown="HandleKeyDown" />
+            </div>
+            <div class="text-center mb-3">
+                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="MostrarRecuperarPaso1">
+                    ¿Olvidaste tu contraseña?
+                </a>
             </div>
 
             <!-- Botones de Acción: Cancelar e Iniciar sesión -->
@@ -68,7 +73,7 @@
                 </NavLink>
             </div>
         }
-        else
+        else if (vistaActual == VistaLogin.RegistroLector)
         {
             <!-- Formulario de Registro de Lector -->
             <div class="text-center mb-1">
@@ -118,10 +123,100 @@
                 </a>
             </div>
         }
+        else if (vistaActual == VistaLogin.RecuperarPaso1)
+        {
+            <!-- Paso 1: Solicitar código de verificación por Gmail -->
+            <p class="text-muted text-center mb-3" style="font-size: 11px;">
+                Ingresá tu correo electrónico y te enviaremos un código de verificación para restablecer tu contraseña.
+            </p>
+
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Correo electrónico</label>
+            </div>
+            <div class="text-center mb-4">
+                <input type="email" class="win-textbox text-center @(recCorreoInvalido ? "win-field-error" : "")"
+                       style="width: 300px;" @bind="recCorreo" placeholder="ejemplo@correo.com" @onkeydown="HandleKeyDown" autofocus />
+            </div>
+
+            <div class="d-flex justify-content-between px-3 mb-3">
+                <button type="button" class="win-btn" style="min-width: 120px;" @onclick="VolverALogin" disabled="@isLoading">
+                    Volver
+                </button>
+                <button type="button" class="win-btn" style="min-width: 140px;" @onclick="EnviarCodigoRecuperacion" disabled="@isLoading">
+                    @(isLoading ? "Enviando..." : "Enviar código")
+                </button>
+            </div>
+
+            <div class="text-center pt-2" style="border-top: 1px solid #e0e0e0;">
+                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="() => vistaActual = VistaLogin.RecuperarPaso2">
+                    Ya tengo un código de verificación
+                </a>
+            </div>
+        }
+        else if (vistaActual == VistaLogin.RecuperarPaso2)
+        {
+            <!-- Paso 2: Ingresar código y nueva contraseña -->
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Correo electrónico</label>
+            </div>
+            <div class="text-center mb-2">
+                <input type="email" class="win-textbox text-center @(recCorreoInvalido ? "win-field-error" : "")"
+                       style="width: 300px;" @bind="recCorreo" placeholder="ejemplo@correo.com" />
+            </div>
+
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Código de verificación (6 dígitos)</label>
+            </div>
+            <div class="text-center mb-2">
+                <input type="text" class="win-textbox text-center @(recCodigoInvalido ? "win-field-error" : "")"
+                       style="width: 180px; letter-spacing: 4px; font-weight: bold;" maxlength="6" @bind="recCodigo" placeholder="000000" autofocus />
+            </div>
+
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Nueva contraseña</label>
+            </div>
+            <div class="text-center mb-2">
+                <input type="password" class="win-textbox text-center @(recPasswordInvalido ? "win-field-error" : "")"
+                       style="width: 300px;" @bind="recNuevaPassword" />
+            </div>
+
+            <div class="text-center mb-1">
+                <label class="win-label fw-bold">Confirmar nueva contraseña</label>
+            </div>
+            <div class="text-center mb-4">
+                <input type="password" class="win-textbox text-center @(recConfirmInvalido ? "win-field-error" : "")"
+                       style="width: 300px;" @bind="recConfirmPassword" @onkeydown="HandleKeyDown" />
+            </div>
+
+            <div class="d-flex justify-content-between px-3 mb-3">
+                <button type="button" class="win-btn" style="min-width: 110px;" @onclick="MostrarRecuperarPaso1" disabled="@isLoading">
+                    Volver
+                </button>
+                <button type="button" class="win-btn" style="min-width: 165px;" @onclick="ConfirmarRestablecimiento" disabled="@isLoading">
+                    @(isLoading ? "Guardando..." : "Restablecer contraseña")
+                </button>
+            </div>
+
+            <div class="text-center pt-2" style="border-top: 1px solid #e0e0e0;">
+                <a href="javascript:void(0)" class="text-decoration-none" style="font-size: 11px; color: #0066cc;" @onclick="VolverALogin">
+                    Volver al inicio de sesión
+                </a>
+            </div>
+        }
     </div>
 </div>
 
 @code {
+    private enum VistaLogin
+    {
+        Login,
+        RegistroLector,
+        RecuperarPaso1,
+        RecuperarPaso2
+    }
+
+    private VistaLogin vistaActual = VistaLogin.Login;
+
     private string username = "admin@bestiario.com";
     private string password = "password";
     private string? errorMessage;
@@ -131,7 +226,6 @@
     private bool passwordInvalido = false;
 
     // Variables de Registro de Lector
-    private bool esRegistroLector = false;
     private string regCorreo = "";
     private string regPassword = "";
     private string regConfirmPassword = "";
@@ -140,9 +234,34 @@
     private bool regPasswordInvalido = false;
     private bool regConfirmInvalido = false;
 
+    // Variables de Recuperación de Contraseña
+    private string recCorreo = "";
+    private string recCodigo = "";
+    private string recNuevaPassword = "";
+    private string recConfirmPassword = "";
+    private bool recCorreoInvalido = false;
+    private bool recCodigoInvalido = false;
+    private bool recPasswordInvalido = false;
+    private bool recConfirmInvalido = false;
+
+    private string GetPageTitle() => vistaActual switch
+    {
+        VistaLogin.RegistroLector => "Registro de Lector",
+        VistaLogin.RecuperarPaso1 => "Recuperar contraseña",
+        VistaLogin.RecuperarPaso2 => "Restablecer contraseña",
+        _ => "Iniciar sesión"
+    };
+
+    private string GetTitleIcon() => vistaActual switch
+    {
+        VistaLogin.RegistroLector => "oi-person",
+        VistaLogin.RecuperarPaso1 or VistaLogin.RecuperarPaso2 => "oi-envelope-closed",
+        _ => "oi-key"
+    };
+
     private void MostrarRegistroLector()
     {
-        esRegistroLector = true;
+        vistaActual = VistaLogin.RegistroLector;
         errorMessage = null;
         successMessage = null;
         regCorreo = "";
@@ -154,9 +273,27 @@
         regConfirmInvalido = false;
     }
 
+    private void MostrarRecuperarPaso1()
+    {
+        vistaActual = VistaLogin.RecuperarPaso1;
+        errorMessage = null;
+        successMessage = null;
+        if (string.IsNullOrWhiteSpace(recCorreo) && username.Contains('@'))
+        {
+            recCorreo = username.Trim();
+        }
+        recCodigo = "";
+        recNuevaPassword = "";
+        recConfirmPassword = "";
+        recCorreoInvalido = false;
+        recCodigoInvalido = false;
+        recPasswordInvalido = false;
+        recConfirmInvalido = false;
+    }
+
     private void VolverALogin()
     {
-        esRegistroLector = false;
+        vistaActual = VistaLogin.Login;
         errorMessage = null;
         successMessage = null;
     }
@@ -165,13 +302,20 @@
     {
         if (e.Key == "Enter")
         {
-            if (esRegistroLector)
+            switch (vistaActual)
             {
-                await RegistrarLector();
-            }
-            else
-            {
-                await IniciarSesion();
+                case VistaLogin.RegistroLector:
+                    await RegistrarLector();
+                    break;
+                case VistaLogin.RecuperarPaso1:
+                    await EnviarCodigoRecuperacion();
+                    break;
+                case VistaLogin.RecuperarPaso2:
+                    await ConfirmarRestablecimiento();
+                    break;
+                default:
+                    await IniciarSesion();
+                    break;
             }
         }
     }
@@ -197,6 +341,7 @@
         {
             isLoading = true;
             errorMessage = null;
+            successMessage = null;
 
             bool ok = await Auth.LoginAsync(username, password);
             if (ok)
@@ -264,6 +409,85 @@
         }
     }
 
+    private async Task EnviarCodigoRecuperacion()
+    {
+        recCorreoInvalido = string.IsNullOrWhiteSpace(recCorreo) || !recCorreo.Contains('@');
+        if (recCorreoInvalido)
+        {
+            errorMessage = "Ingrese un correo electrónico válido.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            successMessage = null;
+
+            await UsuarioApiClient.SolicitarRecuperacionAsync(recCorreo.Trim());
+            vistaActual = VistaLogin.RecuperarPaso2;
+            successMessage = "Si el correo está registrado, enviamos un código de 6 dígitos a tu casilla.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ConfirmarRestablecimiento()
+    {
+        recCorreoInvalido = string.IsNullOrWhiteSpace(recCorreo) || !recCorreo.Contains('@');
+        recCodigoInvalido = string.IsNullOrWhiteSpace(recCodigo);
+        recPasswordInvalido = string.IsNullOrWhiteSpace(recNuevaPassword);
+        recConfirmInvalido = string.IsNullOrWhiteSpace(recConfirmPassword) || recNuevaPassword != recConfirmPassword;
+
+        if (recCorreoInvalido)
+        {
+            errorMessage = "Ingrese un correo electrónico válido.";
+            return;
+        }
+        if (recCodigoInvalido)
+        {
+            errorMessage = "Ingrese el código de verificación recibido.";
+            return;
+        }
+        if (recPasswordInvalido)
+        {
+            errorMessage = "Ingrese la nueva contraseña.";
+            return;
+        }
+        if (recConfirmInvalido)
+        {
+            errorMessage = "Las contraseñas no coinciden.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            successMessage = null;
+
+            await UsuarioApiClient.RestablecerContraseniaAsync(recCorreo.Trim(), recCodigo.Trim(), recNuevaPassword);
+            username = recCorreo.Trim();
+            password = "";
+            vistaActual = VistaLogin.Login;
+            successMessage = "Contraseña restablecida correctamente. Ya podés iniciar sesión.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
     protected override void OnInitialized()
     {
         if (Auth.IsAuthenticated)
@@ -276,6 +500,7 @@
     {
         username = "";
         password = "";
+        successMessage = null;
         errorMessage = "Debe ingresar sus credenciales para acceder al sistema.";
     }
 }

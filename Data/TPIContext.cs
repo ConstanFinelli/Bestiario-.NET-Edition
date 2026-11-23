@@ -20,6 +20,7 @@ namespace Data
         public DbSet<Investigador> Investigadores { get; set; }
         public DbSet<Lector> Lectores { get; set; }
         public DbSet<SolicitudInvestigador> SolicitudesInvestigador { get; set; }
+        public DbSet<TokenRecuperacion> TokensRecuperacion { get; set; }
 
         public TPIContext(DbContextOptions<TPIContext> options) : base(options)
         {
@@ -377,6 +378,24 @@ namespace Data
                     .HasForeignKey(s => s.IdInvestigadorResolutor)
                     .IsRequired(false)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ==========================================
+            // Entidad TokenRecuperacion
+            // ==========================================
+            modelBuilder.Entity<TokenRecuperacion>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.Id).ValueGeneratedOnAdd();
+                entity.Property(t => t.CodigoHash).IsRequired().HasMaxLength(64);
+                entity.Property(t => t.FechaCreacion).IsRequired();
+                entity.Property(t => t.FechaExpiracion).IsRequired();
+                entity.Property(t => t.Usado).IsRequired();
+
+                entity.HasOne(t => t.Usuario)
+                    .WithMany()
+                    .HasForeignKey(t => t.IdUsuario)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

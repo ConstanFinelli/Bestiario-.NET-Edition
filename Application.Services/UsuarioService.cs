@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Data;
 using Domain.Model;
@@ -11,10 +13,17 @@ namespace Application.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository usuarioRepository;
+        private readonly ITokenRecuperacionRepository tokenRecuperacionRepository;
+        private readonly IEmailService emailService;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository)
+        public UsuarioService(
+            IUsuarioRepository usuarioRepository,
+            ITokenRecuperacionRepository tokenRecuperacionRepository,
+            IEmailService emailService)
         {
             this.usuarioRepository = usuarioRepository;
+            this.tokenRecuperacionRepository = tokenRecuperacionRepository;
+            this.emailService = emailService;
         }
 
         public async Task<IEnumerable<UsuarioDTO>> GetAllAsync()
@@ -134,6 +143,67 @@ namespace Application.Services
         {
             var u = await usuarioRepository.ValidarCredencialesAsync(correo, contrasenia);
             return u != null ? MapToDTO(u) : null;
+        }
+
+        public async Task SolicitarRecuperacionContraseniaAsync(string correo)
+        {
+            if (string.IsNullOrWhiteSpace(correo) || !correo.Contains('@'))
+            {
+                throw new ArgumentException("Debe ingresar un correo electrónico válido.");
+            }
+
+            var usuario = await usuarioRepository.GetByCorreoAsync(correo.Trim());
+            if (usuario == null)
+            {
+                return;
+            }
+
+            const int minutosExpiracion = 15;
+            string codigo = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+
+            await tokenRecuperacionRepository.InvalidarPreviosAsync(usuario.Id);
+            var token = new TokenRecuperacion(usuario.Id, HashCodigo(codigo), minutosExpiracion);
+            await tokenRecuperacionRepository.AddAsync(token);
+
+            await emailService.EnviarCodigoRecuperacionAsync(usuario.Correo, codigo, minutosExpiracion);
+        }
+
+        public async Task RestablecerContraseniaAsync(string correo, string codigo, string nuevaContrasenia)
+        {
+            if (string.IsNullOrWhiteSpace(correo))
+            {
+                throw new ArgumentException("El correo electrónico es obligatorio.");
+            }
+            if (string.IsNullOrWhiteSpace(codigo))
+            {
+                throw new ArgumentException("El código de verificación es obligatorio.");
+            }
+            if (string.IsNullOrWhiteSpace(nuevaContrasenia))
+            {
+                throw new ArgumentException("La nueva contraseña no puede estar vacía.");
+            }
+
+            var usuario = await usuarioRepository.GetByCorreoAsync(correo.Trim());
+            if (usuario == null)
+            {
+                throw new ArgumentException("El código de verificación es inválido o ha expirado.");
+            }
+
+            var token = await tokenRecuperacionRepository.GetVigenteAsync(usuario.Id, HashCodigo(codigo));
+            if (token == null || !token.EstaVigente())
+            {
+                throw new ArgumentException("El código de verificación es inválido o ha expirado.");
+            }
+
+            usuario.SetContrasenia(nuevaContrasenia);
+            await usuarioRepository.UpdateAsync(usuario);
+            await tokenRecuperacionRepository.MarcarUsadoAsync(token.Id);
+        }
+
+        private static string HashCodigo(string codigo)
+        {
+            byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(codigo.Trim()));
+            return Convert.ToHexString(bytes);
         }
 
         private static UsuarioDTO MapToDTO(Usuario u)

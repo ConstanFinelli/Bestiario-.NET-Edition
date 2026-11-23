@@ -14,5 +14,7 @@ namespace Application.Services
         Task<bool> UpdateAsync(UsuarioDTO dto);
         Task<bool> DeleteAsync(Guid id);
         Task<UsuarioDTO?> ValidarCredencialesAsync(string correo, string contrasenia);
+        Task SolicitarRecuperacionContraseniaAsync(string correo);
+        Task RestablecerContraseniaAsync(string correo, string codigo, string nuevaContrasenia);
     }
 }

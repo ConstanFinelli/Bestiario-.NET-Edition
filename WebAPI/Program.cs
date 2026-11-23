@@ -123,6 +123,8 @@ builder.Services.AddScoped<IRegistroRepository, RegistroRepository>();
 builder.Services.AddScoped<IRegistroService, RegistroService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<ITokenRecuperacionRepository, TokenRecuperacionRepository>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<ISolicitudInvestigadorRepository, SolicitudInvestigadorRepository>();
 builder.Services.AddScoped<ISolicitudInvestigadorService, SolicitudInvestigadorService>();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
