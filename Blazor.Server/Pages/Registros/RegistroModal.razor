@@ -365,17 +365,29 @@
 
                     <!-- Barra inferior de la vista Enciclopedia -->
                     <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
-                        @if (Auth.EsInvestigador)
-                        {
-                            <button type="button" class="win-btn" @onclick="() => { esPropuestaNueva = false; isEditMode = true; }">
-                                ✎ Editar Registro
-                            </button>
-                        }
                         @if (Auth.IsAuthenticated)
                         {
                             <button type="button" class="win-btn me-auto" @onclick="IniciarPropuestaNuevoRegistro">
                                 + Proponer nuevo registro
                             </button>
+                        }
+                        @if (Auth.EsInvestigador)
+                        {
+                            @if (Registro.Estado != null && Registro.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <button type="button" class="win-btn text-success" @onclick="AprobarRegistroActualAsync" disabled="@isSaving">
+                                    ✔ Aprobar
+                                </button>
+                                <button type="button" class="win-btn text-danger" @onclick="() => showConfirmEliminarRegistro = true" disabled="@isSaving">
+                                    ✕ Eliminar (Pendiente)
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="win-btn text-warning" @onclick="DejarPendienteRegistroActualAsync" disabled="@isSaving">
+                                    ↩ Dejar Pendiente
+                                </button>
+                            }
                         }
                         <button type="button" class="win-btn" @onclick="Cancel">
                             Cerrar
@@ -385,7 +397,13 @@
                 else
                 {
                     <!-- MODO ALTA / EDICIÓN (MAESTRO / DETALLE) -->
-                    @if (Auth.EsLector && Mode == FormMode.Add)
+                    @if (Mode == FormMode.Update && !esPropuestaNueva)
+                    {
+                        <div class="alert alert-warning py-1 mb-2" style="font-size: 11px;">
+                            El contenido y la imagen de un registro ya subido no se pueden editar. Solo podés cambiar su estado (aprobar o dejar pendiente).
+                        </div>
+                    }
+                    else if (Auth.EsLector && Mode == FormMode.Add)
                     {
                         <div class="alert alert-info py-1 mb-2" style="font-size: 11px;">
                             Tu registro se enviará en estado <strong>pendiente</strong> para revisión de un investigador.
@@ -450,7 +468,7 @@
                                 <label class="win-label">Imagen:</label>
                             </div>
                             <div class="col-9">
-                                <InputFile OnChange="OnMainPicSelected" accept="image/*" disabled="@(isSaving || !PuedeEditar)" style="font-size: 11px;" />
+                                <InputFile OnChange="OnMainPicSelected" accept="image/*" disabled="@(isSaving || !PuedeEditarContenido)" style="font-size: 11px;" />
                                 @if (!string.IsNullOrEmpty(selectedMainPicName))
                                 {
                                     <div class="text-success" style="font-size: 10px; margin-top: 2px;">
@@ -537,7 +555,7 @@
                                                 <td><strong>@cont.Titulo</strong></td>
                                                 <td style="font-size: 11px;">@cont.Contenido</td>
                                                 <td style="text-align: center;">
-                                                    @if (PuedeEditar)
+                                                    @if (PuedeEditarContenido)
                                                     {
                                                         <button type="button" class="btn btn-outline-danger btn-sm p-0 px-1" 
                                                                 style="font-size: 10px;" 
@@ -558,7 +576,7 @@
                             </table>
                         </div>
 
-                        @if (PuedeEditar)
+                        @if (PuedeEditarContenido)
                         {
                             <!-- Formulario para agregar un nuevo contenido detalle -->
                             <div style="background: #ffffff; border: 1px dashed #a0a0a0; padding: 8px 10px; border-radius: 2px;">
@@ -611,6 +629,12 @@
                   Message="¿Estás seguro que deseas eliminar este comentario?"
                   OnConfirm="ConfirmarEliminarComentarioAsync"
                   OnCancel="@(() => { showConfirmEliminarComentario = false; comentarioAEliminar = null; })" />
+
+    <ConfirmModal IsOpen="@showConfirmEliminarRegistro"
+                  Title="Eliminar registro pendiente"
+                  Message="@($"¿Estás seguro que deseas eliminar físicamente el Registro #{Registro.NroRegistro}? Esta acción no se puede deshacer.")"
+                  OnConfirm="ConfirmarEliminarRegistroAsync"
+                  OnCancel="@(() => showConfirmEliminarRegistro = false)" />
 }
 
 @code {
@@ -629,7 +653,74 @@
     private Guid? lastLoadedBestiaId;
     private int lastLoadedNroRegistro;
     private string? errorMessage;
+    private bool showConfirmEliminarRegistro = false;
     private bool PuedeEditar => Auth.EsInvestigador || (Auth.EsLector && (Mode == FormMode.Add || esPropuestaNueva));
+    private bool PuedeEditarContenido => (Mode == FormMode.Add || esPropuestaNueva) && PuedeEditar;
+
+    private async Task AprobarRegistroActualAsync()
+    {
+        if (!Auth.EsInvestigador || Auth.CurrentUser == null) return;
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+            await RegistroApiClient.AprobarAsync(Registro.IdBestia, Registro.NroRegistro, Auth.CurrentUser.Id);
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al aprobar registro: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task DejarPendienteRegistroActualAsync()
+    {
+        if (!Auth.EsInvestigador) return;
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+            Registro.Estado = "pendiente";
+            Registro.FechaAprobacion = null;
+            Registro.FechaBaja = null;
+            Registro.IdInvestigadorAprobador = null;
+            await RegistroApiClient.UpdateAsync(Registro);
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al pasar registro a pendiente: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task ConfirmarEliminarRegistroAsync()
+    {
+        showConfirmEliminarRegistro = false;
+        if (!Auth.EsInvestigador) return;
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+            await RegistroApiClient.DeleteAsync(Registro.IdBestia, Registro.NroRegistro);
+            await OnSaved.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al eliminar registro: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
 
     private DateTime? fechaConsulta = DateTime.Now;
     private bool isLoadingFecha = false;

@@ -368,24 +368,29 @@ namespace WindowsForms
             bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
             bool esLector = LoginForm.UsuarioLogueado is LectorDTO || LoginForm.UsuarioLogueado?.TipoUsuario == "Lector";
             bool puedeEditar = esInvestigador || (esLector && Mode == FormMode.Add);
+            bool puedeEditarContenido = puedeEditar && Mode == FormMode.Add;
 
             aceptarButton.Visible = puedeEditar;
             aceptarButton.Enabled = puedeEditar;
             aceptarButton.Text = (!esInvestigador && esLector) ? "Proponer" : "Aceptar";
             cancelarButton.Enabled = true;
             cancelarButton.Text = puedeEditar ? "Cancelar" : "Cerrar";
-            bestiaComboBox.Enabled = puedeEditar && Mode == FormMode.Add;
+            bestiaComboBox.Enabled = puedeEditarContenido;
             estadoComboBox.Enabled = esInvestigador;
-            agregarContenidoButton.Enabled = puedeEditar;
-            quitarContenidoButton.Enabled = puedeEditar;
-            nuevoTituloTextBox.Enabled = puedeEditar;
-            nuevoContenidoTextBox.Enabled = puedeEditar;
-            seleccionarImagenButton.Visible = puedeEditar;
-            seleccionarImagenButton.Enabled = puedeEditar;
-            imagenNombreLabel.Visible = puedeEditar;
+            agregarContenidoButton.Enabled = puedeEditarContenido;
+            quitarContenidoButton.Enabled = puedeEditarContenido;
+            nuevoTituloTextBox.Enabled = puedeEditarContenido;
+            nuevoContenidoTextBox.Enabled = puedeEditarContenido;
+            seleccionarImagenButton.Visible = puedeEditarContenido;
+            seleccionarImagenButton.Enabled = puedeEditarContenido;
+            imagenNombreLabel.Visible = puedeEditarContenido;
             if (!puedeEditar)
             {
                 this.Text = "Detalle de Registro";
+            }
+            else if (Mode == FormMode.Update)
+            {
+                this.Text = "Cambiar Estado de Registro (Contenido inmutable)";
             }
             else if (!esInvestigador && esLector)
             {
