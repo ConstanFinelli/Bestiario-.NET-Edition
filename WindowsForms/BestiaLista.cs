@@ -22,6 +22,7 @@ namespace WindowsForms
         public BestiaLista()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             InicializarFiltros();
             ConfigurarColumnas();
             this.bestiasDataGridView.CellDoubleClick += async (_, _) => await AbrirUltimoRegistroSeleccionadoAsync();

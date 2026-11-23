@@ -12,6 +12,7 @@ namespace WindowsForms
         public LoginForm()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
         }
 
         private void LoginForm_Load(object sender, EventArgs e)
@@ -80,6 +81,17 @@ namespace WindowsForms
             BaseApiClient.ClearAuthToken();
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private void forgotPasswordLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using var recForm = new RecuperarContraseniaForm(usernameTextBox.Text);
+            if (recForm.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(recForm.CorreoRestablecido))
+            {
+                usernameTextBox.Text = recForm.CorreoRestablecido;
+                passwordTextBox.Clear();
+                passwordTextBox.Focus();
+            }
         }
 
         private bool ValidateInput()

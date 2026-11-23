@@ -17,6 +17,7 @@ namespace WindowsForms
         public ReporteBestiasForm()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarControles();
         }
 

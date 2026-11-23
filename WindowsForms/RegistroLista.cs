@@ -21,6 +21,7 @@ namespace WindowsForms
         public RegistroLista()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarColumnas();
         }
 

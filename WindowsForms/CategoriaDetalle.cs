@@ -46,6 +46,7 @@ namespace WindowsForms
         public CategoriaDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
         }
 
         public CategoriaDetalle(FormMode mode, CategoriaDTO categoria) : this()

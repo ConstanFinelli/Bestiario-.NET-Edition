@@ -41,6 +41,7 @@ namespace WindowsForms
         public RegistroDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarColumnasContenidos();
             InitializeImagenPicker();
         }

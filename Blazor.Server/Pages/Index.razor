@@ -58,12 +58,12 @@
 
     <!-- Área de Trabajo Principal (Home) -->
     <div class="win-form-content" style="min-height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-        <div style="background-color: #ffffff; border: 1px solid #c0c0c0; padding: 25px 40px; border-radius: 2px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); max-width: 720px;">
+        <div style="background-color: #efe4c8; border: 1px solid #c9b489; padding: 25px 40px; border-radius: 3px; box-shadow: inset 0 0 6px rgba(142, 110, 83, 0.12); max-width: 720px;">
             <div class="mb-3">
-                <span class="oi oi-book text-primary" style="font-size: 42px;"></span>
+                <span class="oi oi-book" style="font-size: 42px; color: #8E6E53;"></span>
             </div>
-            <h4 style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Bestiario - .NET Edition</h4>
-            <p style="color: #555; font-size: 12px; margin-bottom: 20px;">
+            <h4 style="font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #2b2620;">Bestiario - .NET Edition</h4>
+            <p style="color: #3d3124; font-size: 12px; margin-bottom: 20px;">
                 Seleccione una opción del menú superior para comenzar a gestionar el catálogo del bestiario.
             </p>
             <div class="d-flex justify-content-center flex-wrap gap-2">
@@ -103,10 +103,10 @@
 </div>
 
 <!-- Bloque independiente inferior: Últimas 3 Noticias -->
-<div class="win-form" style="width: 940px; max-width: 96vw; margin-top: 0;">
-    <div class="win-titlebar">
+<div class="win-form" style="width: 940px; max-width: 96vw; margin-top: 0; background-color: #8E6E53; border-color: #8E6E53;">
+    <div class="win-titlebar" style="background: #8E6E53; border-bottom: 1px solid #755840; color: #f6f3eb;">
         <div class="d-flex align-items-center gap-1">
-            <span class="oi oi-bullhorn text-primary"></span>
+            <span class="oi oi-bullhorn" style="color: #f6f3eb;"></span>
             <span>Últimas Noticias</span>
         </div>
         <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 8px;" @onclick="@(() => Navigation.NavigateTo("/noticias"))">
@@ -114,10 +114,10 @@
         </button>
     </div>
 
-    <div class="win-form-content" style="padding: 14px 16px;">
+    <div class="win-form-content" style="padding: 14px 16px; background-color: #f6f3eb; border: 1px solid #d5cfc0;">
         @if (cargandoNoticias)
         {
-            <div class="text-muted text-center py-3" style="font-size: 11px;">Cargando últimas noticias...</div>
+            <div class="text-center py-3" style="font-size: 11px; color: #5c4d3c;">Cargando últimas noticias...</div>
         }
         else if (!string.IsNullOrEmpty(errorNoticias))
         {
@@ -125,7 +125,7 @@
         }
         else if (!ultimasNoticias.Any())
         {
-            <div class="text-muted text-center py-3 border bg-white" style="font-size: 11px;">No hay noticias publicadas aún.</div>
+            <div class="text-center py-3 border" style="font-size: 11px; background-color: #efe4c8; border-color: #c9b489; color: #4a3b2c;">No hay noticias publicadas aún.</div>
         }
         else
         {
@@ -133,15 +133,15 @@
                 @foreach (var noticia in ultimasNoticias)
                 {
                     <div class="col-md-4">
-                        <div class="bg-white border p-3 h-100 d-flex flex-column justify-content-between" style="border-color: #c0c0c0; border-radius: 2px; box-shadow: inset 0 0 3px rgba(0,0,0,0.04);">
+                        <div class="border p-3 h-100 d-flex flex-column justify-content-between" style="background-color: #efe4c8; border-color: #c9b489 !important; border-radius: 3px; box-shadow: inset 0 0 6px rgba(142, 110, 83, 0.12);">
                             <div>
-                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2 pb-1" style="border-bottom: 1px solid #ececec;">
-                                    <strong style="font-size: 12px; color: #1f2937;">@noticia.Titulo</strong>
-                                    <span class="text-muted" style="font-size: 10px; white-space: nowrap;">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2 pb-1" style="border-bottom: 1px solid #d6c5a0;">
+                                    <strong style="font-size: 12px; color: #2b2620;">@noticia.Titulo</strong>
+                                    <span style="font-size: 10px; white-space: nowrap; color: #6b5b47;">
                                         @noticia.FechaPublicacion.ToString("dd/MM/yyyy")
                                     </span>
                                 </div>
-                                <p class="mb-0 text-secondary" style="font-size: 11px; line-height: 1.45;">
+                                <p class="mb-0" style="font-size: 11px; line-height: 1.45; color: #3d3124;">
                                     @noticia.Contenido
                                 </p>
                             </div>
@@ -152,9 +152,9 @@
         }
     </div>
 
-    <div class="win-statusbar">
+    <div class="win-statusbar" style="background-color: #8E6E53; border-top: 1px solid #755840; color: #f6f3eb;">
         <span>Mostrando @ultimasNoticias.Count noticia(s) reciente(s)</span>
-        <a href="/noticias" class="text-decoration-none" style="font-size: 11px; color: #0066cc;">Ir al listado completo →</a>
+        <a href="/noticias" class="text-decoration-none" style="font-size: 11px; color: #f6f3eb;">Ir al listado completo →</a>
     </div>
 </div>
 
