@@ -1,0 +1,128 @@
+.enc-paper {
+    background-color: #f6f3eb;
+    border: 1px solid #d5cfc0;
+    padding: 20px 24px;
+    border-radius: 3px;
+}
+
+.enc-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #8E6E53;
+    text-align: center;
+    border-bottom: 1px solid #755840;
+    padding: 10px 14px;
+    border-radius: 3px;
+    margin-bottom: 12px;
+}
+
+.enc-section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c2721;
+    margin-bottom: 6px;
+}
+
+.enc-section-body {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #2e2e2e;
+    white-space: pre-line;
+    text-align: justify;
+    margin-bottom: 0;
+}
+
+.enc-sidebar {
+    background-color: #e4e0d8;
+    border: 1px solid #c9c3b6;
+    border-radius: 6px;
+    padding: 14px 12px;
+    text-align: center;
+}
+
+.enc-sidebar-heading {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #2b2620;
+    margin-bottom: 6px;
+}
+
+.enc-sidebar-subhead {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: #2b2620;
+    margin-bottom: 6px;
+    border-top: 1px solid #ccc5b8;
+    padding-top: 10px;
+}
+
+.enc-sidebar-text {
+    font-size: 12px;
+    color: #333333;
+}
+
+.enc-sidebar-meta {
+    font-size: 11px;
+    color: #333333;
+    line-height: 1.55;
+}
+
+.enc-evidences-section {
+    border-top: 1px solid #bdb6a7;
+}
+
+.enc-evidences-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: #2b2620;
+    margin-bottom: 8px;
+}
+
+.enc-evidence-card {
+    background-color: #ffffff;
+    font-size: 11px;
+}
+
+.enc-date-bar {
+    background-color: #ebe6da;
+    border: 1px solid #d0c9b8;
+    font-size: 11px;
+}
+
+.enc-date-label {
+    color: #2b2620;
+}
+
+.enc-main-img {
+    width: 100%;
+    max-height: 240px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #bfb8a8;
+}
+
+.enc-page-active {
+    background: #cce4f7;
+    border-color: #3399ff;
+    font-weight: bold;
+}
+
+.enc-evidence-img-scroll {
+    width: 100%;
+    max-height: 220px;
+    overflow: auto;
+    border-radius: 4px;
+    border: 1px solid #c9b489;
+    background-color: #faf7f0;
+}
+
+.enc-evidence-img {
+    display: block;
+    max-width: none;
+}

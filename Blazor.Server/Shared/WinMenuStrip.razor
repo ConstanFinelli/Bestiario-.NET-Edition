@@ -32,7 +32,7 @@
     @if (OnRefresh.HasDelegate)
     {
         <div class="ms-auto">
-            <button class="win-btn" style="height: 20px; font-size: 11px; padding: 0 6px;" @onclick="OnRefresh" disabled="@IsLoading">
+            <button class="win-btn win-btn-sm" @onclick="OnRefresh" disabled="@IsLoading">
                 Refrescar
             </button>
         </div>

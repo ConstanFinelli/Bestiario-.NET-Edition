@@ -16,20 +16,16 @@
                 <span class="oi oi-grid-four-up text-primary"></span>
                 <strong>Bestiario .NET</strong>
             </NavLink>
-            <span class="text-secondary small ms-2">Edición Blazor Server (.NET 8)</span>
+            <span class="text-secondary small ms-2">.NET Edition</span>
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            <span class="badge bg-light text-dark border">
-                <span class="oi oi-hard-drive me-1 text-success"></span> API: localhost:5076
-            </span>
-
             @if (Auth.IsAuthenticated)
             {
                 <span class="badge bg-primary">
                     <span class="oi oi-person me-1"></span> @Auth.Username
                 </span>
-                <button class="btn btn-outline-danger btn-sm py-0 px-2" style="font-size: 11px;" @onclick="CerrarSesion">
+                <button class="btn btn-outline-danger btn-sm py-0 px-2 taskbar-btn-sm" @onclick="CerrarSesion">
                     Cerrar sesión
                 </button>
             }
@@ -38,7 +34,7 @@
                 <span class="badge bg-secondary">
                     <span class="oi oi-person me-1"></span> Modo Invitado
                 </span>
-                <NavLink href="/login" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size: 11px;">
+                <NavLink href="/login" class="btn btn-outline-primary btn-sm py-0 px-2 taskbar-btn-sm">
                     Iniciar sesión
                 </NavLink>
             }

@@ -4,7 +4,7 @@
 
 <PageTitle>Usuarios</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form win-form-md">
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
             <span class="oi oi-people text-primary"></span>
@@ -25,12 +25,12 @@
         {
             @if (!string.IsNullOrEmpty(feedbackMessage))
             {
-                <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+                <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                     @feedbackMessage
                 </div>
             }
 
-            <div class="win-grid-container" style="height: 260px;">
+            <div class="win-grid-container win-grid-h260">
                 <table class="win-grid">
                     <thead>
                         <tr>

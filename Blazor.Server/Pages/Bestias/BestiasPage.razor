@@ -4,7 +4,7 @@
 
 <PageTitle>Bestias</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form win-form-md">
     <!-- Barra de Título Windows -->
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
@@ -20,7 +20,7 @@
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
@@ -29,7 +29,7 @@
         <div class="d-flex flex-wrap align-items-center gap-3 mb-2 p-2 bg-light border">
             <div class="d-flex align-items-center gap-2">
                 <label class="win-label fw-bold mb-0">Filtrar por Categoría:</label>
-                <select class="win-textbox" style="min-width: 200px;" value="@selectedCategoriaId" @onchange="OnCategoriaFiltroChanged">
+                <select class="win-textbox win-filter-select" value="@selectedCategoriaId" @onchange="OnCategoriaFiltroChanged">
                     <option value="">-- Todas --</option>
                     @foreach (var cat in categorias)
                     {
@@ -39,7 +39,7 @@
             </div>
             <div class="d-flex align-items-center gap-2">
                 <label class="win-label fw-bold mb-0">Filtrar por Hábitat:</label>
-                <select class="win-textbox" style="min-width: 200px;" value="@selectedHabitatId" @onchange="OnHabitatFiltroChanged">
+                <select class="win-textbox win-filter-select" value="@selectedHabitatId" @onchange="OnHabitatFiltroChanged">
                     <option value="">-- Todos --</option>
                     @foreach (var hab in habitats)
                     {
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Grilla DataGridView -->
-        <div class="win-grid-container" style="height: 260px;">
+        <div class="win-grid-container win-grid-h260">
             <table class="win-grid">
                 <thead>
                     <tr>
@@ -95,7 +95,7 @@
                                 <td>@b.Nombre</td>
                                 <td>@b.Peligrosidad</td>
                                 <td>
-                                    <span class="badge @(b.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
+                                    <span class="badge @(b.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark") win-badge-sm">
                                         @b.Estado
                                     </span>
                                 </td>
@@ -550,20 +550,20 @@
 @if (isPendientesModalOpen)
 {
     <div class="win-modal-overlay">
-        <div class="win-modal-dialog" style="width: 720px; max-width: 95vw;">
+        <div class="win-modal-dialog win-modal-720">
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
-                    <span class="oi oi-clock text-warning" style="font-size: 11px;"></span>
+                    <span class="oi oi-clock text-warning win-title-icon"></span>
                     <span>Registros Pendientes</span>
                 </div>
                 <div class="win-titlebar-controls">
                     <button class="win-titlebar-btn close" @onclick="@(() => isPendientesModalOpen = false)">✕</button>
                 </div>
             </div>
-            <div class="win-form-content" style="padding: 12px 16px;">
+            <div class="win-form-content win-modal-body">
                 <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
                     <label class="win-label fw-bold mb-0">Filtrar por Bestia:</label>
-                    <select class="win-textbox" style="min-width: 240px;" @bind="filtroBestiaPendienteId">
+                    <select class="win-textbox win-filter-select-md" @bind="filtroBestiaPendienteId">
                         <option value="">-- Todas las Bestias --</option>
                         @foreach (var b in (bestias ?? Enumerable.Empty<BestiaDTO>()).OrderBy(x => x.Nombre))
                         {
@@ -572,7 +572,7 @@
                     </select>
                     @if (!string.IsNullOrEmpty(filtroBestiaPendienteId))
                     {
-                        <button class="win-btn" style="height: 22px; font-size: 11px;" @onclick="@(() => filtroBestiaPendienteId = string.Empty)">
+                        <button class="win-btn win-btn-md" @onclick="@(() => filtroBestiaPendienteId = string.Empty)">
                             Quitar Filtro
                         </button>
                     }
@@ -580,17 +580,17 @@
 
                 @if (isProcesandoPendiente)
                 {
-                    <div class="text-muted py-3 text-center" style="font-size: 12px;">Cargando...</div>
+                    <div class="text-muted py-3 text-center">Cargando...</div>
                 }
                 else if (!RegistrosPendientesFiltrados.Any())
                 {
-                    <div class="text-muted py-3 text-center" style="font-size: 12px;">
+                    <div class="text-muted py-3 text-center">
                         @(string.IsNullOrEmpty(filtroBestiaPendienteId) ? "No hay registros pendientes en el sistema." : "No hay registros pendientes para la bestia seleccionada.")
                     </div>
                 }
                 else
                 {
-                    <div class="win-grid-container" style="height: 230px;">
+                    <div class="win-grid-container win-grid-h230">
                         <table class="win-grid">
                             <thead>
                                 <tr>
@@ -608,13 +608,13 @@
                                     <tr>
                                         <td><strong>@bName</strong></td>
                                         <td>#@reg.NroRegistro</td>
-                                        <td style="font-size: 11px;">@(reg.CorreoPublicador ?? "-")</td>
+                                        <td class="win-text-sm">@(reg.CorreoPublicador ?? "-")</td>
                                         <td>@reg.Contenidos.Count</td>
                                         <td>
                                             <div class="d-flex gap-1">
-                                                <button class="win-btn" style="height: 20px; font-size: 10px;" @onclick="() => ExaminarPendiente(reg)">Examinar</button>
-                                                <button class="win-btn text-success" style="height: 20px; font-size: 10px;" @onclick="() => AceptarPendienteAsync(reg)">Aceptar</button>
-                                                <button class="win-btn text-danger" style="height: 20px; font-size: 10px;" @onclick="() => RechazarPendienteAsync(reg)">Rechazar</button>
+                                                <button class="win-btn win-btn-xs" @onclick="() => ExaminarPendiente(reg)">Examinar</button>
+                                                <button class="win-btn win-btn-xs text-success" @onclick="() => AceptarPendienteAsync(reg)">Aceptar</button>
+                                                <button class="win-btn win-btn-xs text-danger" @onclick="() => RechazarPendienteAsync(reg)">Rechazar</button>
                                             </div>
                                         </td>
                                     </tr>
