@@ -29,6 +29,7 @@ namespace WindowsForms
         public UsuarioDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             tipoComboBox.Items.AddRange(new object[] { "Investigador", "Lector" });
         }
 

@@ -15,6 +15,7 @@ namespace WindowsForms
         public NoticiaDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
         }
 
         private NoticiaDTO noticia = null!;

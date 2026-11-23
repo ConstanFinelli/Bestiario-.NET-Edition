@@ -28,6 +28,8 @@ namespace WindowsForms
                 return;
             }
 
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
+
             ConfigurarFormulario();
             ConstruirLayout();
         }

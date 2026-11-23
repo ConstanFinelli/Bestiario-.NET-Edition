@@ -29,6 +29,7 @@ namespace WindowsForms
         public TipoEvidenciaDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
         }
 
         public TipoEvidenciaDetalle(FormMode mode, TipoEvidenciaDTO tipoEvidencia) : this()

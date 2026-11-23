@@ -36,6 +36,7 @@ namespace WindowsForms
             _esLector = user != null && !_esInvestigador;
 
             InitializeUI();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             this.Load += async (_, _) => await CargarDatosAsync();
         }
 

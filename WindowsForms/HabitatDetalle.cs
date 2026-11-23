@@ -34,6 +34,7 @@ namespace WindowsForms
         public HabitatDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarColumnasCaracteristicas();
         }
 

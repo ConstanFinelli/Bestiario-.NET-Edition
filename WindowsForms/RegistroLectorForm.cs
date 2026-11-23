@@ -10,6 +10,7 @@ namespace WindowsForms
         public RegistroLectorForm()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
         }
 
         private async void registerButton_Click(object sender, EventArgs e)

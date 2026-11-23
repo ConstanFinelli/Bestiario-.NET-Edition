@@ -13,6 +13,7 @@ namespace WindowsForms
         public HabitatLista()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarColumnas();
         }
 

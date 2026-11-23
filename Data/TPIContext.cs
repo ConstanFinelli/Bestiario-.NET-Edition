@@ -145,8 +145,7 @@ namespace Data
                 entity.HasData(
                     new { Id = Guid.Parse("bbbb1111-1111-1111-1111-111111111111"), Descripcion = "Fotografía de Campo", ResourceType = "image" },
                     new { Id = Guid.Parse("bbbb2222-2222-2222-2222-222222222222"), Descripcion = "Grabación de Audio", ResourceType = "audio" },
-                    new { Id = Guid.Parse("bbbb3333-3333-3333-3333-333333333333"), Descripcion = "Video de Avistamiento", ResourceType = "video" },
-                    new { Id = Guid.Parse("bbbb4444-4444-4444-4444-444444444444"), Descripcion = "Documento / Boceto", ResourceType = "document" }
+                    new { Id = Guid.Parse("bbbb3333-3333-3333-3333-333333333333"), Descripcion = "Video de Avistamiento", ResourceType = "video" }
                 );
             });
 
@@ -322,7 +321,25 @@ namespace Data
                         NroEvidencia = 1,
                         Estado = "aprobado",
                         FechaObtencion = new DateTime(2026, 2, 10, 14, 30, 0),
-                        FileId = "grifo_avistamiento_01.jpg",
+                        FileId = "cay8rme2mbquwxiyfuan",
+                        IdTipoEvidencia = Guid.Parse("bbbb1111-1111-1111-1111-111111111111")
+                    },
+                    new
+                    {
+                        IdBestia = Guid.Parse("11111111-0000-0000-0000-000000000001"),
+                        NroEvidencia = 2,
+                        Estado = "pendiente",
+                        FechaObtencion = new DateTime(2026, 2, 12, 11, 15, 0),
+                        FileId = "cay8rme2mbquwxiyfuan",
+                        IdTipoEvidencia = Guid.Parse("bbbb1111-1111-1111-1111-111111111111")
+                    },
+                    new
+                    {
+                        IdBestia = Guid.Parse("11111111-0000-0000-0000-000000000002"),
+                        NroEvidencia = 1,
+                        Estado = "aprobado",
+                        FechaObtencion = new DateTime(2026, 2, 15, 18, 45, 0),
+                        FileId = "cay8rme2mbquwxiyfuan",
                         IdTipoEvidencia = Guid.Parse("bbbb1111-1111-1111-1111-111111111111")
                     }
                 );

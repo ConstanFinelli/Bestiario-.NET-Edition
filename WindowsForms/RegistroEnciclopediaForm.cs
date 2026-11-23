@@ -38,6 +38,7 @@ namespace WindowsForms
 
             ConfigurarFormulario();
             ConstruirContenido();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             Load += async (_, _) =>
             {
                 await CargarEvidenciasAsync();
@@ -234,7 +235,8 @@ namespace WindowsForms
                 Dock = DockStyle.Top,
                 Height = 46,
                 Font = new Font("Georgia", 18F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(43, 38, 32),
+                BackColor = ThemeHelper.OuterBrown,
+                ForeColor = Color.White,
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
@@ -690,6 +692,13 @@ namespace WindowsForms
             var sel = ObtenerEvidenciaSeleccionada();
             if (sel == null || string.IsNullOrWhiteSpace(sel.FileUrl)) return;
 
+            var rType = (sel.TipoEvidenciaResourceType ?? string.Empty).Trim().ToLowerInvariant();
+            if (rType == "image")
+            {
+                MostrarVisorImagenEvidencia(sel);
+                return;
+            }
+
             try
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(sel.FileUrl)
@@ -701,6 +710,83 @@ namespace WindowsForms
             {
                 MessageBox.Show($"No se pudo abrir la evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void MostrarVisorImagenEvidencia(EvidenciaDTO evidencia)
+        {
+            using var imgDlg = new Form
+            {
+                Text = $"Evidencia #{evidencia.NroEvidencia} — {evidencia.TipoEvidenciaDescripcion ?? "Imagen"}",
+                Size = new Size(760, 560),
+                MinimumSize = new Size(480, 360),
+                StartPosition = FormStartPosition.CenterParent
+            };
+
+            var scrollPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                Padding = new Padding(8)
+            };
+
+            var picBox = new PictureBox
+            {
+                SizeMode = PictureBoxSizeMode.AutoSize,
+                Location = new Point(0, 0)
+            };
+            scrollPanel.Controls.Add(picBox);
+
+            var bottomBar = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 42,
+                Padding = new Padding(10, 7, 10, 7)
+            };
+
+            var cerrarBtn = new Button
+            {
+                Text = "Cerrar",
+                Width = 90,
+                Height = 26,
+                Dock = DockStyle.Right
+            };
+            cerrarBtn.Click += (_, _) => imgDlg.Close();
+
+            var abrirNavegadorBtn = new Button
+            {
+                Text = "Abrir en navegador",
+                Width = 140,
+                Height = 26,
+                Dock = DockStyle.Left
+            };
+            abrirNavegadorBtn.Click += (_, _) =>
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(evidencia.FileUrl!)
+                    {
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"No se pudo abrir en navegador: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+
+            bottomBar.Controls.Add(cerrarBtn);
+            bottomBar.Controls.Add(abrirNavegadorBtn);
+
+            imgDlg.Controls.Add(scrollPanel);
+            imgDlg.Controls.Add(bottomBar);
+            imgDlg.Load += (_, _) =>
+            {
+                ThemeHelper.ApplyTheme(imgDlg);
+                scrollPanel.BackColor = ThemeHelper.GridSurface;
+                try { picBox.LoadAsync(evidencia.FileUrl); } catch { }
+            };
+
+            imgDlg.ShowDialog(this);
         }
 
         private async Task ProponerEvidenciaAsync()

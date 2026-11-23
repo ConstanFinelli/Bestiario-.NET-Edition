@@ -2,8 +2,12 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #51719c;
-    background-image: radial-gradient(circle at 50% 50%, #466795 0%, #2f496e 100%);
+    background-color: #1a1a1a;
+    background-image: url('https://res.cloudinary.com/dredzwamd/image/upload/f_auto,q_auto/beast-bg_hcylxf');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     overflow-x: hidden;
 }
 

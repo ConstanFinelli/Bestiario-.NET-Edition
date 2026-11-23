@@ -26,13 +26,20 @@ namespace WindowsForms
         private Button adminButton = null!;
         private Button solicitudesButton = null!;
         private Button reportesButton = null!;
+        private Panel upperBoxContainer = null!;
+        private Panel ultimasNoticiasContainer = null!;
+        private TableLayoutPanel ultimasNoticiasGrid = null!;
+        private Label ultimasNoticiasStatusLabel = null!;
 
         public Home()
         {
             InitializeComponent();
             InicializarBarraSesion();
             InicializarAccesoAdmin();
+            InicializarUltimasNoticias();
+            AplicarEsteticaHome();
             ActualizarEstadoSesion();
+            Shown += async (_, _) => await CargarUltimasNoticiasAsync();
         }
 
         private void InicializarAccesoAdmin()
@@ -158,6 +165,256 @@ namespace WindowsForms
             this.Controls.Add(statusStrip);
         }
 
+        private void InicializarUltimasNoticias()
+        {
+            ClientSize = new Size(760, 600);
+
+            upperBoxContainer = new Panel
+            {
+                BackColor = ThemeHelper.Bone,
+                BorderStyle = BorderStyle.FixedSingle,
+                Padding = new Padding(14),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            };
+            Controls.Remove(cardPanel);
+            upperBoxContainer.Controls.Add(cardPanel);
+            Controls.Add(upperBoxContainer);
+
+            ultimasNoticiasContainer = new Panel
+            {
+                BackColor = ThemeHelper.Bone,
+                BorderStyle = BorderStyle.FixedSingle,
+                Padding = new Padding(12),
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+            };
+
+            var headerPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 28,
+                BackColor = ThemeHelper.Bone
+            };
+
+            var headerLabel = new Label
+            {
+                Text = "Últimas Noticias",
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                ForeColor = ThemeHelper.TextDark,
+                AutoSize = true,
+                Location = new Point(0, 5)
+            };
+
+            var verTodasButton = new Button
+            {
+                Text = "Ver todas",
+                Font = new Font("Segoe UI", 8.5F),
+                Size = new Size(82, 24),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(headerPanel.Width - 82, 1),
+                UseVisualStyleBackColor = true
+            };
+            verTodasButton.Click += NoticiasToolStripMenuItem_Click;
+
+            var divider = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 1,
+                BackColor = ThemeHelper.BoneBorder
+            };
+
+            headerPanel.Controls.Add(headerLabel);
+            headerPanel.Controls.Add(verTodasButton);
+            headerPanel.Controls.Add(divider);
+
+            ultimasNoticiasStatusLabel = new Label
+            {
+                Dock = DockStyle.Fill,
+                Text = "Cargando últimas noticias...",
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = ThemeHelper.TextMuted,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            ultimasNoticiasGrid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 3,
+                RowCount = 1,
+                Padding = new Padding(0, 8, 0, 0),
+                BackColor = ThemeHelper.Bone,
+                Visible = false
+            };
+            ultimasNoticiasGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+            ultimasNoticiasGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+            ultimasNoticiasGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
+            ultimasNoticiasGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            var bodyPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = ThemeHelper.Bone
+            };
+            bodyPanel.Controls.Add(ultimasNoticiasGrid);
+            bodyPanel.Controls.Add(ultimasNoticiasStatusLabel);
+
+            ultimasNoticiasContainer.Controls.Add(bodyPanel);
+            ultimasNoticiasContainer.Controls.Add(headerPanel);
+            Controls.Add(ultimasNoticiasContainer);
+
+            AjustarLayoutUltimasNoticias();
+        }
+
+        private void AplicarEsteticaHome()
+        {
+            BackColor = ThemeHelper.OuterBrown;
+            ForeColor = ThemeHelper.TextDark;
+
+            menuStrip1.BackColor = ThemeHelper.MenuBone;
+            menuStrip1.ForeColor = ThemeHelper.TextDark;
+
+            statusStrip.BackColor = ThemeHelper.OuterBrown;
+            statusStrip.ForeColor = ThemeHelper.Bone;
+            listoStatusLabel.ForeColor = ThemeHelper.Bone;
+            apiStatusLabel.ForeColor = ThemeHelper.Bone;
+
+            cardPanel.BackColor = ThemeHelper.Parchment;
+            titleLabel.ForeColor = ThemeHelper.TextDark;
+            subtitleLabel.ForeColor = ThemeHelper.TextBody;
+
+            ThemeHelper.ApplyToControls(upperBoxContainer.Controls);
+            ThemeHelper.ApplyToControls(ultimasNoticiasContainer.Controls);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            AjustarLayoutUltimasNoticias();
+        }
+
+        private void AjustarLayoutUltimasNoticias()
+        {
+            int menuBottom = menuStrip1.Bottom > 0 ? menuStrip1.Bottom : 24;
+            int sideMargin = 30;
+            int upperTop = menuBottom + 14;
+            int upperPadding = 14;
+
+            upperBoxContainer.Bounds = new Rectangle(
+                sideMargin,
+                upperTop,
+                ClientSize.Width - (sideMargin * 2),
+                cardPanel.Height + (upperPadding * 2));
+            cardPanel.Location = new Point(
+                Math.Max(upperPadding, (upperBoxContainer.ClientSize.Width - cardPanel.Width) / 2),
+                upperPadding);
+
+            int top = upperBoxContainer.Bottom + 14;
+            int statusHeight = statusStrip.Height > 0 ? statusStrip.Height : 24;
+            int bottomMargin = 14;
+            int minNoticiasHeight = 180;
+            int availableHeight = ClientSize.Height - statusHeight - bottomMargin - top;
+
+            if (availableHeight < minNoticiasHeight)
+            {
+                ClientSize = new Size(ClientSize.Width, top + minNoticiasHeight + bottomMargin + statusHeight);
+                availableHeight = minNoticiasHeight;
+            }
+
+            ultimasNoticiasContainer.Bounds = new Rectangle(sideMargin, top, ClientSize.Width - (sideMargin * 2), availableHeight);
+        }
+
+        private async Task CargarUltimasNoticiasAsync()
+        {
+            try
+            {
+                ultimasNoticiasGrid.Visible = false;
+                ultimasNoticiasStatusLabel.ForeColor = Color.DimGray;
+                ultimasNoticiasStatusLabel.Text = "Cargando últimas noticias...";
+                ultimasNoticiasStatusLabel.Visible = true;
+
+                var todas = await NoticiaApiClient.GetAllAsync();
+                var ultimas = (todas ?? Enumerable.Empty<NoticiaDTO>())
+                    .OrderByDescending(n => n.FechaPublicacion)
+                    .Take(3)
+                    .ToList();
+
+                if (!ultimas.Any())
+                {
+                    ultimasNoticiasStatusLabel.Text = "No hay noticias publicadas aún.";
+                    return;
+                }
+
+                ultimasNoticiasGrid.SuspendLayout();
+                ultimasNoticiasGrid.Controls.Clear();
+
+                for (int i = 0; i < ultimas.Count; i++)
+                {
+                    var noticia = ultimas[i];
+                    var card = new Panel
+                    {
+                        Dock = DockStyle.Fill,
+                        BackColor = ThemeHelper.Parchment,
+                        BorderStyle = BorderStyle.FixedSingle,
+                        Margin = new Padding(i == 0 ? 0 : 4, 0, i == 2 ? 0 : 4, 0),
+                        Padding = new Padding(8)
+                    };
+
+                    var topRow = new Panel
+                    {
+                        Dock = DockStyle.Top,
+                        Height = 22,
+                        BackColor = ThemeHelper.Parchment
+                    };
+
+                    var fechaLabel = new Label
+                    {
+                        Text = noticia.FechaPublicacion.ToString("dd/MM/yyyy"),
+                        Font = new Font("Segoe UI", 7.5F),
+                        ForeColor = ThemeHelper.TextMuted,
+                        Dock = DockStyle.Right,
+                        AutoSize = true,
+                        TextAlign = ContentAlignment.TopRight
+                    };
+
+                    var tituloLabel = new Label
+                    {
+                        Text = noticia.Titulo,
+                        Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                        ForeColor = ThemeHelper.TextDark,
+                        Dock = DockStyle.Fill,
+                        AutoEllipsis = true
+                    };
+
+                    topRow.Controls.Add(tituloLabel);
+                    topRow.Controls.Add(fechaLabel);
+
+                    var contenidoLabel = new Label
+                    {
+                        Text = noticia.Contenido,
+                        Font = new Font("Segoe UI", 8.5F),
+                        ForeColor = ThemeHelper.TextBody,
+                        Dock = DockStyle.Fill,
+                        Padding = new Padding(0, 4, 0, 0),
+                        AutoEllipsis = true
+                    };
+
+                    card.Controls.Add(contenidoLabel);
+                    card.Controls.Add(topRow);
+                    ultimasNoticiasGrid.Controls.Add(card, i, 0);
+                }
+
+                ultimasNoticiasGrid.ResumeLayout();
+                ultimasNoticiasStatusLabel.Visible = false;
+                ultimasNoticiasGrid.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                ultimasNoticiasGrid.Visible = false;
+                ultimasNoticiasStatusLabel.ForeColor = Color.DarkRed;
+                ultimasNoticiasStatusLabel.Text = $"No se pudieron cargar las noticias: {ex.Message}";
+                ultimasNoticiasStatusLabel.Visible = true;
+            }
+        }
+
         private void ActualizarEstadoSesion()
         {
             var user = LoginForm.UsuarioLogueado;
@@ -246,10 +503,11 @@ namespace WindowsForms
             categoriasForm.ShowDialog();
         }
 
-        private void NoticiasToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void NoticiasToolStripMenuItem_Click(object? sender, EventArgs e)
         {
-            NoticiaLista noticiasForm = new NoticiaLista();
+            using NoticiaLista noticiasForm = new NoticiaLista();
             noticiasForm.ShowDialog();
+            await CargarUltimasNoticiasAsync();
         }
 
         private void BestiasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -310,8 +568,8 @@ namespace WindowsForms
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Color azul libro idéntico al icono web (#0d6efd)
-            using var blueBrush = new SolidBrush(Color.FromArgb(13, 110, 253));
+            // Color del libro unificado con el tema (#8E6E53)
+            using var bookBrush = new SolidBrush(ThemeHelper.OuterBrown);
 
             // Cuerpo del libro con esquinas suavemente redondeadas
             var bookRect = new Rectangle(6, 4, 36, 40);
@@ -322,7 +580,7 @@ namespace WindowsForms
             path.AddArc(bookRect.Right - radius * 2, bookRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
             path.AddArc(bookRect.X, bookRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
             path.CloseFigure();
-            e.Graphics.FillPath(blueBrush, path);
+            e.Graphics.FillPath(bookBrush, path);
 
             // Cinta de marcador blanca
             using var whiteBrush = new SolidBrush(Color.White);

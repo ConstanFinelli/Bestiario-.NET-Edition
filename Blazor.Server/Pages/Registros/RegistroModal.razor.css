@@ -9,11 +9,13 @@
     font-family: Georgia, 'Times New Roman', serif;
     font-size: 24px;
     font-weight: bold;
-    color: #2b2620;
+    color: #ffffff;
+    background-color: #8E6E53;
     text-align: center;
-    border-bottom: 1px solid #bdb6a7;
-    padding-bottom: 8px;
-    margin-bottom: 18px;
+    border-bottom: 1px solid #755840;
+    padding: 10px 14px;
+    border-radius: 3px;
+    margin-bottom: 12px;
 }
 
 .enc-section-title {
@@ -109,4 +111,18 @@
     background: #cce4f7;
     border-color: #3399ff;
     font-weight: bold;
+}
+
+.enc-evidence-img-scroll {
+    width: 100%;
+    max-height: 220px;
+    overflow: auto;
+    border-radius: 4px;
+    border: 1px solid #c9b489;
+    background-color: #faf7f0;
+}
+
+.enc-evidence-img {
+    display: block;
+    max-width: none;
 }

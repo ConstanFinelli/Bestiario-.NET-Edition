@@ -13,6 +13,7 @@ namespace WindowsForms
         public UsuarioLista()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarColumnas();
         }
 

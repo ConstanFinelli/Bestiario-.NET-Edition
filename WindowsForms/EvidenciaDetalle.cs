@@ -34,6 +34,7 @@ namespace WindowsForms
         public EvidenciaDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             estadoComboBox.Items.AddRange(new object[] { "pendiente", "aprobado" });
         }
 

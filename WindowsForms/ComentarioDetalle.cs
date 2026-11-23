@@ -31,6 +31,7 @@ namespace WindowsForms
         public ComentarioDetalle()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
         }
 
         public ComentarioDetalle(FormMode mode, ComentarioDTO comentario, List<BestiaDTO> bestias) : this()

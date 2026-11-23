@@ -58,7 +58,7 @@
     <div class="win-form-content home-content">
         <div class="home-welcome-card">
             <div class="mb-3">
-                <span class="oi oi-book text-primary home-book-icon"></span>
+                <span class="oi oi-book home-book-icon"></span>
             </div>
             <h4 class="home-title">Bestiario - .NET Edition</h4>
             <p class="home-subtitle">
@@ -97,7 +97,7 @@
 <div class="win-form win-form-md home-form-news">
     <div class="win-titlebar">
         <div class="d-flex align-items-center gap-1">
-            <span class="oi oi-bullhorn text-primary"></span>
+            <span class="oi oi-bullhorn home-news-icon"></span>
             <span>Últimas Noticias</span>
         </div>
         <button class="win-btn win-btn-sm" @onclick="@(() => Navigation.NavigateTo("/noticias"))">
@@ -108,7 +108,7 @@
     <div class="win-form-content home-news-body">
         @if (cargandoNoticias)
         {
-            <div class="text-muted text-center py-3 win-text-sm">Cargando últimas noticias...</div>
+            <div class="text-center py-3 win-text-sm home-news-empty-text">Cargando últimas noticias...</div>
         }
         else if (!string.IsNullOrEmpty(errorNoticias))
         {
@@ -116,7 +116,7 @@
         }
         else if (!ultimasNoticias.Any())
         {
-            <div class="text-muted text-center py-3 border bg-white win-text-sm">No hay noticias publicadas aún.</div>
+            <div class="text-center py-3 border win-text-sm home-news-empty">No hay noticias publicadas aún.</div>
         }
         else
         {
@@ -124,15 +124,15 @@
                 @foreach (var noticia in ultimasNoticias)
                 {
                     <div class="col-md-4">
-                        <div class="bg-white border p-3 h-100 d-flex flex-column justify-content-between home-news-card">
+                        <div class="border p-3 h-100 d-flex flex-column justify-content-between home-news-card">
                             <div>
                                 <div class="d-flex justify-content-between align-items-start gap-2 mb-2 pb-1 home-news-header">
                                     <strong class="home-news-title">@noticia.Titulo</strong>
-                                    <span class="text-muted home-news-date">
+                                    <span class="home-news-date">
                                         @noticia.FechaPublicacion.ToString("dd/MM/yyyy")
                                     </span>
                                 </div>
-                                <p class="mb-0 text-secondary home-news-text">
+                                <p class="mb-0 home-news-text">
                                     @noticia.Contenido
                                 </p>
                             </div>

@@ -38,12 +38,13 @@ namespace WindowsForms
             cancelButton = new Button();
             registerLinkLabel = new LinkLabel();
             guestLinkLabel = new LinkLabel();
+            forgotPasswordLinkLabel = new LinkLabel();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
             // 
             // loginButton
             // 
-            loginButton.Location = new Point(252, 154);
+            loginButton.Location = new Point(252, 176);
             loginButton.Name = "loginButton";
             loginButton.Size = new Size(122, 23);
             loginButton.TabIndex = 0;
@@ -86,13 +87,24 @@ namespace WindowsForms
             passwordTextBox.TabIndex = 4;
             passwordTextBox.Text = "password";
             // 
+            // forgotPasswordLinkLabel
+            // 
+            forgotPasswordLinkLabel.AutoSize = true;
+            forgotPasswordLinkLabel.Location = new Point(155, 134);
+            forgotPasswordLinkLabel.Name = "forgotPasswordLinkLabel";
+            forgotPasswordLinkLabel.Size = new Size(140, 15);
+            forgotPasswordLinkLabel.TabIndex = 8;
+            forgotPasswordLinkLabel.TabStop = true;
+            forgotPasswordLinkLabel.Text = "¿Olvidaste tu contraseña?";
+            forgotPasswordLinkLabel.LinkClicked += forgotPasswordLinkLabel_LinkClicked;
+            // 
             // errorProvider
             // 
             errorProvider.ContainerControl = this;
             // 
             // cancelButton
             // 
-            cancelButton.Location = new Point(74, 154);
+            cancelButton.Location = new Point(74, 176);
             cancelButton.Name = "cancelButton";
             cancelButton.Size = new Size(124, 23);
             cancelButton.TabIndex = 5;
@@ -103,7 +115,7 @@ namespace WindowsForms
             // registerLinkLabel
             // 
             registerLinkLabel.AutoSize = true;
-            registerLinkLabel.Location = new Point(74, 190);
+            registerLinkLabel.Location = new Point(74, 212);
             registerLinkLabel.Name = "registerLinkLabel";
             registerLinkLabel.Size = new Size(130, 15);
             registerLinkLabel.TabIndex = 6;
@@ -114,7 +126,7 @@ namespace WindowsForms
             // guestLinkLabel
             // 
             guestLinkLabel.AutoSize = true;
-            guestLinkLabel.Location = new Point(235, 190);
+            guestLinkLabel.Location = new Point(235, 212);
             guestLinkLabel.Name = "guestLinkLabel";
             guestLinkLabel.Size = new Size(139, 15);
             guestLinkLabel.TabIndex = 7;
@@ -126,7 +138,8 @@ namespace WindowsForms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(450, 220);
+            ClientSize = new Size(450, 245);
+            Controls.Add(forgotPasswordLinkLabel);
             Controls.Add(guestLinkLabel);
             Controls.Add(registerLinkLabel);
             Controls.Add(cancelButton);
@@ -154,5 +167,6 @@ namespace WindowsForms
         private Button cancelButton;
         private LinkLabel registerLinkLabel;
         private LinkLabel guestLinkLabel;
+        private LinkLabel forgotPasswordLinkLabel;
     }
 }

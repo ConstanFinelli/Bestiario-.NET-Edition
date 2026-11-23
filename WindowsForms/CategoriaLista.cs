@@ -17,6 +17,7 @@ namespace WindowsForms
         public CategoriaLista()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             ConfigurarColumnas();
         }
 

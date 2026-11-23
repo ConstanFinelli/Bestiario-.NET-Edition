@@ -17,6 +17,7 @@ namespace WindowsForms
             this.MinimumSize = new Size(860, 560);
             this.StartPosition = FormStartPosition.CenterParent;
             this.BackColor = Color.FromArgb(240, 240, 240);
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
 
             _tabControl = new TabControl
             {

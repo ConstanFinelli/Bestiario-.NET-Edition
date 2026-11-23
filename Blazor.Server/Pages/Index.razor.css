@@ -17,60 +17,81 @@
 }
 
 .home-welcome-card {
-    background-color: #ffffff;
-    border: 1px solid #c0c0c0;
+    background-color: #efe4c8;
+    border: 1px solid #c9b489;
     padding: 25px 40px;
-    border-radius: 2px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+    box-shadow: inset 0 0 6px rgba(142, 110, 83, 0.12);
     max-width: 720px;
 }
 
 .home-book-icon {
     font-size: 42px;
+    color: #8E6E53;
 }
 
 .home-title {
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 8px;
+    color: #2b2620;
 }
 
 .home-subtitle {
-    color: #555555;
+    color: #3d3124;
     font-size: 12px;
     margin-bottom: 20px;
 }
 
+.home-news-icon {
+    color: #f6f3eb;
+}
+
 .home-news-body {
     padding: 14px 16px;
+    background-color: #f6f3eb;
+    border: 1px solid #d5cfc0;
+}
+
+.home-news-empty-text {
+    color: #5c4d3c;
+}
+
+.home-news-empty {
+    background-color: #efe4c8;
+    border-color: #c9b489 !important;
+    color: #4a3b2c;
 }
 
 .home-news-card {
-    border-color: #c0c0c0;
-    border-radius: 2px;
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.04);
+    background-color: #efe4c8;
+    border-color: #c9b489 !important;
+    border-radius: 3px;
+    box-shadow: inset 0 0 6px rgba(142, 110, 83, 0.12);
 }
 
 .home-news-header {
-    border-bottom: 1px solid #ececec;
+    border-bottom: 1px solid #d6c5a0;
 }
 
 .home-news-title {
     font-size: 12px;
-    color: #1f2937;
+    color: #2b2620;
 }
 
 .home-news-date {
     font-size: 10px;
     white-space: nowrap;
+    color: #6b5b47;
 }
 
 .home-news-text {
     font-size: 11px;
     line-height: 1.45;
+    color: #3d3124;
 }
 
 .home-news-link {
     font-size: 11px;
-    color: #0066cc;
+    color: #f6f3eb;
 }

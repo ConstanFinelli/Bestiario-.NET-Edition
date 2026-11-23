@@ -23,6 +23,7 @@ namespace WindowsForms
         public NoticiaLista()
         {
             InitializeComponent();
+            this.Load += (_, _) => ThemeHelper.ApplyTheme(this);
             InicializarFiltroFecha();
             ConfigurarColumnas();
         }
