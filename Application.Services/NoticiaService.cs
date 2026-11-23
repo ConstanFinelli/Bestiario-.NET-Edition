@@ -41,8 +41,8 @@ namespace Application.Services
             return new NoticiaDTO
             {
                 Id = noticia.Id,
-                Titulo = noticia.Titulo,
-                Contenido = noticia.Contenido,
+                Titulo = noticia.Titulo ?? string.Empty,
+                Contenido = noticia.Contenido ?? string.Empty,
                 /*PublicadorId = noticia.PublicadorId,*/
                 FechaPublicacion = noticia.FechaPublicacion
             };
@@ -55,8 +55,8 @@ namespace Application.Services
             return noticias.Select(noticia => new NoticiaDTO
             {
                 Id = noticia.Id,
-                Titulo = noticia.Titulo,
-                Contenido = noticia.Contenido,
+                Titulo = noticia.Titulo ?? string.Empty,
+                Contenido = noticia.Contenido ?? string.Empty,
                 /*PublicadorId = noticia.PublicadorId,*/
                 FechaPublicacion = noticia.FechaPublicacion
             }).ToList();

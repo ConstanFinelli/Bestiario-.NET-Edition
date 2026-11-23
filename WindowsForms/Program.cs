@@ -9,15 +9,9 @@ namespace WindowsForms
         {
 
             ApplicationConfiguration.Initialize();
-            LoginForm login = new LoginForm();
-            if (login.ShowDialog() == DialogResult.OK)
-            {
-                Application.Run(new Home());
-            }
-            else
-            {
-                Application.Exit();
-            }
+            LoginForm.UsuarioLogueado = null;
+            API.Clients.BaseApiClient.ClearAuthToken();
+            Application.Run(new Home());
         }
     }
 }

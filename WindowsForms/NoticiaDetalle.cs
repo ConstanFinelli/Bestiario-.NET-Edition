@@ -17,7 +17,7 @@ namespace WindowsForms
             InitializeComponent();
         }
 
-        private NoticiaDTO noticia;
+        private NoticiaDTO noticia = null!;
         private FormMode mode;
 
         public NoticiaDTO Noticia
@@ -47,7 +47,7 @@ namespace WindowsForms
             Init(mode, noticia);
         }
 
-        private async void Init(FormMode mode, NoticiaDTO noticia)
+        private void Init(FormMode mode, NoticiaDTO noticia)
         {
             try
             {

@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<Blazor.Server.Services.AuthService>();
+builder.Services.AddScoped<Microsoft.AspNetCore.Components.Server.Circuits.CircuitHandler, Blazor.Server.Services.AuthCircuitHandler>();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 var app = builder.Build();

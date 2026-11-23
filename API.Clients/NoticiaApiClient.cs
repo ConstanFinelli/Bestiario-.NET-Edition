@@ -1,4 +1,4 @@
-﻿using DTOs;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,8 @@ namespace API.Clients
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<NoticiaDTO>();
+                    return await response.Content.ReadFromJsonAsync<NoticiaDTO>()
+                        ?? throw new Exception("La API devolvió una respuesta vacía.");
                 }
                 else
                 {
@@ -46,7 +47,8 @@ namespace API.Clients
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<IEnumerable<NoticiaDTO>>();
+                    return await response.Content.ReadFromJsonAsync<IEnumerable<NoticiaDTO>>()
+                        ?? Array.Empty<NoticiaDTO>();
                 }
                 else
                 {
