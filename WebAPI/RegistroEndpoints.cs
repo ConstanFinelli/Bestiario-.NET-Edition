@@ -104,11 +104,20 @@ namespace WebAPI
             .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
-            app.MapPut("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, IRegistroService registroService) =>
+            app.MapPut("/bestias/{idBestia}/registros", async (Guid idBestia, RegistroDTO dto, ClaimsPrincipal user, IRegistroService registroService) =>
             {
                 try
                 {
                     dto.IdBestia = idBestia;
+                    if (string.Equals(dto.Estado, "aprobado", StringComparison.OrdinalIgnoreCase) && !dto.IdInvestigadorAprobador.HasValue)
+                    {
+                        var userIdStr = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                        if (Guid.TryParse(userIdStr, out var idInv))
+                        {
+                            dto.IdInvestigadorAprobador = idInv;
+                        }
+                    }
+
                     var found = await registroService.UpdateAsync(dto);
                     if (!found)
                         return Results.NotFound();
@@ -131,15 +140,23 @@ namespace WebAPI
 
             app.MapDelete("/bestias/{idBestia}/registros/{nroRegistro:int}", async (Guid idBestia, int nroRegistro, IRegistroService registroService) =>
             {
-                var deleted = await registroService.DeleteAsync(idBestia, nroRegistro);
-                if (!deleted)
-                    return Results.NotFound();
+                try
+                {
+                    var deleted = await registroService.DeleteAsync(idBestia, nroRegistro);
+                    if (!deleted)
+                        return Results.NotFound();
 
-                return Results.NoContent();
+                    return Results.NoContent();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
             })
             .WithName("DeleteRegistro")
             .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)

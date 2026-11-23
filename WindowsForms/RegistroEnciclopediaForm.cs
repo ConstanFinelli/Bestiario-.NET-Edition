@@ -88,25 +88,107 @@ namespace WindowsForms
 
             if (esInvestigador)
             {
-                var editarBtn = new Button
+                bool estaPendiente = _registro.Estado != null && _registro.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase);
+                if (estaPendiente)
                 {
-                    Text = "Editar Registro",
-                    Width = 125,
-                    Height = 28,
-                    Dock = DockStyle.Right,
-                    BackColor = Color.FromArgb(13, 110, 253),
-                    ForeColor = Color.White,
-                    FlatStyle = FlatStyle.Flat
-                };
-                editarBtn.Click += (_, _) =>
+                    var aprobarBtn = new Button
+                    {
+                        Text = "Aprobar",
+                        Width = 100,
+                        Height = 28,
+                        Dock = DockStyle.Right,
+                        BackColor = Color.FromArgb(25, 135, 84),
+                        ForeColor = Color.White,
+                        FlatStyle = FlatStyle.Flat
+                    };
+                    aprobarBtn.Click += async (_, _) =>
+                    {
+                        try
+                        {
+                            aprobarBtn.Enabled = false;
+                            await RegistroApiClient.AprobarAsync(_registro.IdBestia, _registro.NroRegistro, LoginForm.UsuarioLogueado!.Id);
+                            SeEdito = true;
+                            Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            aprobarBtn.Enabled = true;
+                            MessageBox.Show($"Error al aprobar registro: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+
+                    var eliminarRegBtn = new Button
+                    {
+                        Text = "Eliminar (Pendiente)",
+                        Width = 140,
+                        Height = 28,
+                        Dock = DockStyle.Right,
+                        BackColor = Color.FromArgb(220, 53, 69),
+                        ForeColor = Color.White,
+                        FlatStyle = FlatStyle.Flat
+                    };
+                    eliminarRegBtn.Click += async (_, _) =>
+                    {
+                        var confirm = MessageBox.Show(
+                            $"¿Eliminar físicamente el Registro #{_registro.NroRegistro}?",
+                            "Confirmar eliminación",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning);
+                        if (confirm != DialogResult.Yes) return;
+
+                        try
+                        {
+                            eliminarRegBtn.Enabled = false;
+                            await RegistroApiClient.DeleteAsync(_registro.IdBestia, _registro.NroRegistro);
+                            SeEdito = true;
+                            Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            eliminarRegBtn.Enabled = true;
+                            MessageBox.Show($"Error al eliminar registro: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+
+                    bottomPanel.Controls.Add(new Panel { Dock = DockStyle.Right, Width = 8 });
+                    bottomPanel.Controls.Add(eliminarRegBtn);
+                    bottomPanel.Controls.Add(new Panel { Dock = DockStyle.Right, Width = 8 });
+                    bottomPanel.Controls.Add(aprobarBtn);
+                }
+                else
                 {
-                    using var detalle = new RegistroDetalle(FormMode.Update, _registro, _bestias);
-                    detalle.ShowDialog();
-                    SeEdito = true;
-                    Close();
-                };
-                bottomPanel.Controls.Add(new Panel { Dock = DockStyle.Right, Width = 8 });
-                bottomPanel.Controls.Add(editarBtn);
+                    var dejarPendienteBtn = new Button
+                    {
+                        Text = "Dejar Pendiente",
+                        Width = 125,
+                        Height = 28,
+                        Dock = DockStyle.Right,
+                        BackColor = Color.FromArgb(255, 193, 7),
+                        ForeColor = Color.Black,
+                        FlatStyle = FlatStyle.Flat
+                    };
+                    dejarPendienteBtn.Click += async (_, _) =>
+                    {
+                        try
+                        {
+                            dejarPendienteBtn.Enabled = false;
+                            _registro.Estado = "pendiente";
+                            _registro.FechaAprobacion = null;
+                            _registro.FechaBaja = null;
+                            _registro.IdInvestigadorAprobador = null;
+                            await RegistroApiClient.UpdateAsync(_registro);
+                            SeEdito = true;
+                            Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            dejarPendienteBtn.Enabled = true;
+                            MessageBox.Show($"Error al dejar pendiente: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+                    bottomPanel.Controls.Add(new Panel { Dock = DockStyle.Right, Width = 8 });
+                    bottomPanel.Controls.Add(dejarPendienteBtn);
+                }
             }
 
             if (hayUsuario)

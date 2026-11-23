@@ -56,7 +56,16 @@ namespace Domain.Model
         {
             IdInvestigadorAprobador = idInvestigador;
             FechaAprobacion = DateTime.Now;
+            FechaBaja = null;
             Estado = "aprobado";
+        }
+
+        public void DejarPendiente()
+        {
+            Estado = "pendiente";
+            FechaAprobacion = null;
+            FechaBaja = null;
+            IdInvestigadorAprobador = null;
         }
 
         public void DarDeBaja()
