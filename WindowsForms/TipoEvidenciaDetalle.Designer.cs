@@ -76,8 +76,9 @@ namespace WindowsForms
             // 
             // resourceTypeComboBox
             // 
+            resourceTypeComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             resourceTypeComboBox.FormattingEnabled = true;
-            resourceTypeComboBox.Items.AddRange(new object[] { "image", "audio", "video", "document" });
+            resourceTypeComboBox.Items.AddRange(new object[] { "image", "video", "raw" });
             resourceTypeComboBox.Location = new Point(125, 79);
             resourceTypeComboBox.Name = "resourceTypeComboBox";
             resourceTypeComboBox.Size = new Size(260, 23);
