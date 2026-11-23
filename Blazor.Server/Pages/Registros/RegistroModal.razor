@@ -218,7 +218,7 @@
                             else
                             {
                                 <div class="row g-2">
-                                    @foreach (var ev in evidenciasBestia)
+                                    @foreach (var ev in EvidenciasPaginadas)
                                     {
                                         var rType = (ev.TipoEvidenciaResourceType ?? string.Empty).Trim().ToLowerInvariant();
                                         <div class="col-md-6">
@@ -283,6 +283,37 @@
                                         </div>
                                     }
                                 </div>
+
+                                @if (TotalPaginasEvidencias > 1)
+                                {
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2 pt-2 border-top win-text-sm">
+                                        <span class="text-muted">
+                                            Página @paginaEvidenciasActual de @TotalPaginasEvidencias
+                                            (@(((paginaEvidenciasActual - 1) * EvidenciasPorPagina) + 1)–@(Math.Min(paginaEvidenciasActual * EvidenciasPorPagina, evidenciasBestia.Count)) de @evidenciasBestia.Count)
+                                        </span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <button type="button" class="win-btn win-btn-xs"
+                                                    @onclick="() => IrAPaginaEvidencias(paginaEvidenciasActual - 1)"
+                                                    disabled="@(paginaEvidenciasActual <= 1)">
+                                                ← Anterior
+                                            </button>
+                                            @for (int p = 1; p <= TotalPaginasEvidencias; p++)
+                                            {
+                                                int numPagina = p;
+                                                <button type="button"
+                                                        class="win-btn win-btn-xs @(numPagina == paginaEvidenciasActual ? "enc-page-active" : "")"
+                                                        @onclick="() => IrAPaginaEvidencias(numPagina)">
+                                                    @numPagina
+                                                </button>
+                                            }
+                                            <button type="button" class="win-btn win-btn-xs"
+                                                    @onclick="() => IrAPaginaEvidencias(paginaEvidenciasActual + 1)"
+                                                    disabled="@(paginaEvidenciasActual >= TotalPaginasEvidencias)">
+                                                Siguiente →
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
                             }
                         </div>
 
@@ -726,6 +757,12 @@
     private BestiaDTO? bestiaActual;
     private List<EvidenciaDTO> evidenciasBestia = new();
     private bool isLoadingEvidencias = false;
+    private const int EvidenciasPorPagina = 4;
+    private int paginaEvidenciasActual = 1;
+    private int TotalPaginasEvidencias => evidenciasBestia.Count == 0 ? 1 : (int)Math.Ceiling(evidenciasBestia.Count / (double)EvidenciasPorPagina);
+    private IEnumerable<EvidenciaDTO> EvidenciasPaginadas => evidenciasBestia
+        .Skip((paginaEvidenciasActual - 1) * EvidenciasPorPagina)
+        .Take(EvidenciasPorPagina);
 
     private List<ComentarioDTO> comentariosBestia = new();
     private bool isLoadingComentarios = false;
@@ -774,6 +811,7 @@
             mensajeFecha = null;
             mostrandoHistorico = false;
             fechaConsulta = DateTime.Now;
+            paginaEvidenciasActual = 1;
             esPropuestaNueva = Mode == FormMode.Add;
             nuevoTitulo = string.Empty;
             nuevoContenido = string.Empty;
@@ -907,15 +945,31 @@
                 lista = lista.Where(e => e.Estado != null && e.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase)).ToList();
             }
             evidenciasBestia = lista.OrderBy(e => e.NroEvidencia).ToList();
+            if (paginaEvidenciasActual > TotalPaginasEvidencias)
+            {
+                paginaEvidenciasActual = TotalPaginasEvidencias;
+            }
+            if (paginaEvidenciasActual < 1)
+            {
+                paginaEvidenciasActual = 1;
+            }
         }
         catch
         {
             evidenciasBestia = new List<EvidenciaDTO>();
+            paginaEvidenciasActual = 1;
         }
         finally
         {
             isLoadingEvidencias = false;
         }
+    }
+
+    private void IrAPaginaEvidencias(int pagina)
+    {
+        if (pagina < 1) pagina = 1;
+        if (pagina > TotalPaginasEvidencias) pagina = TotalPaginasEvidencias;
+        paginaEvidenciasActual = pagina;
     }
 
     private void AgregarContenido()

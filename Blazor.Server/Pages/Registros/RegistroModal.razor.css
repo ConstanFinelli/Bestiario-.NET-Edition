@@ -104,3 +104,9 @@
     border-radius: 4px;
     border: 1px solid #bfb8a8;
 }
+
+.enc-page-active {
+    background: #cce4f7;
+    border-color: #3399ff;
+    font-weight: bold;
+}
