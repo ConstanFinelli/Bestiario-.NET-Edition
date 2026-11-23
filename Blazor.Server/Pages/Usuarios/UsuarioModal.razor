@@ -1,10 +1,10 @@
 @if (IsOpen)
 {
     <div class="win-modal-overlay">
-        <div class="win-modal-dialog" style="width: 440px;">
+        <div class="win-modal-dialog win-modal-440">
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
-                    <span class="oi oi-person text-primary" style="font-size: 11px;"></span>
+                    <span class="oi oi-person text-primary win-title-icon"></span>
                     <span>Usuario</span>
                 </div>
                 <div class="win-titlebar-controls">
@@ -12,7 +12,7 @@
                 </div>
             </div>
 
-            <div class="win-form-content" style="padding: 18px 24px;">
+            <div class="win-form-content win-modal-body-lg">
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
                     <div class="win-error-msg mb-2">
@@ -31,10 +31,9 @@
                 <div class="row align-items-center mb-2">
                     <div class="col-4"><label class="win-label">Tipo:</label></div>
                     <div class="col-8">
-                        <select class="win-textbox w-100" value="@tipoSeleccionado" @onchange="OnTipoChanged" disabled="@(isSaving || Mode == FormMode.Update)">
-                            <option value="Investigador">Investigador</option>
-                            <option value="Lector">Lector</option>
-                        </select>
+                        <SearchableSelect TValue="string" @bind-Value="tipoSeleccionado"
+                                          Options="@(new[] { new SelectOption<string>("Investigador", "Investigador"), new SelectOption<string>("Lector", "Lector") })"
+                                          Disabled="@(isSaving || Mode == FormMode.Update)" />
                     </div>
                 </div>
 
@@ -85,8 +84,8 @@
                 <div class="row align-items-center mb-3">
                     <div class="col-4"></div>
                     <div class="col-8">
-                        <label style="font-size: 11px; cursor: pointer;">
-                            <input type="checkbox" @bind="recibirNotificaciones" disabled="@isSaving" style="vertical-align: middle; margin-right: 4px;" />
+                        <label class="win-check-label">
+                            <input type="checkbox" class="win-check-input" @bind="recibirNotificaciones" disabled="@isSaving" />
                             Recibir notificaciones
                         </label>
                     </div>

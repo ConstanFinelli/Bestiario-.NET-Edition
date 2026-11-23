@@ -38,13 +38,9 @@
                         }
                         else
                         {
-                            <select class="win-textbox w-100" @bind="Evidencia.IdBestia" disabled="@(isSaving || !PuedeEditar)">
-                                <option value="@Guid.Empty">-- Seleccione una Bestia --</option>
-                                @foreach (var b in Bestias)
-                                {
-                                    <option value="@b.Id">@b.Nombre (@b.Peligrosidad)</option>
-                                }
-                            </select>
+                            <SearchableSelect TValue="Guid" @bind-Value="Evidencia.IdBestia"
+                                              Options="@(new[] { new SelectOption<Guid>(Guid.Empty, "-- Seleccione una Bestia --") }.Concat(Bestias.Select(b => new SelectOption<Guid>(b.Id, $"{b.Nombre} ({b.Peligrosidad})"))))"
+                                              Disabled="@(isSaving || !PuedeEditar)" />
                         }
                     </div>
                 </div>
@@ -53,20 +49,16 @@
                 {
                     <div class="row align-items-center mb-2">
                         <div class="col-4"><label class="win-label">Nro. Evidencia:</label></div>
-                        <div class="col-8"><input type="text" class="win-textbox" style="width: 100px;" value="@Evidencia.NroEvidencia" readonly /></div>
+                        <div class="col-8"><input type="text" class="win-textbox win-w-100px" value="@Evidencia.NroEvidencia" readonly /></div>
                     </div>
                 }
 
                 <div class="row align-items-center mb-2">
                     <div class="col-4"><label class="win-label">Tipo Evidencia:</label></div>
                     <div class="col-8">
-                        <select class="win-textbox w-100" @bind="Evidencia.IdTipoEvidencia" disabled="@(isSaving || !PuedeEditar)">
-                            <option value="@Guid.Empty">-- Seleccione Tipo --</option>
-                            @foreach (var t in tipos)
-                            {
-                                <option value="@t.Id">@t.Descripcion (@t.ResourceType)</option>
-                            }
-                        </select>
+                        <SearchableSelect TValue="Guid" @bind-Value="Evidencia.IdTipoEvidencia"
+                                          Options="@(new[] { new SelectOption<Guid>(Guid.Empty, "-- Seleccione Tipo --") }.Concat(tipos.Select(t => new SelectOption<Guid>(t.Id, $"{t.Descripcion} ({t.ResourceType})"))))"
+                                          Disabled="@(isSaving || !PuedeEditar)" />
                     </div>
                 </div>
 
@@ -88,10 +80,9 @@
                 <div class="row align-items-center mb-3">
                     <div class="col-4"><label class="win-label">Estado:</label></div>
                     <div class="col-8">
-                        <select class="win-textbox w-100" @bind="Evidencia.Estado" disabled="@(isSaving || !Auth.EsInvestigador)">
-                            <option value="pendiente">pendiente</option>
-                            <option value="aprobado">aprobado</option>
-                        </select>
+                        <SearchableSelect TValue="string" @bind-Value="Evidencia.Estado"
+                                          Options="@(new[] { new SelectOption<string>("pendiente", "pendiente"), new SelectOption<string>("aprobado", "aprobado") })"
+                                          Disabled="@(isSaving || !Auth.EsInvestigador)" />
                     </div>
                 </div>
 

@@ -168,18 +168,14 @@
 
                             @if (mostrandoFormEvidencia && Auth.IsAuthenticated)
                             {
-                                <div class="p-2 border rounded mb-3" style="background-color: #efece3; font-size: 11px;">
+                                <div class="p-2 border rounded mb-3 enc-subpanel">
                                     <div class="fw-bold mb-2">Proponer nueva evidencia</div>
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-5">
                                             <label class="win-label">Tipo de evidencia:</label>
-                                            <select class="win-textbox w-100" @bind="nuevaEvidenciaTipoId" disabled="@isProcesandoEvidencia">
-                                                <option value="">-- Seleccione --</option>
-                                                @foreach (var t in tiposEvidenciaDisponibles)
-                                                {
-                                                    <option value="@t.Id">@t.Descripcion (@t.ResourceType)</option>
-                                                }
-                                            </select>
+                                            <SearchableSelect TValue="string" @bind-Value="nuevaEvidenciaTipoId"
+                                                              Options="@(new[] { new SelectOption<string>(string.Empty, "-- Seleccione --") }.Concat(tiposEvidenciaDisponibles.Select(t => new SelectOption<string>(t.Id.ToString(), $"{t.Descripcion} ({t.ResourceType})"))))"
+                                                              Disabled="@isProcesandoEvidencia" />
                                         </div>
                                         <div class="col-md-4">
                                             <label class="win-label">Fecha obtención:</label>
@@ -187,10 +183,10 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="win-label">Archivo:</label>
-                                            <InputFile OnChange="OnEvidenciaFileSelected" disabled="@isProcesandoEvidencia" style="font-size: 11px;" />
+                                            <InputFile OnChange="OnEvidenciaFileSelected" disabled="@isProcesandoEvidencia" class="win-file-input" />
                                             @if (!string.IsNullOrEmpty(nuevaEvidenciaFileName))
                                             {
-                                                <div class="text-success" style="font-size: 10px;">@nuevaEvidenciaFileName</div>
+                                                <div class="text-success win-text-xs">@nuevaEvidenciaFileName</div>
                                             }
                                         </div>
                                     </div>
@@ -207,11 +203,11 @@
 
                             @if (isLoadingEvidencias)
                             {
-                                <div class="text-muted" style="font-size: 12px;">Cargando evidencias...</div>
+                                <div class="text-muted win-text-md">Cargando evidencias...</div>
                             }
                             else if (!evidenciasBestia.Any())
                             {
-                                <div class="text-muted fst-italic" style="font-size: 12px;">
+                                <div class="text-muted fst-italic win-text-md">
                                     No hay evidencias registradas para esta bestia.
                                 </div>
                             }
@@ -222,64 +218,63 @@
                                     {
                                         var rType = (ev.TipoEvidenciaResourceType ?? string.Empty).Trim().ToLowerInvariant();
                                         <div class="col-md-6">
-                                            <div class="p-2 border rounded" style="background-color: #ffffff; font-size: 11px;">
+                                            <div class="p-2 border rounded h-100 d-flex flex-column justify-content-between enc-evidence-card">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                                     <strong>Evidencia #@ev.NroEvidencia — @(ev.TipoEvidenciaDescripcion ?? "Archivo")</strong>
-                                                    <span class="badge @(ev.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">
+                                                    <span class="badge @(ev.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark") win-badge-sm">
                                                         @ev.Estado
                                                     </span>
                                                 </div>
-                                                @if (!string.IsNullOrWhiteSpace(ev.FileUrl))
-                                                {
-                                                    <div class="my-1">
-                                                        @if (rType == "image")
+                                                <div class="my-1 enc-evidence-body">
+                                                    @if (!string.IsNullOrWhiteSpace(ev.FileUrl) && rType == "image")
+                                                    {
+                                                        <div class="enc-evidence-img-scroll">
+                                                            <a href="@ev.FileUrl" target="_blank" title="Abrir imagen en nueva pestaña">
+                                                                <img src="@ev.FileUrl" alt="Evidencia #@ev.NroEvidencia" class="enc-evidence-img" />
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                    else if (!string.IsNullOrWhiteSpace(ev.FileUrl) && rType == "video")
+                                                    {
+                                                        <video controls src="@ev.FileUrl" class="enc-evidence-video"></video>
+                                                    }
+                                                    else if (!string.IsNullOrWhiteSpace(ev.FileUrl) && rType == "audio")
+                                                    {
+                                                        <div class="enc-evidence-placeholder">
+                                                            <audio controls src="@ev.FileUrl" class="enc-audio"></audio>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="enc-evidence-placeholder">
+                                                            <span>Previsualización no disponible</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mt-1 gap-1 flex-wrap">
+                                                    <span class="text-muted">Obtenida: @ev.FechaObtencion.ToString("dd/MM/yyyy HH:mm")</span>
+                                                    <div class="d-flex gap-1">
+                                                        @if (!string.IsNullOrWhiteSpace(ev.FileUrl))
                                                         {
-                                                            <div class="enc-evidence-img-scroll">
-                                                                <a href="@ev.FileUrl" target="_blank" title="Abrir imagen en nueva pestaña">
-                                                                    <img src="@ev.FileUrl" alt="Evidencia #@ev.NroEvidencia" class="enc-evidence-img" />
-                                                                </a>
-                                                            </div>
-                                                        }
-                                                        else if (rType == "video")
-                                                        {
-                                                            <video controls src="@ev.FileUrl" style="width: 100%; max-height: 180px; border-radius: 4px;"></video>
-                                                        }
-                                                        else if (rType == "audio")
-                                                        {
-                                                            <audio controls src="@ev.FileUrl" style="width: 100%;"></audio>
-                                                        }
-                                                        else
-                                                        {
-                                                            <a href="@ev.FileUrl" target="_blank" class="win-btn d-inline-block text-decoration-none" style="height: 20px; font-size: 10px; padding: 1px 6px;">
-                                                                Descargar / Ver archivo
+                                                            <a href="@GetDownloadUrl(ev)" download class="win-btn text-decoration-none win-btn-2xs">
+                                                                Descargar
                                                             </a>
                                                         }
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="text-muted" style="font-family: monospace;">
-                                                        [@(ev.TipoEvidenciaResourceType ?? "-")] @ev.FileId
-                                                    </div>
-                                                }
-                                                <div class="d-flex justify-content-between align-items-center mt-1">
-                                                    <span class="text-muted">Obtenida: @ev.FechaObtencion.ToString("dd/MM/yyyy HH:mm")</span>
-                                                    @if (Auth.EsInvestigador)
-                                                    {
-                                                        <div class="d-flex gap-1">
+                                                        @if (Auth.EsInvestigador)
+                                                        {
                                                             @if (ev.Estado != null && ev.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase))
                                                             {
-                                                                <button type="button" class="win-btn text-success" style="height: 19px; font-size: 10px; padding: 0 5px;"
+                                                                <button type="button" class="win-btn text-success win-btn-2xs"
                                                                         @onclick="() => AprobarEvidenciaAsync(ev)" disabled="@isProcesandoEvidencia">
                                                                     Aprobar
                                                                 </button>
                                                             }
-                                                            <button type="button" class="win-btn text-danger" style="height: 19px; font-size: 10px; padding: 0 5px;"
+                                                            <button type="button" class="win-btn text-danger win-btn-2xs"
                                                                     @onclick="() => EliminarEvidenciaAsync(ev)" disabled="@isProcesandoEvidencia">
                                                                 Eliminar
                                                             </button>
-                                                        </div>
-                                                    }
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -322,25 +317,25 @@
                         <!-- Abajo: Comentarios de la Bestia (solo si el registro está aprobado) -->
                         @if (Registro.Estado != null && Registro.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase))
                         {
-                            <div id="comentarios" class="mt-4 pt-3" style="border-top: 1px solid #bdb6a7;">
-                                <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 15px; font-weight: bold; color: #2b2620; margin-bottom: 8px;">
+                            <div id="comentarios" class="mt-4 pt-3 enc-comments-section">
+                                <div class="enc-comments-title">
                                     Comentarios (@comentariosBestia.Count)
                                 </div>
 
                                 @if (!string.IsNullOrEmpty(comentarioError))
                                 {
-                                    <div class="win-error-msg mb-2" style="font-size: 11px;">
+                                    <div class="win-error-msg mb-2 win-alert">
                                         <span class="oi oi-warning me-1"></span> @comentarioError
                                     </div>
                                 }
 
                                 @if (isLoadingComentarios)
                                 {
-                                    <div class="text-muted" style="font-size: 12px;">Cargando comentarios...</div>
+                                    <div class="text-muted win-text-md">Cargando comentarios...</div>
                                 }
                                 else if (!comentariosBestia.Any())
                                 {
-                                    <div class="text-muted fst-italic mb-2" style="font-size: 12px;">
+                                    <div class="text-muted fst-italic mb-2 win-text-md">
                                         No hay comentarios para esta bestia.
                                     </div>
                                 }
@@ -349,7 +344,7 @@
                                     <div class="d-flex flex-column gap-2 mb-3">
                                         @foreach (var com in comentariosBestia)
                                         {
-                                            <div class="p-2 border rounded" style="background-color: #ffffff; font-size: 12px;">
+                                            <div class="p-2 border rounded enc-comment-card">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                                     <div>
                                                         <strong>@(string.IsNullOrWhiteSpace(com.CorreoUsuario) ? "Usuario" : com.CorreoUsuario)</strong>
@@ -357,13 +352,13 @@
                                                     </div>
                                                     @if (Auth.EsInvestigador)
                                                     {
-                                                        <button type="button" class="win-btn text-danger" style="height: 20px; font-size: 10px; padding: 0 6px;"
+                                                        <button type="button" class="win-btn text-danger win-btn-xs"
                                                                 @onclick="() => SolicitarEliminarComentario(com)" disabled="@isProcesandoComentario">
                                                             Eliminar
                                                         </button>
                                                     }
                                                 </div>
-                                                <div style="white-space: pre-line; color: #2e2e2e;">
+                                                <div class="enc-comment-body">
                                                     @com.Contenido
                                                 </div>
                                             </div>
@@ -373,12 +368,12 @@
 
                                 @if (Auth.IsAuthenticated)
                                 {
-                                    <div class="p-2 border rounded" style="background-color: #efece3;">
-                                        <div style="font-size: 11px; font-weight: bold; margin-bottom: 6px; color: #2b2620;">
+                                    <div class="p-2 border rounded enc-subpanel-box">
+                                        <div class="enc-comment-form-title">
                                             Agregar comentario
                                         </div>
                                         <div class="mb-2">
-                                            <textarea class="win-textbox w-100" rows="2" style="height: auto; padding: 4px;"
+                                            <textarea class="win-textbox w-100 win-textarea-auto" rows="2"
                                                       placeholder="Escriba su comentario..." @bind="nuevoComentarioTexto" disabled="@isProcesandoComentario"></textarea>
                                         </div>
                                         <div class="d-flex justify-content-end">
@@ -428,20 +423,20 @@
                     <!-- MODO ALTA / EDICIÓN (MAESTRO / DETALLE) -->
                     @if (Mode == FormMode.Update && !esPropuestaNueva)
                     {
-                        <div class="alert alert-warning py-1 mb-2" style="font-size: 11px;">
+                        <div class="alert alert-warning py-1 mb-2 win-alert">
                             El contenido y la imagen de un registro ya subido no se pueden editar. Solo podés cambiar su estado (aprobar o dejar pendiente).
                         </div>
                     }
                     else if (Auth.EsLector && Mode == FormMode.Add)
                     {
-                        <div class="alert alert-info py-1 mb-2" style="font-size: 11px;">
+                        <div class="alert alert-info py-1 mb-2 win-alert">
                             Tu registro se enviará en estado <strong>pendiente</strong> para revisión de un investigador.
                         </div>
                     }
 
                     <!-- DATOS MAESTRO (Registro) -->
-                    <fieldset style="border: 1px solid #c0c0c0; padding: 10px 14px; margin-bottom: 12px; background: #fafafa;">
-                        <legend style="font-size: 11px; font-weight: bold; width: auto; padding: 0 4px; margin-bottom: 0;">
+                    <fieldset class="win-fieldset">
+                        <legend class="win-fieldset-legend">
                             Datos Principales (Registro)
                         </legend>
 
@@ -457,13 +452,9 @@
                                 }
                                 else
                                 {
-                                    <select class="win-textbox w-100" @bind="Registro.IdBestia" disabled="@(isSaving || !PuedeEditar)">
-                                        <option value="@Guid.Empty">-- Seleccione una Bestia --</option>
-                                        @foreach (var b in Bestias)
-                                        {
-                                            <option value="@b.Id">@b.Nombre (@b.Peligrosidad)</option>
-                                        }
-                                    </select>
+                                    <SearchableSelect TValue="Guid" @bind-Value="Registro.IdBestia"
+                                                      Options="@(new[] { new SelectOption<Guid>(Guid.Empty, "-- Seleccione una Bestia --") }.Concat(Bestias.Select(b => new SelectOption<Guid>(b.Id, $"{b.Nombre} ({b.Peligrosidad})"))))"
+                                                      Disabled="@(isSaving || !PuedeEditar)" />
                                 }
                             </div>
                         </div>
@@ -475,7 +466,7 @@
                                     <label class="win-label">Nro. Registro:</label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" class="win-textbox" style="width: 100px;" value="@Registro.NroRegistro" readonly />
+                                    <input type="text" class="win-textbox win-w-100px" value="@Registro.NroRegistro" readonly />
                                 </div>
                             </div>
                         }
@@ -485,10 +476,11 @@
                                 <label class="win-label">Estado:</label>
                             </div>
                             <div class="col-9">
-                                <select class="win-textbox" style="width: 140px;" @bind="Registro.Estado" disabled="@(isSaving || !Auth.EsInvestigador)">
-                                    <option value="pendiente">pendiente</option>
-                                    <option value="aprobado">aprobado</option>
-                                </select>
+                                <div class="win-w-140px">
+                                    <SearchableSelect TValue="string" @bind-Value="Registro.Estado"
+                                                      Options="@(new[] { new SelectOption<string>("pendiente", "pendiente"), new SelectOption<string>("aprobado", "aprobado") })"
+                                                      Disabled="@(isSaving || !Auth.EsInvestigador)" />
+                                </div>
                             </div>
                         </div>
 
@@ -497,16 +489,16 @@
                                 <label class="win-label">Imagen:</label>
                             </div>
                             <div class="col-9">
-                                <InputFile OnChange="OnMainPicSelected" accept="image/*" disabled="@(isSaving || !PuedeEditarContenido)" style="font-size: 11px;" />
+                                <InputFile OnChange="OnMainPicSelected" accept="image/*" disabled="@(isSaving || !PuedeEditarContenido)" class="win-file-input" />
                                 @if (!string.IsNullOrEmpty(selectedMainPicName))
                                 {
-                                    <div class="text-success" style="font-size: 10px; margin-top: 2px;">
+                                    <div class="text-success win-text-xs mt-1">
                                         Seleccionada: @selectedMainPicName
                                     </div>
                                 }
                                 else if (!string.IsNullOrWhiteSpace(Registro.MainPicture))
                                 {
-                                    <div class="text-muted" style="font-size: 10px; margin-top: 2px;">
+                                    <div class="text-muted win-text-xs mt-1">
                                         Imagen actual conservada (sube otra para reemplazar).
                                     </div>
                                 }
@@ -520,7 +512,7 @@
                                     <label class="win-label">Publicador:</label>
                                 </div>
                                 <div class="col-9">
-                                    <span class="text-muted" style="font-size: 11px;">@(Registro.CorreoPublicador ?? "N/A")</span>
+                                    <span class="text-muted win-text-sm">@(Registro.CorreoPublicador ?? "N/A")</span>
                                 </div>
                             </div>
 
@@ -529,7 +521,7 @@
                                     <label class="win-label">Aprobador:</label>
                                 </div>
                                 <div class="col-9">
-                                    <span class="text-muted" style="font-size: 11px;">@(Registro.NombreInvestigadorAprobador ?? "Pendiente de aprobación")</span>
+                                    <span class="text-muted win-text-sm">@(Registro.NombreInvestigadorAprobador ?? "Pendiente de aprobación")</span>
                                 </div>
                             </div>
 
@@ -540,7 +532,7 @@
                                         <label class="win-label">Aprobado el:</label>
                                     </div>
                                     <div class="col-9">
-                                        <span class="text-muted" style="font-size: 11px;">@Registro.FechaAprobacion.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                        <span class="text-muted win-text-sm">@Registro.FechaAprobacion.Value.ToString("dd/MM/yyyy HH:mm")</span>
                                     </div>
                                 </div>
                             }
@@ -548,20 +540,20 @@
                     </fieldset>
 
                     <!-- DATOS DETALLE (Contenidos del Registro) -->
-                    <fieldset style="border: 1px solid #c0c0c0; padding: 10px 14px; background: #fafafa;">
-                        <legend style="font-size: 11px; font-weight: bold; width: auto; padding: 0 4px; margin-bottom: 0;">
+                    <fieldset class="win-fieldset-last">
+                        <legend class="win-fieldset-legend">
                             Detalle de Contenidos (@Registro.Contenidos.Count)
                         </legend>
 
                         <!-- Grilla de Contenidos -->
-                        <div class="win-grid-container mb-2" style="height: 140px;">
+                        <div class="win-grid-container mb-2 win-grid-h140">
                             <table class="win-grid">
                                 <thead>
                                     <tr>
-                                        <th style="width: 35px;">#</th>
-                                        <th style="width: 160px;">Título</th>
+                                        <th class="win-col-num">#</th>
+                                        <th class="win-col-title">Título</th>
                                         <th>Contenido</th>
-                                        <th style="width: 50px; text-align: center;">Acción</th>
+                                        <th class="win-col-action-sm">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -580,14 +572,13 @@
                                             var idx = i;
                                             var cont = Registro.Contenidos[idx];
                                             <tr>
-                                                <td style="font-size: 10px; font-weight: bold;">@cont.NroContenido</td>
+                                                <td class="win-text-xs fw-bold">@cont.NroContenido</td>
                                                 <td><strong>@cont.Titulo</strong></td>
-                                                <td style="font-size: 11px;">@cont.Contenido</td>
-                                                <td style="text-align: center;">
+                                                <td class="win-text-sm">@cont.Contenido</td>
+                                                <td class="text-center">
                                                     @if (PuedeEditarContenido)
                                                     {
-                                                        <button type="button" class="btn btn-outline-danger btn-sm p-0 px-1" 
-                                                                style="font-size: 10px;" 
+                                                        <button type="button" class="btn btn-outline-danger btn-sm p-0 px-1 win-btn-del-xs" 
                                                                 @onclick="() => EliminarContenido(idx)" 
                                                                 disabled="@isSaving">
                                                             ✕
@@ -608,8 +599,8 @@
                         @if (PuedeEditarContenido)
                         {
                             <!-- Formulario para agregar un nuevo contenido detalle -->
-                            <div style="background: #ffffff; border: 1px dashed #a0a0a0; padding: 8px 10px; border-radius: 2px;">
-                                <span class="fw-bold d-block mb-1" style="font-size: 11px;">+ Agregar Nueva Sección al Registro:</span>
+                            <div class="win-subbox">
+                                <span class="fw-bold d-block mb-1 win-text-sm">+ Agregar Nueva Sección al Registro:</span>
                                 <div class="row g-2 align-items-center mb-1">
                                     <div class="col-4">
                                         <input type="text" class="win-textbox w-100" placeholder="Título de la sección..." 
@@ -620,9 +611,9 @@
                                                @bind="nuevoContenido" disabled="@isSaving" />
                                     </div>
                                     <div class="col-2 text-end">
-                                        <button type="button" class="win-btn w-100" style="height: 24px; font-size: 11px;" 
+                                        <button type="button" class="win-btn w-100 win-btn-row" 
                                                 @onclick="AgregarContenido" disabled="@isSaving">
-                                            Agregar
+                                            + Agregar Sección
                                         </button>
                                     </div>
                                 </div>
@@ -1320,5 +1311,17 @@
         {
             isProcesandoEvidencia = false;
         }
+    }
+
+    private static string GetDownloadUrl(EvidenciaDTO ev)
+    {
+        var url = Uri.EscapeDataString(ev.FileUrl ?? string.Empty);
+        var ext = Path.GetExtension(ev.FileUrl ?? string.Empty);
+        if (!string.IsNullOrWhiteSpace(ext) && ext.Contains('?'))
+        {
+            ext = ext.Split('?')[0];
+        }
+        var nombre = Uri.EscapeDataString($"evidencia_{ev.NroEvidencia}{(string.IsNullOrWhiteSpace(ext) ? string.Empty : ext)}");
+        return $"/descargar-evidencia?url={url}&nombre={nombre}";
     }
 }
