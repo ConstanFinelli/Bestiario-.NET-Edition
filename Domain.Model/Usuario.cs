@@ -7,26 +7,23 @@ namespace Domain.Model
         public Guid Id { get; set; }
         public string Correo { get; set; } = string.Empty;
         public string Contrasenia { get; set; } = string.Empty;
-        public bool RecibirNotificaciones { get; set; } = true;
 
         // Los usuarios no requieren tener una colección de registros
 
         public Usuario() { }
 
-        public Usuario(Guid id, string correo, string contrasenia, bool recibirNotificaciones = true)
+        public Usuario(Guid id, string correo, string contrasenia)
         {
             Id = id;
             SetCorreo(correo);
             SetContrasenia(contrasenia);
-            RecibirNotificaciones = recibirNotificaciones;
         }
 
-        public Usuario(string correo, string contrasenia, bool recibirNotificaciones = true)
+        public Usuario(string correo, string contrasenia)
         {
             Id = Guid.NewGuid();
             SetCorreo(correo);
             SetContrasenia(contrasenia);
-            RecibirNotificaciones = recibirNotificaciones;
         }
 
         public void SetCorreo(string correo)

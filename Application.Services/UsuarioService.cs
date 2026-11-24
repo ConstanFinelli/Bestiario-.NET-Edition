@@ -52,8 +52,7 @@ namespace Application.Services
                 dto.Contrasenia ?? "password",
                 dto.Dni,
                 dto.Nombre,
-                dto.Apellido,
-                dto.RecibirNotificaciones
+                dto.Apellido
             );
 
             await usuarioRepository.AddAsync(inv);
@@ -73,8 +72,7 @@ namespace Application.Services
             var lec = new Lector(
                 dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id,
                 dto.Correo,
-                dto.Contrasenia ?? "password",
-                dto.RecibirNotificaciones
+                dto.Contrasenia ?? "password"
             );
 
             await usuarioRepository.AddAsync(lec);
@@ -108,8 +106,7 @@ namespace Application.Services
                     contrasenia,
                     invDto.Dni,
                     invDto.Nombre,
-                    invDto.Apellido,
-                    invDto.RecibirNotificaciones
+                    invDto.Apellido
                 );
             }
             else if (dto is LectorDTO || existing is Lector)
@@ -117,8 +114,7 @@ namespace Application.Services
                 usuario = new Lector(
                     dto.Id,
                     dto.Correo,
-                    contrasenia,
-                    dto.RecibirNotificaciones
+                    contrasenia
                 );
             }
             else
@@ -126,8 +122,7 @@ namespace Application.Services
                 usuario = new Usuario(
                     dto.Id,
                     dto.Correo,
-                    contrasenia,
-                    dto.RecibirNotificaciones
+                    contrasenia
                 );
             }
 
@@ -214,7 +209,6 @@ namespace Application.Services
                 {
                     Id = inv.Id,
                     Correo = inv.Correo,
-                    RecibirNotificaciones = inv.RecibirNotificaciones,
                     Dni = inv.Dni,
                     Nombre = inv.Nombre,
                     Apellido = inv.Apellido,
@@ -228,7 +222,6 @@ namespace Application.Services
                 {
                     Id = lec.Id,
                     Correo = lec.Correo,
-                    RecibirNotificaciones = lec.RecibirNotificaciones,
                     TipoUsuario = "Lector"
                 };
             }
@@ -237,7 +230,6 @@ namespace Application.Services
             {
                 Id = u.Id,
                 Correo = u.Correo,
-                RecibirNotificaciones = u.RecibirNotificaciones,
                 TipoUsuario = "Usuario"
             };
         }

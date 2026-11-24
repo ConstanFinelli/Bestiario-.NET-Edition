@@ -6,13 +6,13 @@ namespace Domain.Model
     {
         public Lector() : base() { }
 
-        public Lector(Guid id, string correo, string contrasenia, bool recibirNotificaciones = true)
-            : base(id, correo, contrasenia, recibirNotificaciones)
+        public Lector(Guid id, string correo, string contrasenia)
+            : base(id, correo, contrasenia)
         {
         }
 
-        public Lector(string correo, string contrasenia, bool recibirNotificaciones = true)
-            : base(correo, contrasenia, recibirNotificaciones)
+        public Lector(string correo, string contrasenia)
+            : base(correo, contrasenia)
         {
         }
     }

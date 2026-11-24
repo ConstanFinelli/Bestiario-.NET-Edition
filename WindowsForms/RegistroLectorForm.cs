@@ -25,8 +25,7 @@ namespace WindowsForms
                     var lectorDto = new LectorDTO
                     {
                         Correo = emailTextBox.Text.Trim(),
-                        Contrasenia = passwordTextBox.Text,
-                        RecibirNotificaciones = notificacionesCheckBox.Checked
+                        Contrasenia = passwordTextBox.Text
                     };
 
                     var created = await UsuarioApiClient.AddLectorAsync(lectorDto);

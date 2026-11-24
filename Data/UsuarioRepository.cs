@@ -30,8 +30,30 @@ namespace Data
             return await context.Usuarios.FirstOrDefaultAsync(u => u.Correo == correo);
         }
 
+        private async Task EnsureRecibirNotificacionesRemovedAsync()
+        {
+            const string sql = @"
+IF COL_LENGTH(N'Usuarios', N'RecibirNotificaciones') IS NOT NULL
+BEGIN
+    DECLARE @constraintName nvarchar(128);
+    SELECT @constraintName = dc.name
+    FROM sys.default_constraints dc
+    INNER JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+    WHERE dc.parent_object_id = OBJECT_ID(N'Usuarios')
+      AND c.name = N'RecibirNotificaciones';
+
+    IF @constraintName IS NOT NULL
+        EXEC(N'ALTER TABLE [Usuarios] DROP CONSTRAINT [' + @constraintName + N']');
+
+    ALTER TABLE [Usuarios] DROP COLUMN [RecibirNotificaciones];
+END";
+            await context.Database.ExecuteSqlRawAsync(sql);
+        }
+
         public async Task AddAsync(Usuario usuario)
         {
+            await EnsureRecibirNotificacionesRemovedAsync();
+
             context.Usuarios.Add(usuario);
             await context.SaveChangesAsync();
         }
@@ -44,7 +66,6 @@ namespace Data
 
             existing.SetCorreo(usuario.Correo);
             existing.SetContrasenia(usuario.Contrasenia);
-            existing.RecibirNotificaciones = usuario.RecibirNotificaciones;
 
             if (existing is Investigador exInv && usuario is Investigador inInv)
             {

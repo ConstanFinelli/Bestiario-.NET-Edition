@@ -53,14 +53,6 @@ namespace WindowsForms
                 Width = 100
             });
 
-            this.usuariosDataGridView.Columns.Add(new DataGridViewCheckBoxColumn
-            {
-                Name = "RecibirNotificaciones",
-                HeaderText = "Notificaciones",
-                DataPropertyName = "RecibirNotificaciones",
-                Width = 95
-            });
-
             this.usuariosDataGridView.ReadOnly = true;
             this.usuariosDataGridView.AllowUserToAddRows = false;
             this.usuariosDataGridView.AllowUserToDeleteRows = false;
@@ -147,7 +139,6 @@ namespace WindowsForms
                     Id = u.Id,
                     Correo = u.Correo,
                     TipoUsuario = u.TipoUsuario,
-                    RecibirNotificaciones = u.RecibirNotificaciones,
                     NombreCompleto = u is InvestigadorDTO inv ? $"{inv.Nombre} {inv.Apellido}".Trim() : "-",
                     Dni = u is InvestigadorDTO inv2 ? inv2.Dni : "-"
                 }).ToList() ?? new List<UsuarioVM>();
@@ -194,7 +185,6 @@ namespace WindowsForms
             public string TipoUsuario { get; set; } = string.Empty;
             public string NombreCompleto { get; set; } = string.Empty;
             public string Dni { get; set; } = string.Empty;
-            public bool RecibirNotificaciones { get; set; }
         }
     }
 }

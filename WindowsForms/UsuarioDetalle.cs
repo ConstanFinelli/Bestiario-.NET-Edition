@@ -61,7 +61,6 @@ namespace WindowsForms
             idTextBox.Text = Usuario.Id.ToString();
             correoTextBox.Text = Usuario.Correo;
             contraseniaTextBox.Text = string.Empty;
-            notificacionesCheckBox.Checked = Usuario.RecibirNotificaciones;
 
             if (Usuario is InvestigadorDTO inv)
             {
@@ -132,7 +131,6 @@ namespace WindowsForms
                         Id = Mode == FormMode.Update ? Usuario.Id : Guid.Empty,
                         Correo = correoTextBox.Text.Trim(),
                         Contrasenia = string.IsNullOrWhiteSpace(contraseniaTextBox.Text) ? null : contraseniaTextBox.Text,
-                        RecibirNotificaciones = notificacionesCheckBox.Checked,
                         Dni = dniTextBox.Text.Trim(),
                         Nombre = nombreTextBox.Text.Trim(),
                         Apellido = apellidoTextBox.Text.Trim()
@@ -149,8 +147,7 @@ namespace WindowsForms
                     {
                         Id = Mode == FormMode.Update ? Usuario.Id : Guid.Empty,
                         Correo = correoTextBox.Text.Trim(),
-                        Contrasenia = string.IsNullOrWhiteSpace(contraseniaTextBox.Text) ? null : contraseniaTextBox.Text,
-                        RecibirNotificaciones = notificacionesCheckBox.Checked
+                        Contrasenia = string.IsNullOrWhiteSpace(contraseniaTextBox.Text) ? null : contraseniaTextBox.Text
                     };
 
                     if (Mode == FormMode.Add)
@@ -223,7 +220,6 @@ namespace WindowsForms
             tipoComboBox.Enabled = false;
             correoTextBox.Enabled = false;
             contraseniaTextBox.Enabled = false;
-            notificacionesCheckBox.Enabled = false;
             dniTextBox.Enabled = false;
             nombreTextBox.Enabled = false;
             apellidoTextBox.Enabled = false;
@@ -236,7 +232,6 @@ namespace WindowsForms
             tipoComboBox.Enabled = Mode == FormMode.Add;
             correoTextBox.Enabled = true;
             contraseniaTextBox.Enabled = true;
-            notificacionesCheckBox.Enabled = true;
             dniTextBox.Enabled = true;
             nombreTextBox.Enabled = true;
             apellidoTextBox.Enabled = true;

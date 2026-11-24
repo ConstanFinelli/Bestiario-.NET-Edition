@@ -201,15 +201,15 @@ namespace Data
                 entity.Property(i => i.Apellido).HasMaxLength(50);
 
                 entity.HasData(
-                    new { Id = Guid.Parse("99999999-9999-9999-9999-999999999999"), Correo = "admin@bestiario.com", Contrasenia = "password", RecibirNotificaciones = true, Dni = "12345678", Nombre = "Admin", Apellido = "Investigador" },
-                    new { Id = Guid.Parse("88888888-8888-8888-8888-888888888888"), Correo = "geraldo@kaer.morhen", Contrasenia = "password", RecibirNotificaciones = true, Dni = "40112233", Nombre = "Geraldo", Apellido = "Rivia" }
+                    new { Id = Guid.Parse("99999999-9999-9999-9999-999999999999"), Correo = "admin@bestiario.com", Contrasenia = "password", Dni = "12345678", Nombre = "Admin", Apellido = "Investigador" },
+                    new { Id = Guid.Parse("88888888-8888-8888-8888-888888888888"), Correo = "geraldo@kaer.morhen", Contrasenia = "password", Dni = "40112233", Nombre = "Geraldo", Apellido = "Rivia" }
                 );
             });
 
             modelBuilder.Entity<Lector>(entity =>
             {
                 entity.HasData(
-                    new { Id = Guid.Parse("77777777-7777-7777-7777-777777777777"), Correo = "lector@bestiario.com", Contrasenia = "password", RecibirNotificaciones = false }
+                    new { Id = Guid.Parse("77777777-7777-7777-7777-777777777777"), Correo = "lector@bestiario.com", Contrasenia = "password" }
                 );
             });
 

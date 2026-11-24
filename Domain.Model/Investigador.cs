@@ -10,16 +10,16 @@ namespace Domain.Model
 
         public Investigador() : base() { }
 
-        public Investigador(Guid id, string correo, string contrasenia, string dni, string nombre, string apellido, bool recibirNotificaciones = true)
-            : base(id, correo, contrasenia, recibirNotificaciones)
+        public Investigador(Guid id, string correo, string contrasenia, string dni, string nombre, string apellido)
+            : base(id, correo, contrasenia)
         {
             SetDni(dni);
             SetNombre(nombre);
             SetApellido(apellido);
         }
 
-        public Investigador(string correo, string contrasenia, string dni, string nombre, string apellido, bool recibirNotificaciones = true)
-            : base(correo, contrasenia, recibirNotificaciones)
+        public Investigador(string correo, string contrasenia, string dni, string nombre, string apellido)
+            : base(correo, contrasenia)
         {
             SetDni(dni);
             SetNombre(nombre);

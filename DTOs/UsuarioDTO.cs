@@ -12,7 +12,6 @@ namespace DTOs
         public Guid Id { get; set; }
         public string Correo { get; set; } = string.Empty;
         public string? Contrasenia { get; set; }
-        public bool RecibirNotificaciones { get; set; } = true;
         public string TipoUsuario { get; set; } = "Usuario";
     }
 
