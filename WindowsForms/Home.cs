@@ -60,6 +60,7 @@ namespace WindowsForms
             adminToolStripMenuItem.Click += (_, _) => NavigateToForm(new AdminDashboardForm());
             menuStrip1.Items.Add(adminToolStripMenuItem);
 
+            // Controles de sesión alineados a la derecha en el MenuStrip (como en Web)
             iniciarSesionMenuItem = new ToolStripMenuItem("Iniciar sesión")
             {
                 Alignment = ToolStripItemAlignment.Right,
@@ -432,35 +433,18 @@ namespace WindowsForms
             var user = LoginForm.UsuarioLogueado;
             bool esInvestigador = user is InvestigadorDTO || user?.TipoUsuario == "Investigador";
 
-            categoriasToolStripMenuItem.Visible = false;
-            registrosToolStripMenuItem.Visible = false;
-            habitatsToolStripMenuItem.Visible = false;
-            tiposEvidenciaToolStripMenuItem.Visible = false;
-            usuariosToolStripMenuItem.Visible = false;
-            evidenciasToolStripMenuItem.Visible = false;
-            comentariosToolStripMenuItem.Visible = false;
-
             reportesToolStripMenuItem.Visible = esInvestigador;
             adminToolStripMenuItem.Visible = esInvestigador;
             solicitudesToolStripMenuItem.Visible = user != null;
             solicitudesToolStripMenuItem.Text = esInvestigador ? "Solicitudes" : "Volverse Investigador";
 
-            categoriasButton.Visible = false;
-            registrosButton.Visible = false;
-            habitatsButton.Visible = false;
-            tiposEvidenciaButton.Visible = false;
-            usuariosButton.Visible = false;
-            evidenciasButton.Visible = false;
-            comentariosButton.Visible = false;
-
-            reporteEstadisticasButton.Visible = false;
-            reporteRegistrosButton.Visible = false;
             reportesButton.Visible = esInvestigador;
             adminButton.Visible = esInvestigador;
             solicitudesButton.Visible = user != null;
             solicitudesButton.Text = esInvestigador ? "Solicitudes" : "Volverse Investigador";
 
-            int yRow2 = noticiasButton.Bottom + Math.Max(10, (reporteEstadisticasButton.Top - noticiasButton.Bottom - noticiasButton.Height) / 2);
+            const int yRow3 = 230;
+            int yRow2 = noticiasButton.Bottom + Math.Max(10, (yRow3 - noticiasButton.Bottom - noticiasButton.Height) / 2);
             if (esInvestigador)
             {
                 solicitudesButton.Size = noticiasButton.Size;
@@ -470,7 +454,7 @@ namespace WindowsForms
 
                 int wRep = bestiasButton.Right - noticiasButton.Left;
                 reportesButton.Size = new Size(wRep, noticiasButton.Height);
-                reportesButton.Location = new Point((cardPanel.ClientSize.Width - wRep) / 2, reporteEstadisticasButton.Top);
+                reportesButton.Location = new Point((cardPanel.ClientSize.Width - wRep) / 2, yRow3);
             }
             else if (user != null)
             {
@@ -528,11 +512,6 @@ namespace WindowsForms
             form.Show();
         }
 
-        private void CategoriasToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            NavigateToForm(new CategoriaLista());
-        }
-
         private void NoticiasToolStripMenuItem_Click(object? sender, EventArgs e)
         {
             NavigateToForm(new NoticiaLista(), CargarUltimasNoticiasAsync);
@@ -541,36 +520,6 @@ namespace WindowsForms
         private void BestiasToolStripMenuItem_Click(object sender, EventArgs e)
         {
             NavigateToForm(new BestiaLista());
-        }
-
-        private void RegistrosToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            NavigateToForm(new RegistroLista());
-        }
-
-        private void HabitatsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            NavigateToForm(new HabitatLista());
-        }
-
-        private void TiposEvidenciaToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            NavigateToForm(new TipoEvidenciaLista());
-        }
-
-        private void EvidenciasToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            NavigateToForm(new EvidenciaLista());
-        }
-
-        private void ComentariosToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            NavigateToForm(new ComentarioLista());
-        }
-
-        private void UsuariosToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            NavigateToForm(new UsuarioLista());
         }
 
         private void EstadisticasBestiasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -587,8 +536,10 @@ namespace WindowsForms
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
+            // Color del libro unificado con el tema (#8E6E53)
             using var bookBrush = new SolidBrush(ThemeHelper.OuterBrown);
 
+            // Cuerpo del libro con esquinas suavemente redondeadas
             var bookRect = new Rectangle(6, 4, 36, 40);
             using var path = new GraphicsPath();
             int radius = 4;
@@ -599,6 +550,7 @@ namespace WindowsForms
             path.CloseFigure();
             e.Graphics.FillPath(bookBrush, path);
 
+            // Cinta de marcador blanca
             using var whiteBrush = new SolidBrush(Color.White);
             Point[] ribbon = {
                 new Point(20, 4),
@@ -609,6 +561,7 @@ namespace WindowsForms
             };
             e.Graphics.FillPolygon(whiteBrush, ribbon);
 
+            // Pliegue inferior de páginas
             using var pagePen = new Pen(Color.White, 2.5f);
             e.Graphics.DrawLine(pagePen, 10, 36, 38, 36);
         }
