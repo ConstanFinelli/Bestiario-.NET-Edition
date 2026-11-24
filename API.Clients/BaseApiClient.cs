@@ -12,6 +12,7 @@ namespace API.Clients
         private static string? _globalAuthToken;
         private static readonly AsyncLocal<bool> _useScopedToken = new();
         private static readonly AsyncLocal<string?> _scopedAuthToken = new();
+        private static readonly Lazy<string> _baseUrl = new(ResolveBaseUrl);
 
         public static string? AuthToken
         {
@@ -70,8 +71,8 @@ namespace API.Clients
         protected static async Task ConfigureHttpClientAsync(HttpClient client)
         {
             await Task.CompletedTask;
-            string baseUrl = GetBaseUrlFromConfig();
-            client.BaseAddress = new Uri(baseUrl);
+            // Leer URL base de configuración (cacheada una sola vez), si no existe usar localhost por defecto
+            client.BaseAddress = new Uri(_baseUrl.Value);
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
@@ -82,26 +83,21 @@ namespace API.Clients
             }
         }
 
-        private static string GetBaseUrlFromConfig()
+        private static string ResolveBaseUrl()
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[DEBUG] Intentando leer configuración...");
-
-                DotNetEnv.Env.TraversePath().Load(); 
+                // 1. Cargar .env una sola vez sin sobrescribir variables de entorno del sistema
+                DotNetEnv.Env.NoClobber().TraversePath().Load();
                 string? envUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
                 if (!string.IsNullOrEmpty(envUrl))
                 {
-                    System.Diagnostics.Debug.WriteLine($"[DEBUG] URL desde variable de entorno: {envUrl}");
                     return envUrl;
                 }
 
                 string runtimeInfo = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
-                System.Diagnostics.Debug.WriteLine($"[DEBUG] Runtime: {runtimeInfo}");
-
                 if (runtimeInfo.StartsWith("android"))
                 {
-                    System.Diagnostics.Debug.WriteLine($"[DEBUG] Detectado Android - usando IP de emulador");
                     return "http://10.0.2.2:5076/";
                 }
             }
@@ -110,9 +106,8 @@ namespace API.Clients
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Error detectando plataforma: {ex.Message}");
             }
 
-            string defaultUrl = "http://localhost:5076/";
-            System.Diagnostics.Debug.WriteLine($"[DEBUG] Usando URL por defecto: {defaultUrl}");
-            return defaultUrl;
+            // URL por defecto para Windows/otras plataformas
+            return "http://localhost:5076/";
         }
     }
 }
