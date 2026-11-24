@@ -23,9 +23,6 @@ namespace WindowsForms
             eliminarButton = new Button();
             ((System.ComponentModel.ISupportInitialize)usuariosDataGridView).BeginInit();
             SuspendLayout();
-            // 
-            // usuariosDataGridView
-            // 
             usuariosDataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             usuariosDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             usuariosDataGridView.Location = new Point(12, 12);
@@ -36,9 +33,6 @@ namespace WindowsForms
             usuariosDataGridView.Size = new Size(740, 310);
             usuariosDataGridView.TabIndex = 0;
             usuariosDataGridView.DoubleClick += actualizarButton_Click;
-            // 
-            // eliminarButton
-            // 
             eliminarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             eliminarButton.Location = new Point(490, 335);
             eliminarButton.Name = "eliminarButton";
@@ -47,9 +41,6 @@ namespace WindowsForms
             eliminarButton.Text = "Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
-            // 
-            // actualizarButton
-            // 
             actualizarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             actualizarButton.Location = new Point(576, 335);
             actualizarButton.Name = "actualizarButton";
@@ -58,9 +49,6 @@ namespace WindowsForms
             actualizarButton.Text = "Actualizar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
-            // 
-            // agregarButton
-            // 
             agregarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             agregarButton.Location = new Point(666, 335);
             agregarButton.Name = "agregarButton";
@@ -69,9 +57,6 @@ namespace WindowsForms
             agregarButton.Text = "Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
-            // 
-            // UsuarioLista
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(764, 375);

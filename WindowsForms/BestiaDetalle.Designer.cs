@@ -2,15 +2,8 @@ namespace WindowsForms
 {
     partial class BestiaDetalle
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@ namespace WindowsForms
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
@@ -46,116 +35,77 @@ namespace WindowsForms
             errorProvider = new ErrorProvider(components);
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
-            // 
-            // idLabel
-            // 
             idLabel.AutoSize = true;
             idLabel.Location = new Point(24, 18);
             idLabel.Name = "idLabel";
             idLabel.Size = new Size(20, 15);
             idLabel.TabIndex = 0;
             idLabel.Text = "Id:";
-            // 
-            // idTextBox
-            // 
             idTextBox.Location = new Point(120, 15);
             idTextBox.Name = "idTextBox";
             idTextBox.ReadOnly = true;
             idTextBox.Size = new Size(260, 23);
             idTextBox.TabIndex = 1;
             idTextBox.TabStop = false;
-            // 
-            // nombreLabel
-            // 
             nombreLabel.AutoSize = true;
             nombreLabel.Location = new Point(24, 50);
             nombreLabel.Name = "nombreLabel";
             nombreLabel.Size = new Size(54, 15);
             nombreLabel.TabIndex = 2;
             nombreLabel.Text = "Nombre:";
-            // 
-            // nombreTextBox
-            // 
             nombreTextBox.Location = new Point(120, 47);
             nombreTextBox.MaxLength = 100;
             nombreTextBox.Name = "nombreTextBox";
             nombreTextBox.Size = new Size(260, 23);
             nombreTextBox.TabIndex = 3;
-            // 
-            // peligrosidadLabel
-            // 
             peligrosidadLabel.AutoSize = true;
             peligrosidadLabel.Location = new Point(24, 82);
             peligrosidadLabel.Name = "peligrosidadLabel";
             peligrosidadLabel.Size = new Size(75, 15);
             peligrosidadLabel.TabIndex = 4;
             peligrosidadLabel.Text = "Peligrosidad:";
-            // 
-            // peligrosidadComboBox
-            // 
             peligrosidadComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             peligrosidadComboBox.FormattingEnabled = true;
             peligrosidadComboBox.Location = new Point(120, 79);
             peligrosidadComboBox.Name = "peligrosidadComboBox";
             peligrosidadComboBox.Size = new Size(160, 23);
             peligrosidadComboBox.TabIndex = 5;
-            // 
-            // estadoLabel
-            // 
             estadoLabel.AutoSize = true;
             estadoLabel.Location = new Point(24, 114);
             estadoLabel.Name = "estadoLabel";
             estadoLabel.Size = new Size(45, 15);
             estadoLabel.TabIndex = 6;
             estadoLabel.Text = "Estado:";
-            // 
-            // estadoComboBox
-            // 
             estadoComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             estadoComboBox.FormattingEnabled = true;
             estadoComboBox.Location = new Point(120, 111);
             estadoComboBox.Name = "estadoComboBox";
             estadoComboBox.Size = new Size(160, 23);
             estadoComboBox.TabIndex = 7;
-            // 
-            // habitatLabel
-            // 
             habitatLabel.AutoSize = true;
             habitatLabel.Location = new Point(24, 146);
             habitatLabel.Name = "habitatLabel";
             habitatLabel.Size = new Size(49, 15);
             habitatLabel.TabIndex = 8;
             habitatLabel.Text = "Hábitat:";
-            // 
-            // habitatComboBox
-            // 
             habitatComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             habitatComboBox.FormattingEnabled = true;
             habitatComboBox.Location = new Point(120, 143);
             habitatComboBox.Name = "habitatComboBox";
             habitatComboBox.Size = new Size(260, 23);
             habitatComboBox.TabIndex = 9;
-            // 
-            // categoriasLabel
-            // 
             categoriasLabel.AutoSize = true;
             categoriasLabel.Location = new Point(24, 178);
             categoriasLabel.Name = "categoriasLabel";
             categoriasLabel.Size = new Size(66, 15);
             categoriasLabel.TabIndex = 10;
             categoriasLabel.Text = "Categorías:";
-            // 
-            // categoriasCheckedListBox
-            // 
             categoriasCheckedListBox.CheckOnClick = true;
             categoriasCheckedListBox.FormattingEnabled = true;
             categoriasCheckedListBox.Location = new Point(120, 178);
             categoriasCheckedListBox.Name = "categoriasCheckedListBox";
             categoriasCheckedListBox.Size = new Size(260, 94);
             categoriasCheckedListBox.TabIndex = 11;
-            // 
-            // aceptarButton
-            // 
             aceptarButton.Location = new Point(215, 292);
             aceptarButton.Name = "aceptarButton";
             aceptarButton.Size = new Size(80, 25);
@@ -163,9 +113,6 @@ namespace WindowsForms
             aceptarButton.Text = "Aceptar";
             aceptarButton.UseVisualStyleBackColor = true;
             aceptarButton.Click += aceptarButton_Click;
-            // 
-            // cancelarButton
-            // 
             cancelarButton.Location = new Point(300, 292);
             cancelarButton.Name = "cancelarButton";
             cancelarButton.Size = new Size(80, 25);
@@ -173,13 +120,7 @@ namespace WindowsForms
             cancelarButton.Text = "Cancelar";
             cancelarButton.UseVisualStyleBackColor = true;
             cancelarButton.Click += cancelarButton_Click;
-            // 
-            // errorProvider
-            // 
             errorProvider.ContainerControl = this;
-            // 
-            // BestiaDetalle
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(409, 332);

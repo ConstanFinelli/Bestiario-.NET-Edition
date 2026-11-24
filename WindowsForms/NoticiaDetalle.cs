@@ -74,7 +74,6 @@ namespace WindowsForms
 
                 this.Noticia.Titulo = tituloTextBox.Text;
                 this.Noticia.Contenido = contenidoTextBox.Text;
-                //this.Noticia.Publicador = publicadorTextBox.Text;
                 this.Noticia.FechaPublicacion = DateTime.Now;
                 if (this.Mode == FormMode.Update)
                 {

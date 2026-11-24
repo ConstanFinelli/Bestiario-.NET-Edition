@@ -5,18 +5,18 @@ namespace WindowsForms
 {
     internal static class ThemeHelper
     {
-        public static readonly Color OuterBrown = Color.FromArgb(142, 110, 83);      // #8E6E53
-        public static readonly Color OuterBrownDark = Color.FromArgb(117, 88, 64);   // #755840
-        public static readonly Color Bone = Color.FromArgb(246, 243, 235);           // #f6f3eb
-        public static readonly Color BoneBorder = Color.FromArgb(213, 207, 192);     // #d5cfc0
-        public static readonly Color MenuBone = Color.FromArgb(235, 230, 218);       // #ebe6da
-        public static readonly Color Parchment = Color.FromArgb(239, 228, 200);      // #efe4c8
-        public static readonly Color ParchmentHeader = Color.FromArgb(228, 212, 176);// #e4d4b0
-        public static readonly Color ParchmentBorder = Color.FromArgb(201, 180, 137);// #c9b489
-        public static readonly Color GridSurface = Color.FromArgb(250, 247, 240);    // #faf7f0
-        public static readonly Color TextDark = Color.FromArgb(43, 38, 32);          // #2b2620
-        public static readonly Color TextBody = Color.FromArgb(61, 49, 36);          // #3d3124
-        public static readonly Color TextMuted = Color.FromArgb(107, 91, 71);        // #6b5b47
+        public static readonly Color OuterBrown = Color.FromArgb(142, 110, 83);
+        public static readonly Color OuterBrownDark = Color.FromArgb(117, 88, 64);
+        public static readonly Color Bone = Color.FromArgb(246, 243, 235);
+        public static readonly Color BoneBorder = Color.FromArgb(213, 207, 192);
+        public static readonly Color MenuBone = Color.FromArgb(235, 230, 218);
+        public static readonly Color Parchment = Color.FromArgb(239, 228, 200);
+        public static readonly Color ParchmentHeader = Color.FromArgb(228, 212, 176);
+        public static readonly Color ParchmentBorder = Color.FromArgb(201, 180, 137);
+        public static readonly Color GridSurface = Color.FromArgb(250, 247, 240);
+        public static readonly Color TextDark = Color.FromArgb(43, 38, 32);
+        public static readonly Color TextBody = Color.FromArgb(61, 49, 36);
+        public static readonly Color TextMuted = Color.FromArgb(107, 91, 71);
 
         public static void ApplyTheme(Form form)
         {
@@ -135,7 +135,6 @@ namespace WindowsForms
             if (color == Color.White || color == SystemColors.Control || color == SystemColors.Window)
                 return true;
 
-            // Default WinForms gray tones (240,240,240) / (245,245,245) / (248,249,250)
             return color.R >= 235 && color.G >= 235 && color.B >= 235 &&
                    Math.Abs(color.R - color.G) <= 10 && Math.Abs(color.G - color.B) <= 10;
         }

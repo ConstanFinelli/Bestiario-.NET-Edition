@@ -28,9 +28,6 @@ namespace WindowsForms
             ((System.ComponentModel.ISupportInitialize)chartPictureBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)resumenDataGridView).BeginInit();
             SuspendLayout();
-            // 
-            // topPanel
-            // 
             topPanel.Controls.Add(resumenLabel);
             topPanel.Controls.Add(tipoLabel);
             topPanel.Controls.Add(tipoGraficoComboBox);
@@ -40,9 +37,6 @@ namespace WindowsForms
             topPanel.Name = "topPanel";
             topPanel.Size = new Size(784, 68);
             topPanel.TabIndex = 0;
-            // 
-            // resumenLabel
-            // 
             resumenLabel.AutoSize = true;
             resumenLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             resumenLabel.Location = new Point(14, 10);
@@ -50,18 +44,12 @@ namespace WindowsForms
             resumenLabel.Size = new Size(140, 15);
             resumenLabel.TabIndex = 0;
             resumenLabel.Text = "Cargando estadísticas...";
-            // 
-            // tipoLabel
-            // 
             tipoLabel.AutoSize = true;
             tipoLabel.Location = new Point(14, 38);
             tipoLabel.Name = "tipoLabel";
             tipoLabel.Size = new Size(96, 15);
             tipoLabel.TabIndex = 1;
             tipoLabel.Text = "Agrupación gráfico:";
-            // 
-            // tipoGraficoComboBox
-            // 
             tipoGraficoComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             tipoGraficoComboBox.FormattingEnabled = true;
             tipoGraficoComboBox.Location = new Point(155, 35);
@@ -69,9 +57,6 @@ namespace WindowsForms
             tipoGraficoComboBox.Size = new Size(190, 23);
             tipoGraficoComboBox.TabIndex = 2;
             tipoGraficoComboBox.SelectedIndexChanged += tipoGraficoComboBox_SelectedIndexChanged;
-            // 
-            // actualizarButton
-            // 
             actualizarButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             actualizarButton.Location = new Point(678, 34);
             actualizarButton.Name = "actualizarButton";
@@ -80,9 +65,6 @@ namespace WindowsForms
             actualizarButton.Text = "Actualizar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
-            // 
-            // chartPictureBox
-            // 
             chartPictureBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             chartPictureBox.BackColor = Color.White;
             chartPictureBox.BorderStyle = BorderStyle.FixedSingle;
@@ -93,18 +75,12 @@ namespace WindowsForms
             chartPictureBox.TabStop = false;
             chartPictureBox.Paint += chartPictureBox_Paint;
             chartPictureBox.Resize += chartPictureBox_Resize;
-            // 
-            // resumenDataGridView
-            // 
             resumenDataGridView.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             resumenDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             resumenDataGridView.Location = new Point(14, 342);
             resumenDataGridView.Name = "resumenDataGridView";
             resumenDataGridView.Size = new Size(756, 150);
             resumenDataGridView.TabIndex = 2;
-            // 
-            // ReporteBestiasForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 506);

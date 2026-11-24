@@ -67,7 +67,6 @@ namespace WindowsForms
             };
             menuStrip1.Items.Add(adminToolStripMenuItem);
 
-            // Controles de sesión alineados a la derecha en el MenuStrip (como en Web)
             iniciarSesionMenuItem = new ToolStripMenuItem("Iniciar sesión")
             {
                 Alignment = ToolStripItemAlignment.Right,
@@ -420,7 +419,6 @@ namespace WindowsForms
             var user = LoginForm.UsuarioLogueado;
             bool esInvestigador = user is InvestigadorDTO || user?.TipoUsuario == "Investigador";
 
-            // Toda opción gestionada desde Admin o dentro de Bestias/Registros desaparece del inicio
             categoriasToolStripMenuItem.Visible = false;
             registrosToolStripMenuItem.Visible = false;
             habitatsToolStripMenuItem.Visible = false;
@@ -568,10 +566,8 @@ namespace WindowsForms
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Color del libro unificado con el tema (#8E6E53)
             using var bookBrush = new SolidBrush(ThemeHelper.OuterBrown);
 
-            // Cuerpo del libro con esquinas suavemente redondeadas
             var bookRect = new Rectangle(6, 4, 36, 40);
             using var path = new GraphicsPath();
             int radius = 4;
@@ -582,7 +578,6 @@ namespace WindowsForms
             path.CloseFigure();
             e.Graphics.FillPath(bookBrush, path);
 
-            // Cinta de marcador blanca
             using var whiteBrush = new SolidBrush(Color.White);
             Point[] ribbon = {
                 new Point(20, 4),
@@ -593,7 +588,6 @@ namespace WindowsForms
             };
             e.Graphics.FillPolygon(whiteBrush, ribbon);
 
-            // Pliegue inferior de páginas
             using var pagePen = new Pen(Color.White, 2.5f);
             e.Graphics.DrawLine(pagePen, 10, 36, 38, 36);
         }

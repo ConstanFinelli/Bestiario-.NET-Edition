@@ -152,7 +152,6 @@ namespace WindowsForms
 
         private void SetRegistro()
         {
-            // Seleccionar bestia en combobox
             for (int i = 0; i < this.bestiaComboBox.Items.Count; i++)
             {
                 if (this.bestiaComboBox.Items[i] is BestiaComboItem item && item.Id == this.Registro.IdBestia)
@@ -168,7 +167,6 @@ namespace WindowsForms
             this.aprobadorTextBox.Text = this.Registro.NombreInvestigadorAprobador ?? "-";
             this.fechaAprobacionTextBox.Text = this.Registro.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-";
 
-            // Cargar detalle de contenidos
             contenidosBindingList = new BindingList<ContenidoRegistroDTO>(this.Registro.Contenidos.ToList());
             this.contenidosDataGridView.DataSource = contenidosBindingList;
         }
@@ -248,7 +246,6 @@ namespace WindowsForms
             var item = (ContenidoRegistroDTO)this.contenidosDataGridView.SelectedRows[0].DataBoundItem;
             contenidosBindingList.Remove(item);
 
-            // Re-numerar correlativo 1..N
             for (int i = 0; i < contenidosBindingList.Count; i++)
             {
                 contenidosBindingList[i].NroContenido = i + 1;

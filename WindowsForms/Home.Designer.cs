@@ -2,15 +2,8 @@ namespace WindowsForms
 {
     partial class Home
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@ namespace WindowsForms
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             menuStrip1 = new MenuStrip();
@@ -60,9 +49,6 @@ namespace WindowsForms
             cardPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)iconPictureBox).BeginInit();
             SuspendLayout();
-            // 
-            // menuStrip1
-            // 
             menuStrip1.ImageScalingSize = new Size(32, 32);
             menuStrip1.Items.AddRange(new ToolStripItem[] { categoriasToolStripMenuItem, noticiasToolStripMenuItem, bestiasToolStripMenuItem, registrosToolStripMenuItem, habitatsToolStripMenuItem, tiposEvidenciaToolStripMenuItem, evidenciasToolStripMenuItem, comentariosToolStripMenuItem, usuariosToolStripMenuItem, reportesToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
@@ -71,93 +57,54 @@ namespace WindowsForms
             menuStrip1.Size = new Size(646, 24);
             menuStrip1.TabIndex = 0;
             menuStrip1.Text = "menuStrip1";
-            // 
-            // categoriasToolStripMenuItem
-            // 
             categoriasToolStripMenuItem.Name = "categoriasToolStripMenuItem";
             categoriasToolStripMenuItem.Size = new Size(75, 22);
             categoriasToolStripMenuItem.Text = "Categorias";
             categoriasToolStripMenuItem.Click += CategoriasToolStripMenuItem_Click;
-            // 
-            // noticiasToolStripMenuItem
-            // 
             noticiasToolStripMenuItem.Name = "noticiasToolStripMenuItem";
             noticiasToolStripMenuItem.Size = new Size(62, 22);
             noticiasToolStripMenuItem.Text = "Noticias";
             noticiasToolStripMenuItem.Click += NoticiasToolStripMenuItem_Click;
-            // 
-            // bestiasToolStripMenuItem
-            // 
             bestiasToolStripMenuItem.Name = "bestiasToolStripMenuItem";
             bestiasToolStripMenuItem.Size = new Size(55, 22);
             bestiasToolStripMenuItem.Text = "Bestias";
             bestiasToolStripMenuItem.Click += BestiasToolStripMenuItem_Click;
-            // 
-            // registrosToolStripMenuItem
-            // 
             registrosToolStripMenuItem.Name = "registrosToolStripMenuItem";
             registrosToolStripMenuItem.Size = new Size(67, 22);
             registrosToolStripMenuItem.Text = "Registros";
             registrosToolStripMenuItem.Click += RegistrosToolStripMenuItem_Click;
-            // 
-            // habitatsToolStripMenuItem
-            // 
             habitatsToolStripMenuItem.Name = "habitatsToolStripMenuItem";
             habitatsToolStripMenuItem.Size = new Size(65, 22);
             habitatsToolStripMenuItem.Text = "Hábitats";
             habitatsToolStripMenuItem.Click += HabitatsToolStripMenuItem_Click;
-            // 
-            // tiposEvidenciaToolStripMenuItem
-            // 
             tiposEvidenciaToolStripMenuItem.Name = "tiposEvidenciaToolStripMenuItem";
             tiposEvidenciaToolStripMenuItem.Size = new Size(105, 22);
             tiposEvidenciaToolStripMenuItem.Text = "Tipos Evidencia";
             tiposEvidenciaToolStripMenuItem.Click += TiposEvidenciaToolStripMenuItem_Click;
-            // 
-            // evidenciasToolStripMenuItem
-            // 
             evidenciasToolStripMenuItem.Name = "evidenciasToolStripMenuItem";
             evidenciasToolStripMenuItem.Size = new Size(80, 22);
             evidenciasToolStripMenuItem.Text = "Evidencias";
             evidenciasToolStripMenuItem.Click += EvidenciasToolStripMenuItem_Click;
-            // 
-            // comentariosToolStripMenuItem
-            // 
             comentariosToolStripMenuItem.Name = "comentariosToolStripMenuItem";
             comentariosToolStripMenuItem.Size = new Size(85, 22);
             comentariosToolStripMenuItem.Text = "Comentarios";
             comentariosToolStripMenuItem.Click += ComentariosToolStripMenuItem_Click;
-            // 
-            // usuariosToolStripMenuItem
-            // 
             usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
             usuariosToolStripMenuItem.Size = new Size(65, 22);
             usuariosToolStripMenuItem.Text = "Usuarios";
             usuariosToolStripMenuItem.Click += UsuariosToolStripMenuItem_Click;
-            // 
-            // reportesToolStripMenuItem
-            // 
             reportesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { estadisticasBestiasToolStripMenuItem, registrosPorBestiaToolStripMenuItem });
             reportesToolStripMenuItem.Name = "reportesToolStripMenuItem";
             reportesToolStripMenuItem.Size = new Size(68, 22);
             reportesToolStripMenuItem.Text = "Reportes";
-            // 
-            // estadisticasBestiasToolStripMenuItem
-            // 
             estadisticasBestiasToolStripMenuItem.Name = "estadisticasBestiasToolStripMenuItem";
             estadisticasBestiasToolStripMenuItem.Size = new Size(235, 22);
             estadisticasBestiasToolStripMenuItem.Text = "Estadísticas de Bestias (Gráfico)";
             estadisticasBestiasToolStripMenuItem.Click += EstadisticasBestiasToolStripMenuItem_Click;
-            // 
-            // registrosPorBestiaToolStripMenuItem
-            // 
             registrosPorBestiaToolStripMenuItem.Name = "registrosPorBestiaToolStripMenuItem";
             registrosPorBestiaToolStripMenuItem.Size = new Size(235, 22);
             registrosPorBestiaToolStripMenuItem.Text = "Registros por Bestia";
             registrosPorBestiaToolStripMenuItem.Click += RegistrosPorBestiaToolStripMenuItem_Click;
-            // 
-            // cardPanel
-            // 
             cardPanel.BackColor = Color.White;
             cardPanel.BorderStyle = BorderStyle.FixedSingle;
             cardPanel.Controls.Add(iconPictureBox);
@@ -178,18 +125,12 @@ namespace WindowsForms
             cardPanel.Name = "cardPanel";
             cardPanel.Size = new Size(560, 290);
             cardPanel.TabIndex = 1;
-            // 
-            // iconPictureBox
-            // 
             iconPictureBox.Location = new Point(256, 16);
             iconPictureBox.Name = "iconPictureBox";
             iconPictureBox.Size = new Size(48, 48);
             iconPictureBox.TabIndex = 0;
             iconPictureBox.TabStop = false;
             iconPictureBox.Paint += IconPictureBox_Paint;
-            // 
-            // titleLabel
-            // 
             titleLabel.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             titleLabel.Location = new Point(10, 72);
             titleLabel.Name = "titleLabel";
@@ -197,9 +138,6 @@ namespace WindowsForms
             titleLabel.TabIndex = 1;
             titleLabel.Text = "Bestiario - .NET Edition";
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // subtitleLabel
-            // 
             subtitleLabel.Font = new Font("Segoe UI", 9F);
             subtitleLabel.ForeColor = Color.FromArgb(85, 85, 85);
             subtitleLabel.Location = new Point(10, 102);
@@ -208,9 +146,6 @@ namespace WindowsForms
             subtitleLabel.TabIndex = 2;
             subtitleLabel.Text = "Seleccione una opción del menú superior para comenzar a gestionar el catálogo del bestiario.";
             subtitleLabel.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // categoriasButton
-            // 
             categoriasButton.Font = new Font("Segoe UI", 9F);
             categoriasButton.Location = new Point(25, 150);
             categoriasButton.Name = "categoriasButton";
@@ -219,9 +154,6 @@ namespace WindowsForms
             categoriasButton.Text = "Categorias";
             categoriasButton.UseVisualStyleBackColor = true;
             categoriasButton.Click += CategoriasToolStripMenuItem_Click;
-            // 
-            // noticiasButton
-            // 
             noticiasButton.Font = new Font("Segoe UI", 9F);
             noticiasButton.Location = new Point(155, 150);
             noticiasButton.Name = "noticiasButton";
@@ -230,9 +162,6 @@ namespace WindowsForms
             noticiasButton.Text = "Noticias";
             noticiasButton.UseVisualStyleBackColor = true;
             noticiasButton.Click += NoticiasToolStripMenuItem_Click;
-            // 
-            // bestiasButton
-            // 
             bestiasButton.Font = new Font("Segoe UI", 9F);
             bestiasButton.Location = new Point(285, 150);
             bestiasButton.Name = "bestiasButton";
@@ -241,9 +170,6 @@ namespace WindowsForms
             bestiasButton.Text = "Bestias";
             bestiasButton.UseVisualStyleBackColor = true;
             bestiasButton.Click += BestiasToolStripMenuItem_Click;
-            // 
-            // registrosButton
-            // 
             registrosButton.Font = new Font("Segoe UI", 9F);
             registrosButton.Location = new Point(415, 150);
             registrosButton.Name = "registrosButton";
@@ -252,9 +178,6 @@ namespace WindowsForms
             registrosButton.Text = "Registros";
             registrosButton.UseVisualStyleBackColor = true;
             registrosButton.Click += RegistrosToolStripMenuItem_Click;
-            // 
-            // habitatsButton
-            // 
             habitatsButton.Font = new Font("Segoe UI", 9F);
             habitatsButton.Location = new Point(25, 190);
             habitatsButton.Name = "habitatsButton";
@@ -263,9 +186,6 @@ namespace WindowsForms
             habitatsButton.Text = "Hábitats";
             habitatsButton.UseVisualStyleBackColor = true;
             habitatsButton.Click += HabitatsToolStripMenuItem_Click;
-            // 
-            // tiposEvidenciaButton
-            // 
             tiposEvidenciaButton.Font = new Font("Segoe UI", 9F);
             tiposEvidenciaButton.Location = new Point(155, 190);
             tiposEvidenciaButton.Name = "tiposEvidenciaButton";
@@ -274,9 +194,6 @@ namespace WindowsForms
             tiposEvidenciaButton.Text = "Tipos Evidencia";
             tiposEvidenciaButton.UseVisualStyleBackColor = true;
             tiposEvidenciaButton.Click += TiposEvidenciaToolStripMenuItem_Click;
-            // 
-            // evidenciasButton
-            // 
             evidenciasButton.Font = new Font("Segoe UI", 9F);
             evidenciasButton.Location = new Point(285, 190);
             evidenciasButton.Name = "evidenciasButton";
@@ -285,9 +202,6 @@ namespace WindowsForms
             evidenciasButton.Text = "Evidencias";
             evidenciasButton.UseVisualStyleBackColor = true;
             evidenciasButton.Click += EvidenciasToolStripMenuItem_Click;
-            // 
-            // comentariosButton
-            // 
             comentariosButton.Font = new Font("Segoe UI", 9F);
             comentariosButton.Location = new Point(415, 190);
             comentariosButton.Name = "comentariosButton";
@@ -296,9 +210,6 @@ namespace WindowsForms
             comentariosButton.Text = "Comentarios";
             comentariosButton.UseVisualStyleBackColor = true;
             comentariosButton.Click += ComentariosToolStripMenuItem_Click;
-            // 
-            // usuariosButton
-            // 
             usuariosButton.Font = new Font("Segoe UI", 9F);
             usuariosButton.Location = new Point(25, 230);
             usuariosButton.Name = "usuariosButton";
@@ -307,9 +218,6 @@ namespace WindowsForms
             usuariosButton.Text = "Usuarios";
             usuariosButton.UseVisualStyleBackColor = true;
             usuariosButton.Click += UsuariosToolStripMenuItem_Click;
-            // 
-            // reporteEstadisticasButton
-            // 
             reporteEstadisticasButton.Font = new Font("Segoe UI", 9F);
             reporteEstadisticasButton.Location = new Point(155, 230);
             reporteEstadisticasButton.Name = "reporteEstadisticasButton";
@@ -318,9 +226,6 @@ namespace WindowsForms
             reporteEstadisticasButton.Text = "Rep. Estadísticas";
             reporteEstadisticasButton.UseVisualStyleBackColor = true;
             reporteEstadisticasButton.Click += EstadisticasBestiasToolStripMenuItem_Click;
-            // 
-            // reporteRegistrosButton
-            // 
             reporteRegistrosButton.Font = new Font("Segoe UI", 9F);
             reporteRegistrosButton.Location = new Point(285, 230);
             reporteRegistrosButton.Name = "reporteRegistrosButton";
@@ -329,9 +234,6 @@ namespace WindowsForms
             reporteRegistrosButton.Text = "Rep. Registros";
             reporteRegistrosButton.UseVisualStyleBackColor = true;
             reporteRegistrosButton.Click += RegistrosPorBestiaToolStripMenuItem_Click;
-            // 
-            // Home
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(646, 385);

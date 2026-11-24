@@ -133,7 +133,6 @@ namespace WindowsForms
                 }
             }
 
-            // Marcar categorías asignadas
             for (int i = 0; i < this.categoriasCheckedListBox.Items.Count; i++)
             {
                 if (this.categoriasCheckedListBox.Items[i] is CategoriaCheckItem item)
@@ -153,8 +152,8 @@ namespace WindowsForms
                 idLabel.Visible = false;
                 idTextBox.Visible = false;
                 this.Text = "Agregar Bestia";
-                this.peligrosidadComboBox.SelectedIndex = 1; // Media
-                this.estadoComboBox.SelectedIndex = 0; // pendiente
+                this.peligrosidadComboBox.SelectedIndex = 1;
+                this.estadoComboBox.SelectedIndex = 0;
             }
 
             if (Mode == FormMode.Update)
@@ -178,7 +177,6 @@ namespace WindowsForms
                     this.Bestia.Estado = estadoComboBox.SelectedItem?.ToString() ?? "pendiente";
                     this.Bestia.IdHabitat = (habitatComboBox.SelectedItem as HabitatComboItem)?.Id;
 
-                    // Extraer categorías seleccionadas
                     this.Bestia.CategoriasIds.Clear();
                     for (int i = 0; i < categoriasCheckedListBox.CheckedItems.Count; i++)
                     {

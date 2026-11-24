@@ -194,7 +194,6 @@ namespace WindowsForms
             string titulo = porCategoria ? "Bestias por Categoría" : "Bestias por Peligrosidad";
             g.DrawString(titulo, titleFont, textBrush, marginLeft, 8);
 
-            // Leyenda arriba a la derecha
             int legendX = Math.Max(marginLeft + 180, width - 210);
             g.FillRectangle(aprobBrush, legendX, 11, 12, 12);
             g.DrawString("Aprobadas", axisFont, textBrush, legendX + 16, 10);

@@ -10,13 +10,11 @@ namespace WindowsForms
         private readonly Panel paso1Panel;
         private readonly Panel paso2Panel;
 
-        // Paso 1
         private readonly TextBox paso1CorreoTextBox;
         private readonly Button enviarCodigoButton;
         private readonly Button paso1VolverButton;
         private readonly LinkLabel yaTengoCodigoLinkLabel;
 
-        // Paso 2
         private readonly TextBox paso2CorreoTextBox;
         private readonly TextBox codigoTextBox;
         private readonly TextBox nuevaPasswordTextBox;
@@ -53,7 +51,6 @@ namespace WindowsForms
             };
             Controls.Add(statusLabel);
 
-            // ================= PASO 1 =================
             paso1Panel = new Panel
             {
                 Location = new Point(0, 48),
@@ -132,7 +129,6 @@ namespace WindowsForms
                 paso1VolverButton, enviarCodigoButton, yaTengoCodigoLinkLabel
             });
 
-            // ================= PASO 2 =================
             paso2Panel = new Panel
             {
                 Location = new Point(0, 48),

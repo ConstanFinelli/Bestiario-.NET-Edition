@@ -32,7 +32,6 @@ namespace WindowsForms
                     var created = await UsuarioApiClient.AddLectorAsync(lectorDto);
                     if (created != null && created.Id != Guid.Empty)
                     {
-                        // Iniciar sesión automáticamente con el nuevo usuario
                         var authResult = await UsuarioApiClient.LoginAsync(emailTextBox.Text.Trim(), passwordTextBox.Text);
                         if (authResult != null && authResult.Usuario != null)
                         {

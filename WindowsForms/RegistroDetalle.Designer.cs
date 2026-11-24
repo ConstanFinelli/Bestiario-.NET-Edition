@@ -2,15 +2,8 @@ namespace WindowsForms
 {
     partial class RegistroDetalle
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@ namespace WindowsForms
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
@@ -58,9 +47,6 @@ namespace WindowsForms
             ((System.ComponentModel.ISupportInitialize)contenidosDataGridView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
-            // 
-            // maestroGroupBox
-            // 
             maestroGroupBox.Controls.Add(fechaAprobacionTextBox);
             maestroGroupBox.Controls.Add(fechaAprobacionLabel);
             maestroGroupBox.Controls.Add(aprobadorTextBox);
@@ -79,63 +65,42 @@ namespace WindowsForms
             maestroGroupBox.TabIndex = 0;
             maestroGroupBox.TabStop = false;
             maestroGroupBox.Text = "Datos Principales (Registro)";
-            // 
-            // fechaAprobacionTextBox
-            // 
             fechaAprobacionTextBox.Location = new Point(380, 110);
             fechaAprobacionTextBox.Name = "fechaAprobacionTextBox";
             fechaAprobacionTextBox.ReadOnly = true;
             fechaAprobacionTextBox.Size = new Size(160, 23);
             fechaAprobacionTextBox.TabIndex = 11;
             fechaAprobacionTextBox.TabStop = false;
-            // 
-            // fechaAprobacionLabel
-            // 
             fechaAprobacionLabel.AutoSize = true;
             fechaAprobacionLabel.Location = new Point(290, 113);
             fechaAprobacionLabel.Name = "fechaAprobacionLabel";
             fechaAprobacionLabel.Size = new Size(84, 15);
             fechaAprobacionLabel.TabIndex = 10;
             fechaAprobacionLabel.Text = "F. Aprobación:";
-            // 
-            // aprobadorTextBox
-            // 
             aprobadorTextBox.Location = new Point(380, 80);
             aprobadorTextBox.Name = "aprobadorTextBox";
             aprobadorTextBox.ReadOnly = true;
             aprobadorTextBox.Size = new Size(160, 23);
             aprobadorTextBox.TabIndex = 9;
             aprobadorTextBox.TabStop = false;
-            // 
-            // aprobadorLabel
-            // 
             aprobadorLabel.AutoSize = true;
             aprobadorLabel.Location = new Point(290, 83);
             aprobadorLabel.Name = "aprobadorLabel";
             aprobadorLabel.Size = new Size(67, 15);
             aprobadorLabel.TabIndex = 8;
             aprobadorLabel.Text = "Aprobador:";
-            // 
-            // publicadorTextBox
-            // 
             publicadorTextBox.Location = new Point(90, 80);
             publicadorTextBox.Name = "publicadorTextBox";
             publicadorTextBox.ReadOnly = true;
             publicadorTextBox.Size = new Size(180, 23);
             publicadorTextBox.TabIndex = 7;
             publicadorTextBox.TabStop = false;
-            // 
-            // publicadorLabel
-            // 
             publicadorLabel.AutoSize = true;
             publicadorLabel.Location = new Point(14, 83);
             publicadorLabel.Name = "publicadorLabel";
             publicadorLabel.Size = new Size(67, 15);
             publicadorLabel.TabIndex = 6;
             publicadorLabel.Text = "Publicador:";
-            // 
-            // estadoComboBox
-            // 
             estadoComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             estadoComboBox.FormattingEnabled = true;
             estadoComboBox.Items.AddRange(new object[] { "pendiente", "aprobado" });
@@ -143,54 +108,36 @@ namespace WindowsForms
             estadoComboBox.Name = "estadoComboBox";
             estadoComboBox.Size = new Size(140, 23);
             estadoComboBox.TabIndex = 5;
-            // 
-            // estadoLabel
-            // 
             estadoLabel.AutoSize = true;
             estadoLabel.Location = new Point(14, 113);
             estadoLabel.Name = "estadoLabel";
             estadoLabel.Size = new Size(45, 15);
             estadoLabel.TabIndex = 4;
             estadoLabel.Text = "Estado:";
-            // 
-            // nroRegistroTextBox
-            // 
             nroRegistroTextBox.Location = new Point(380, 22);
             nroRegistroTextBox.Name = "nroRegistroTextBox";
             nroRegistroTextBox.ReadOnly = true;
             nroRegistroTextBox.Size = new Size(80, 23);
             nroRegistroTextBox.TabIndex = 3;
             nroRegistroTextBox.TabStop = false;
-            // 
-            // nroRegistroLabel
-            // 
             nroRegistroLabel.AutoSize = true;
             nroRegistroLabel.Location = new Point(290, 25);
             nroRegistroLabel.Name = "nroRegistroLabel";
             nroRegistroLabel.Size = new Size(79, 15);
             nroRegistroLabel.TabIndex = 2;
             nroRegistroLabel.Text = "Nro. Registro:";
-            // 
-            // bestiaComboBox
-            // 
             bestiaComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             bestiaComboBox.FormattingEnabled = true;
             bestiaComboBox.Location = new Point(90, 22);
             bestiaComboBox.Name = "bestiaComboBox";
             bestiaComboBox.Size = new Size(180, 23);
             bestiaComboBox.TabIndex = 1;
-            // 
-            // bestiaLabel
-            // 
             bestiaLabel.AutoSize = true;
             bestiaLabel.Location = new Point(14, 25);
             bestiaLabel.Name = "bestiaLabel";
             bestiaLabel.Size = new Size(41, 15);
             bestiaLabel.TabIndex = 0;
             bestiaLabel.Text = "Bestia:";
-            // 
-            // detalleGroupBox
-            // 
             detalleGroupBox.Controls.Add(quitarContenidoButton);
             detalleGroupBox.Controls.Add(agregarContenidoButton);
             detalleGroupBox.Controls.Add(nuevoContenidoTextBox);
@@ -204,9 +151,6 @@ namespace WindowsForms
             detalleGroupBox.TabIndex = 1;
             detalleGroupBox.TabStop = false;
             detalleGroupBox.Text = "Detalle de Contenidos (Maestro / Detalle)";
-            // 
-            // quitarContenidoButton
-            // 
             quitarContenidoButton.Location = new Point(410, 165);
             quitarContenidoButton.Name = "quitarContenidoButton";
             quitarContenidoButton.Size = new Size(130, 24);
@@ -214,9 +158,6 @@ namespace WindowsForms
             quitarContenidoButton.Text = "Quitar Sección";
             quitarContenidoButton.UseVisualStyleBackColor = true;
             quitarContenidoButton.Click += quitarContenidoButton_Click;
-            // 
-            // agregarContenidoButton
-            // 
             agregarContenidoButton.Location = new Point(410, 235);
             agregarContenidoButton.Name = "agregarContenidoButton";
             agregarContenidoButton.Size = new Size(130, 25);
@@ -224,42 +165,27 @@ namespace WindowsForms
             agregarContenidoButton.Text = "+ Agregar Sección";
             agregarContenidoButton.UseVisualStyleBackColor = true;
             agregarContenidoButton.Click += agregarContenidoButton_Click;
-            // 
-            // nuevoContenidoTextBox
-            // 
             nuevoContenidoTextBox.Location = new Point(80, 235);
             nuevoContenidoTextBox.Name = "nuevoContenidoTextBox";
             nuevoContenidoTextBox.Size = new Size(320, 23);
             nuevoContenidoTextBox.TabIndex = 4;
-            // 
-            // nuevoContenidoLabel
-            // 
             nuevoContenidoLabel.AutoSize = true;
             nuevoContenidoLabel.Location = new Point(14, 238);
             nuevoContenidoLabel.Name = "nuevoContenidoLabel";
             nuevoContenidoLabel.Size = new Size(66, 15);
             nuevoContenidoLabel.TabIndex = 3;
             nuevoContenidoLabel.Text = "Contenido:";
-            // 
-            // nuevoTituloTextBox
-            // 
             nuevoTituloTextBox.Location = new Point(80, 205);
             nuevoTituloTextBox.MaxLength = 100;
             nuevoTituloTextBox.Name = "nuevoTituloTextBox";
             nuevoTituloTextBox.Size = new Size(320, 23);
             nuevoTituloTextBox.TabIndex = 2;
-            // 
-            // nuevoTituloLabel
-            // 
             nuevoTituloLabel.AutoSize = true;
             nuevoTituloLabel.Location = new Point(14, 208);
             nuevoTituloLabel.Name = "nuevoTituloLabel";
             nuevoTituloLabel.Size = new Size(40, 15);
             nuevoTituloLabel.TabIndex = 1;
             nuevoTituloLabel.Text = "Título:";
-            // 
-            // contenidosDataGridView
-            // 
             contenidosDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             contenidosDataGridView.Location = new Point(14, 22);
             contenidosDataGridView.MultiSelect = false;
@@ -268,9 +194,6 @@ namespace WindowsForms
             contenidosDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             contenidosDataGridView.Size = new Size(526, 135);
             contenidosDataGridView.TabIndex = 0;
-            // 
-            // aceptarButton
-            // 
             aceptarButton.Location = new Point(390, 455);
             aceptarButton.Name = "aceptarButton";
             aceptarButton.Size = new Size(85, 25);
@@ -278,9 +201,6 @@ namespace WindowsForms
             aceptarButton.Text = "Aceptar";
             aceptarButton.UseVisualStyleBackColor = true;
             aceptarButton.Click += aceptarButton_Click;
-            // 
-            // cancelarButton
-            // 
             cancelarButton.Location = new Point(487, 455);
             cancelarButton.Name = "cancelarButton";
             cancelarButton.Size = new Size(85, 25);
@@ -288,13 +208,7 @@ namespace WindowsForms
             cancelarButton.Text = "Cancelar";
             cancelarButton.UseVisualStyleBackColor = true;
             cancelarButton.Click += cancelarButton_Click;
-            // 
-            // errorProvider
-            // 
             errorProvider.ContainerControl = this;
-            // 
-            // RegistroDetalle
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(584, 495);

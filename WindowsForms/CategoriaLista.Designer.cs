@@ -1,16 +1,9 @@
-﻿namespace WindowsForms
+namespace WindowsForms
 {
     partial class CategoriaLista
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             categoriasDataGridView = new DataGridView();
@@ -34,9 +23,6 @@
             actualizarButton = new Button();
             ((System.ComponentModel.ISupportInitialize)categoriasDataGridView).BeginInit();
             SuspendLayout();
-            // 
-            // categoriasDataGridView
-            // 
             categoriasDataGridView.AllowUserToAddRows = false;
             categoriasDataGridView.AllowUserToDeleteRows = false;
             categoriasDataGridView.AllowUserToOrderColumns = true;
@@ -50,9 +36,6 @@
             categoriasDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             categoriasDataGridView.Size = new Size(751, 244);
             categoriasDataGridView.TabIndex = 0;
-            // 
-            // agregarButton
-            // 
             agregarButton.Location = new Point(691, 300);
             agregarButton.Margin = new Padding(2, 1, 2, 1);
             agregarButton.Name = "agregarButton";
@@ -61,9 +44,6 @@
             agregarButton.Text = "Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
-            // 
-            // eliminarButton
-            // 
             eliminarButton.Enabled = false;
             eliminarButton.Location = new Point(506, 300);
             eliminarButton.Margin = new Padding(2, 1, 2, 1);
@@ -73,9 +53,6 @@
             eliminarButton.Text = "Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
-            // 
-            // actualizarButton
-            // 
             actualizarButton.Enabled = false;
             actualizarButton.Location = new Point(598, 300);
             actualizarButton.Margin = new Padding(2, 1, 2, 1);
@@ -85,9 +62,6 @@
             actualizarButton.Text = "Actualizar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
-            // 
-            // CategoriaLista
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(796, 336);

@@ -2,15 +2,8 @@ namespace WindowsForms
 {
     partial class BestiaLista
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@ namespace WindowsForms
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             bestiasDataGridView = new DataGridView();
@@ -35,9 +24,6 @@ namespace WindowsForms
             verRegistrosButton = new Button();
             ((System.ComponentModel.ISupportInitialize)bestiasDataGridView).BeginInit();
             SuspendLayout();
-            // 
-            // bestiasDataGridView
-            // 
             bestiasDataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             bestiasDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             bestiasDataGridView.Location = new Point(12, 12);
@@ -47,9 +33,6 @@ namespace WindowsForms
             bestiasDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             bestiasDataGridView.Size = new Size(760, 330);
             bestiasDataGridView.TabIndex = 0;
-            // 
-            // verRegistrosButton
-            // 
             verRegistrosButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             verRegistrosButton.Location = new Point(12, 355);
             verRegistrosButton.Name = "verRegistrosButton";
@@ -58,9 +41,6 @@ namespace WindowsForms
             verRegistrosButton.Text = "Ver Registros";
             verRegistrosButton.UseVisualStyleBackColor = true;
             verRegistrosButton.Click += verRegistrosButton_Click;
-            // 
-            // eliminarButton
-            // 
             eliminarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             eliminarButton.Location = new Point(516, 355);
             eliminarButton.Name = "eliminarButton";
@@ -69,9 +49,6 @@ namespace WindowsForms
             eliminarButton.Text = "Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
-            // 
-            // actualizarButton
-            // 
             actualizarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             actualizarButton.Location = new Point(602, 355);
             actualizarButton.Name = "actualizarButton";
@@ -80,9 +57,6 @@ namespace WindowsForms
             actualizarButton.Text = "Actualizar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
-            // 
-            // agregarButton
-            // 
             agregarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             agregarButton.Location = new Point(688, 355);
             agregarButton.Name = "agregarButton";
@@ -91,9 +65,6 @@ namespace WindowsForms
             agregarButton.Text = "Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
-            // 
-            // BestiaLista
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 395);

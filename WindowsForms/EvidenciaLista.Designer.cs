@@ -28,9 +28,6 @@ namespace WindowsForms
             filtroPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)evidenciasDataGridView).BeginInit();
             SuspendLayout();
-            // 
-            // filtroPanel
-            // 
             filtroPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             filtroPanel.BackColor = SystemColors.ControlLight;
             filtroPanel.BorderStyle = BorderStyle.FixedSingle;
@@ -40,9 +37,6 @@ namespace WindowsForms
             filtroPanel.Name = "filtroPanel";
             filtroPanel.Size = new Size(810, 40);
             filtroPanel.TabIndex = 0;
-            // 
-            // bestiasComboBox
-            // 
             bestiasComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             bestiasComboBox.FormattingEnabled = true;
             bestiasComboBox.Location = new Point(130, 8);
@@ -50,9 +44,6 @@ namespace WindowsForms
             bestiasComboBox.Size = new Size(300, 23);
             bestiasComboBox.TabIndex = 1;
             bestiasComboBox.SelectedIndexChanged += bestiasComboBox_SelectedIndexChanged;
-            // 
-            // filtroLabel
-            // 
             filtroLabel.AutoSize = true;
             filtroLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             filtroLabel.Location = new Point(12, 11);
@@ -60,9 +51,6 @@ namespace WindowsForms
             filtroLabel.Size = new Size(106, 15);
             filtroLabel.TabIndex = 0;
             filtroLabel.Text = "Filtrar por Bestia:";
-            // 
-            // evidenciasDataGridView
-            // 
             evidenciasDataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             evidenciasDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             evidenciasDataGridView.Location = new Point(12, 58);
@@ -74,9 +62,6 @@ namespace WindowsForms
             evidenciasDataGridView.TabIndex = 1;
             evidenciasDataGridView.SelectionChanged += evidenciasDataGridView_SelectionChanged;
             evidenciasDataGridView.DoubleClick += actualizarButton_Click;
-            // 
-            // aprobarButton
-            // 
             aprobarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             aprobarButton.ForeColor = Color.DarkGreen;
             aprobarButton.Location = new Point(12, 360);
@@ -86,9 +71,6 @@ namespace WindowsForms
             aprobarButton.Text = "✔ Aprobar Evidencia";
             aprobarButton.UseVisualStyleBackColor = true;
             aprobarButton.Click += aprobarButton_Click;
-            // 
-            // eliminarButton
-            // 
             eliminarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             eliminarButton.Location = new Point(540, 360);
             eliminarButton.Name = "eliminarButton";
@@ -97,9 +79,6 @@ namespace WindowsForms
             eliminarButton.Text = "Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
-            // 
-            // actualizarButton
-            // 
             actualizarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             actualizarButton.Location = new Point(626, 360);
             actualizarButton.Name = "actualizarButton";
@@ -108,9 +87,6 @@ namespace WindowsForms
             actualizarButton.Text = "Ver / Editar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
-            // 
-            // agregarButton
-            // 
             agregarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             agregarButton.Location = new Point(732, 360);
             agregarButton.Name = "agregarButton";
@@ -119,9 +95,6 @@ namespace WindowsForms
             agregarButton.Text = "Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
-            // 
-            // EvidenciaLista
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(834, 400);

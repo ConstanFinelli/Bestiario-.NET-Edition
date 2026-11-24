@@ -23,9 +23,6 @@ namespace WindowsForms
             eliminarButton = new Button();
             ((System.ComponentModel.ISupportInitialize)habitatsDataGridView).BeginInit();
             SuspendLayout();
-            // 
-            // habitatsDataGridView
-            // 
             habitatsDataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             habitatsDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             habitatsDataGridView.Location = new Point(12, 12);
@@ -36,9 +33,6 @@ namespace WindowsForms
             habitatsDataGridView.Size = new Size(760, 330);
             habitatsDataGridView.TabIndex = 0;
             habitatsDataGridView.DoubleClick += actualizarButton_Click;
-            // 
-            // eliminarButton
-            // 
             eliminarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             eliminarButton.Location = new Point(504, 355);
             eliminarButton.Name = "eliminarButton";
@@ -47,9 +41,6 @@ namespace WindowsForms
             eliminarButton.Text = "Eliminar";
             eliminarButton.UseVisualStyleBackColor = true;
             eliminarButton.Click += eliminarButton_Click;
-            // 
-            // actualizarButton
-            // 
             actualizarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             actualizarButton.Location = new Point(590, 355);
             actualizarButton.Name = "actualizarButton";
@@ -58,9 +49,6 @@ namespace WindowsForms
             actualizarButton.Text = "Actualizar";
             actualizarButton.UseVisualStyleBackColor = true;
             actualizarButton.Click += actualizarButton_Click;
-            // 
-            // agregarButton
-            // 
             agregarButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             agregarButton.Location = new Point(688, 355);
             agregarButton.Name = "agregarButton";
@@ -69,9 +57,6 @@ namespace WindowsForms
             agregarButton.Text = "Agregar";
             agregarButton.UseVisualStyleBackColor = true;
             agregarButton.Click += agregarButton_Click;
-            // 
-            // HabitatLista
-            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 395);
