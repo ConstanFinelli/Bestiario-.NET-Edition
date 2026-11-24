@@ -55,7 +55,7 @@ namespace WebAPI
                 }
             })
             .WithName("AddNoticia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces<NoticiaDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -80,7 +80,7 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateNoticia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
@@ -99,7 +99,7 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteNoticia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)

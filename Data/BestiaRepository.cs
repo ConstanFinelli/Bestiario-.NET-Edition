@@ -21,6 +21,7 @@ namespace Data
             return await context.Bestias
                 .Include(b => b.Categorias)
                 .Include(b => b.Habitat)
+                .Include(b => b.Registros)
                 .ToListAsync();
         }
 

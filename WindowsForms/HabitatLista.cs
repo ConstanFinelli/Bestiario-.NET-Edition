@@ -76,8 +76,8 @@ namespace WindowsForms
         private async void agregarButton_Click(object sender, EventArgs e)
         {
             HabitatDTO nuevo = new HabitatDTO();
-            HabitatDetalle detalle = new HabitatDetalle(FormMode.Add, nuevo);
-            detalle.ShowDialog();
+            using var detalle = new HabitatDetalle(FormMode.Add, nuevo);
+            ThemeHelper.ShowSingleWindow(this, detalle);
             await this.GetHabitatsAndLoad();
         }
 
@@ -92,8 +92,8 @@ namespace WindowsForms
                 HabitatDTO? habitat = await HabitatApiClient.GetAsync(id);
                 if (habitat != null)
                 {
-                    HabitatDetalle detalle = new HabitatDetalle(FormMode.Update, habitat);
-                    detalle.ShowDialog();
+                    using var detalle = new HabitatDetalle(FormMode.Update, habitat);
+                    ThemeHelper.ShowSingleWindow(this, detalle);
                     await this.GetHabitatsAndLoad();
                 }
             }

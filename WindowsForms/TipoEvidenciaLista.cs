@@ -60,8 +60,8 @@ namespace WindowsForms
         private async void agregarButton_Click(object sender, EventArgs e)
         {
             TipoEvidenciaDTO nuevo = new TipoEvidenciaDTO();
-            TipoEvidenciaDetalle detalle = new TipoEvidenciaDetalle(FormMode.Add, nuevo);
-            detalle.ShowDialog();
+            using var detalle = new TipoEvidenciaDetalle(FormMode.Add, nuevo);
+            ThemeHelper.ShowSingleWindow(this, detalle);
             await this.GetTiposAndLoad();
         }
 
@@ -76,8 +76,8 @@ namespace WindowsForms
                 TipoEvidenciaDTO? tipo = await TipoEvidenciaApiClient.GetAsync(id);
                 if (tipo != null)
                 {
-                    TipoEvidenciaDetalle detalle = new TipoEvidenciaDetalle(FormMode.Update, tipo);
-                    detalle.ShowDialog();
+                    using var detalle = new TipoEvidenciaDetalle(FormMode.Update, tipo);
+                    ThemeHelper.ShowSingleWindow(this, detalle);
                     await this.GetTiposAndLoad();
                 }
             }

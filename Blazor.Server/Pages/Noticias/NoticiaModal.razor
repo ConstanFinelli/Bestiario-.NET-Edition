@@ -1,10 +1,11 @@
 @if (IsOpen)
 {
     <div class="win-modal-overlay">
-        <div class="win-modal-dialog" style="width: 380px;">
+        <div class="win-modal-dialog win-modal-sm">
+            <!-- Barra de Título del Diálogo -->
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
-                    <span class="oi oi-window text-primary" style="font-size: 11px;"></span>
+                    <span class="oi oi-window text-primary win-title-icon"></span>
                     <span>Gestión de Noticias</span>
                 </div>
                 <div class="win-titlebar-controls">
@@ -12,7 +13,8 @@
                 </div>
             </div>
 
-            <div class="win-form-content" style="padding: 16px 20px;">
+            <!-- Cuerpo del Formulario de Diálogo -->
+            <div class="win-form-content win-modal-body">
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
                     <div class="win-error-msg">
@@ -54,18 +56,9 @@
 
                 @if (Mode == FormMode.Update)
                 {
-                    <div class="row align-items-center mb-2">
-                        <div class="col-4">
-                            <label class="win-label">Publicado por:</label>
-                        </div>
-                        <div class="col-8">
-                            <input type="text" class="win-textbox w-100"
-                                   value="@(string.IsNullOrWhiteSpace(Noticia.NombrePublicador) ? "-" : Noticia.NombrePublicador)" readonly />
-                        </div>
-                    </div>
                     <div class="row align-items-center mb-3">
                         <div class="col-4">
-                            <label class="win-label" style="font-size: 11px;">Fecha Publicación:</label>
+                            <label class="win-label win-text-sm">Fecha Publicación:</label>
                         </div>
                         <div class="col-8">
                             <input type="text" class="win-textbox w-100" 
@@ -74,6 +67,7 @@
                     </div>
                 }
 
+                <!-- Botones: Cancelar a la izquierda, Aceptar a la derecha (idéntico a NoticiaDetalle.Designer.cs) -->
                 <div class="d-flex justify-content-between mt-3 pt-2 border-top">
                     <button type="button" class="win-btn" @onclick="Cancel" disabled="@isSaving">
                         Cancelar

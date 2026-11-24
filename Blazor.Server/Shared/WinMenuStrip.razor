@@ -1,10 +1,8 @@
 @inject AuthService Auth
+@inject NavigationManager Navigation
 @implements IDisposable
 
 <div class="win-menustrip">
-    <NavLink href="/" class="win-menu-item" Match="NavLinkMatch.All">
-        Inicio
-    </NavLink>
     <NavLink href="/bestias" class="win-menu-item">
         Bestias
     </NavLink>
@@ -29,14 +27,28 @@
             Admin
         </NavLink>
     }
-    @if (OnRefresh.HasDelegate)
-    {
-        <div class="ms-auto">
+    <div class="ms-auto d-flex align-items-center gap-2 win-nowrap">
+        @if (OnRefresh.HasDelegate)
+        {
             <button class="win-btn win-btn-sm" @onclick="OnRefresh" disabled="@IsLoading">
                 Refrescar
             </button>
-        </div>
-    }
+        }
+        @if (Auth.IsAuthenticated)
+        {
+            <span class="text-muted win-text-sm">Usuario: <strong>@Auth.Username</strong></span>
+            <button class="win-btn win-btn-sm" @onclick="CerrarSesion">
+                Cerrar sesión
+            </button>
+        }
+        else
+        {
+            <span class="text-muted win-text-sm">Modo <strong>Invitado</strong></span>
+            <button class="win-btn win-btn-sm" @onclick="@(() => Navigation.NavigateTo("/login"))">
+                Iniciar sesión
+            </button>
+        }
+    </div>
 </div>
 
 @code {
@@ -51,6 +63,12 @@
     private void OnAuthChanged()
     {
         InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CerrarSesion()
+    {
+        await Auth.LogoutAsync();
+        Navigation.NavigateTo("/login");
     }
 
     public void Dispose()

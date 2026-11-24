@@ -4,24 +4,32 @@
 
 <PageTitle>NoticiaLista</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form win-form-md">
+    <!-- Barra de Título Windows -->
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
-            <span class="oi oi-window text-primary"></span>
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span>NoticiaLista</span>
         </div>
     </div>
 
+    <!-- MenuStrip de Navegación -->
     <WinMenuStrip OnRefresh="CargarNoticias" IsLoading="@isLoading" />
 
+    <!-- Contenido del Formulario -->
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
 
+        <!-- Filtro por Fecha de Publicación -->
         <div class="d-flex flex-wrap align-items-center gap-3 mb-2 p-2 bg-light border">
             <div class="d-flex align-items-center gap-2">
                 <label class="win-label fw-bold mb-0">Desde:</label>
@@ -37,61 +45,55 @@
             }
         </div>
 
-        <div class="win-grid-container" style="height: 280px;">
-            <table class="win-grid">
-                <thead>
-                    <tr>
-                        <th class="win-grid-row-header-th"></th>
-                        <th style="width: 130px;">ID</th>
-                        <th style="width: 180px;">Título</th>
-                        <th style="width: 140px;">Fecha Publicacion</th>
-                        <th style="width: 140px;">Publicado por</th>
-                        <th>Contenido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (isLoading)
+        <!-- Lista de Noticias en Tarjetas (Estilo Inicio) -->
+        <div class="news-list-container p-3 border">
+            @if (isLoading)
+            {
+                <div class="text-center py-4 win-text-sm news-empty-text">
+                    Cargando noticias...
+                </div>
+            }
+            else if (!NoticiasFiltradas.Any())
+            {
+                <div class="text-center py-4 border win-text-sm news-empty">
+                    No hay noticias disponibles para el filtro seleccionado.
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var not in NoticiasFiltradas)
                     {
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                Cargando noticias...
-                            </td>
-                        </tr>
+                        bool isSelected = selectedNoticia?.Id == not.Id;
+                        <div class="col-md-4">
+                            <div class="border p-3 h-100 d-flex flex-column justify-content-between news-card @(isSelected ? "selected" : "")"
+                                 @onclick="() => SeleccionarFila(not)"
+                                 @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2 pb-1 news-card-header">
+                                        <strong class="news-card-title">@not.Titulo</strong>
+                                        <span class="news-card-date" title="@not.FechaPublicacion.ToString("dd/MM/yyyy HH:mm:ss")">
+                                            @not.FechaPublicacion.ToString("dd/MM/yyyy")
+                                        </span>
+                                    </div>
+                                    <p class="mb-0 news-card-text">
+                                        @not.Contenido
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     }
-                    else if (!NoticiasFiltradas.Any())
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                No hay noticias disponibles para el filtro seleccionado.
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        @foreach (var not in NoticiasFiltradas)
-                        {
-                            bool isSelected = selectedNoticia?.Id == not.Id;
-                            <tr class="@(isSelected ? "selected" : "")" 
-                                @onclick="() => SeleccionarFila(not)"
-                                @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
-                                <td class="win-grid-row-header">
-                                    @(isSelected ? "▶" : "")
-                                </td>
-                                <td>@not.Id</td>
-                                <td>@not.Titulo</td>
-                                <td>@not.FechaPublicacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
-                                <td>@(string.IsNullOrWhiteSpace(not.NombrePublicador) ? "-" : not.NombrePublicador)</td>
-                                <td>@not.Contenido</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
+                </div>
+            }
         </div>
 
-        @if (Auth.EsInvestigador)
-        {
-            <div class="win-btn-action-bar">
+        <!-- Botones de Acción -->
+        <div class="win-btn-action-bar">
+            <div class="me-auto">
+                <WinBackButton />
+            </div>
+            @if (Auth.EsInvestigador)
+            {
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedNoticia == null || isLoading)">
                     Eliminar
                 </button>
@@ -101,22 +103,25 @@
                 <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
                     Agregar
                 </button>
-            </div>
-        }
+            }
+        </div>
     </div>
 
+    <!-- Barra de Estado Inferior -->
     <div class="win-statusbar">
         <span>@(noticias?.Count ?? 0) elemento(s) cargado(s)</span>
         <span>@(selectedNoticia != null ? $"Seleccionado: {selectedNoticia.Titulo}" : "Ningún elemento seleccionado")</span>
     </div>
 </div>
 
+<!-- Modal Detalle (Estilo Ventana Diálogo Windows) -->
 <NoticiaModal IsOpen="@isModalOpen" 
               Mode="@modalMode" 
               Noticia="@noticiaParaEditar" 
               OnSaved="@OnNoticiaGuardada" 
               OnCancel="@CerrarModal" />
 
+<!-- Diálogo MessageBox Confirmación -->
 <ConfirmModal IsOpen="@isConfirmDeleteOpen"
               Title="Confirmar eliminación"
               Message="¿Está seguro que desea eliminar la noticia?"
@@ -154,7 +159,7 @@
             {
                 query = query.Where(n => n.FechaPublicacion.Date <= fechaHasta.Value.Date);
             }
-            return query;
+            return query.OrderByDescending(n => n.FechaPublicacion);
         }
     }
 
@@ -239,9 +244,7 @@
                 Id = fresca.Id,
                 Titulo = fresca.Titulo,
                 Contenido = fresca.Contenido,
-                FechaPublicacion = fresca.FechaPublicacion,
-                PublicadorId = fresca.PublicadorId,
-                NombrePublicador = fresca.NombrePublicador
+                FechaPublicacion = fresca.FechaPublicacion
             };
             modalMode = FormMode.Update;
             isModalOpen = true;

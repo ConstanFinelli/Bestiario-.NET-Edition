@@ -6,7 +6,12 @@
 
 <div class="win-form win-form-md">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span class="oi oi-people text-primary"></span>
             <span>Usuarios</span>
         </div>
@@ -35,11 +40,11 @@
                     <thead>
                         <tr>
                             <th class="win-grid-row-header-th"></th>
-                            <th style="width: 220px;">Correo</th>
-                            <th style="width: 110px;">Tipo</th>
-                            <th style="width: 190px;">Nombre y Apellido</th>
-                            <th style="width: 110px;">DNI</th>
-                            <th style="text-align: center;">Notificaciones</th>
+                            <th class="win-col-w220">Correo</th>
+                            <th class="win-col-w110">Tipo</th>
+                            <th class="win-col-w190">Nombre y Apellido</th>
+                            <th class="win-col-w110">DNI</th>
+                            <th class="text-center">Notificaciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,13 +68,13 @@
                                     <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
                                     <td>@u.Correo</td>
                                     <td>
-                                        <span class="badge @(u.TipoUsuario == "Investigador" ? "bg-primary" : "bg-secondary")" style="font-size: 10px;">
+                                        <span class="badge @(u.TipoUsuario == "Investigador" ? "bg-primary" : "bg-secondary") win-badge-sm">
                                             @u.TipoUsuario
                                         </span>
                                     </td>
                                     <td>@(inv != null ? $"{inv.Nombre} {inv.Apellido}" : "-")</td>
                                     <td>@(inv != null ? inv.Dni : "-")</td>
-                                    <td style="text-align: center;">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
+                                    <td class="text-center">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
                                 </tr>
                             }
                         }
@@ -78,6 +83,9 @@
             </div>
 
             <div class="win-btn-action-bar">
+                <div class="me-auto">
+                    <WinBackButton />
+                </div>
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedUsuario == null || isLoading)">Eliminar</button>
                 <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedUsuario == null || isLoading)">Actualizar</button>
                 <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Agregar</button>

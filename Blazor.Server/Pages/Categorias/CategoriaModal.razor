@@ -1,10 +1,11 @@
 @if (IsOpen)
 {
     <div class="win-modal-overlay">
-        <div class="win-modal-dialog" style="width: 420px;">
+        <div class="win-modal-dialog win-modal-420">
+            <!-- Barra de Título del Diálogo -->
             <div class="win-titlebar">
                 <div class="d-flex align-items-center gap-1">
-                    <span class="oi oi-window text-primary" style="font-size: 11px;"></span>
+                    <span class="oi oi-window text-primary win-title-icon"></span>
                     <span>Categoria</span>
                 </div>
                 <div class="win-titlebar-controls">
@@ -12,7 +13,8 @@
                 </div>
             </div>
 
-            <div class="win-form-content" style="padding: 18px 24px;">
+            <!-- Cuerpo del Formulario de Diálogo -->
+            <div class="win-form-content win-modal-body-lg">
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
                     <div class="win-error-msg">
@@ -52,6 +54,7 @@
                     </div>
                 </div>
 
+                <!-- Botones Aceptar / Cancelar (Alineados igual que en WinForms) -->
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
                     <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
                         @(isSaving ? "Guardando..." : "Aceptar")

@@ -1,0 +1,171 @@
+@typeparam TValue
+
+<div class="searchable-select @(Disabled ? "is-disabled" : "")">
+    <div class="searchable-select-input-wrap">
+        <input type="text"
+               class="@CssClass searchable-select-input"
+               value="@displayText"
+               placeholder="@Placeholder"
+               disabled="@Disabled"
+               @onfocus="OnFocus"
+               @oninput="OnInput"
+               @onkeydown="OnKeyDown"
+               @onblur="OnBlur" />
+        <span class="searchable-select-arrow" @onmousedown="ToggleDropdown" @onmousedown:preventDefault="true">▾</span>
+    </div>
+
+    @if (isOpen && !Disabled)
+    {
+        <div class="searchable-select-dropdown">
+            @if (!FilteredOptions.Any())
+            {
+                <div class="searchable-select-empty">Sin coincidencias</div>
+            }
+            else
+            {
+                @for (int i = 0; i < FilteredOptions.Count; i++)
+                {
+                    var opt = FilteredOptions[i];
+                    var idx = i;
+                    bool isSelected = EqualityComparer<TValue>.Default.Equals(opt.Value, Value);
+                    bool isHighlighted = idx == highlightedIndex;
+                    <div class="searchable-select-option @(isSelected ? "is-selected" : "") @(isHighlighted ? "is-highlighted" : "")"
+                         @onmousedown="() => SelectOptionAsync(opt)"
+                         @onmousedown:preventDefault="true">
+                        @opt.Text
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public TValue? Value { get; set; }
+    [Parameter] public EventCallback<TValue?> ValueChanged { get; set; }
+    [Parameter] public EventCallback<TValue?> OnSelected { get; set; }
+    [Parameter] public IEnumerable<SelectOption<TValue>> Options { get; set; } = Enumerable.Empty<SelectOption<TValue>>();
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Escribir para buscar...";
+    [Parameter] public string CssClass { get; set; } = "win-textbox w-100";
+
+    private bool isOpen = false;
+    private bool isFiltering = false;
+    private string searchText = string.Empty;
+    private string displayText = string.Empty;
+    private int highlightedIndex = -1;
+
+    private List<SelectOption<TValue>> AllOptions => Options?.ToList() ?? new List<SelectOption<TValue>>();
+
+    private List<SelectOption<TValue>> FilteredOptions
+    {
+        get
+        {
+            if (!isFiltering || string.IsNullOrWhiteSpace(searchText))
+                return AllOptions;
+
+            return AllOptions
+                .Where(o => o.Text.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!isFiltering)
+        {
+            SyncDisplayTextFromValue();
+        }
+    }
+
+    private void SyncDisplayTextFromValue()
+    {
+        var match = AllOptions.FirstOrDefault(o => EqualityComparer<TValue>.Default.Equals(o.Value, Value));
+        displayText = match?.Text ?? string.Empty;
+    }
+
+    private void OnFocus()
+    {
+        if (Disabled) return;
+        isOpen = true;
+        isFiltering = false;
+        searchText = string.Empty;
+        highlightedIndex = AllOptions.FindIndex(o => EqualityComparer<TValue>.Default.Equals(o.Value, Value));
+    }
+
+    private void ToggleDropdown()
+    {
+        if (Disabled) return;
+        isOpen = !isOpen;
+        if (isOpen)
+        {
+            isFiltering = false;
+            searchText = string.Empty;
+            highlightedIndex = AllOptions.FindIndex(o => EqualityComparer<TValue>.Default.Equals(o.Value, Value));
+        }
+    }
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? string.Empty;
+        displayText = searchText;
+        isFiltering = true;
+        isOpen = true;
+        highlightedIndex = FilteredOptions.Any() ? 0 : -1;
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Disabled) return;
+
+        var filtered = FilteredOptions;
+        if (e.Key == "ArrowDown")
+        {
+            isOpen = true;
+            if (filtered.Any())
+            {
+                highlightedIndex = (highlightedIndex + 1) % filtered.Count;
+            }
+        }
+        else if (e.Key == "ArrowUp")
+        {
+            isOpen = true;
+            if (filtered.Any())
+            {
+                highlightedIndex = highlightedIndex <= 0 ? filtered.Count - 1 : highlightedIndex - 1;
+            }
+        }
+        else if (e.Key == "Enter" && isOpen && highlightedIndex >= 0 && highlightedIndex < filtered.Count)
+        {
+            await SelectOptionAsync(filtered[highlightedIndex]);
+        }
+        else if (e.Key == "Escape")
+        {
+            isOpen = false;
+            isFiltering = false;
+            SyncDisplayTextFromValue();
+        }
+    }
+
+    private async Task SelectOptionAsync(SelectOption<TValue> option)
+    {
+        Value = option.Value;
+        displayText = option.Text;
+        isFiltering = false;
+        isOpen = false;
+        highlightedIndex = -1;
+
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(option.Value);
+
+        if (OnSelected.HasDelegate)
+            await OnSelected.InvokeAsync(option.Value);
+    }
+
+    private void OnBlur()
+    {
+        isOpen = false;
+        isFiltering = false;
+        SyncDisplayTextFromValue();
+    }
+}

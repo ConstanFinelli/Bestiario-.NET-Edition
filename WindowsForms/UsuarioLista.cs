@@ -76,8 +76,8 @@ namespace WindowsForms
         private async void agregarButton_Click(object sender, EventArgs e)
         {
             var nuevo = new InvestigadorDTO();
-            var detalle = new UsuarioDetalle(FormMode.Add, nuevo);
-            detalle.ShowDialog();
+            using var detalle = new UsuarioDetalle(FormMode.Add, nuevo);
+            ThemeHelper.ShowSingleWindow(this, detalle);
             await GetUsuariosAndLoad();
         }
 
@@ -92,8 +92,8 @@ namespace WindowsForms
                 var usuario = await UsuarioApiClient.GetAsync(vm.Id);
                 if (usuario != null)
                 {
-                    var detalle = new UsuarioDetalle(FormMode.Update, usuario);
-                    detalle.ShowDialog();
+                    using var detalle = new UsuarioDetalle(FormMode.Update, usuario);
+                    ThemeHelper.ShowSingleWindow(this, detalle);
                     await GetUsuariosAndLoad();
                 }
             }

@@ -4,9 +4,14 @@
 
 <PageTitle>Hábitats</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form win-form-md">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span class="oi oi-map-marker text-primary"></span>
             <span>Hábitats</span>
         </div>
@@ -17,21 +22,21 @@
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
 
-        <div class="win-grid-container" style="height: 260px;">
+        <div class="win-grid-container win-grid-h260">
             <table class="win-grid">
                 <thead>
                     <tr>
                         <th class="win-grid-row-header-th"></th>
-                        <th style="width: 170px;">Nombre</th>
-                        <th style="width: 240px;">Localización</th>
-                        <th style="width: 100px; text-align: right;">Latitud</th>
-                        <th style="width: 100px; text-align: right;">Longitud</th>
-                        <th style="text-align: center;">Características</th>
+                        <th class="win-col-w170">Nombre</th>
+                        <th class="win-col-w240">Localización</th>
+                        <th class="win-col-w100 text-end">Latitud</th>
+                        <th class="win-col-w100 text-end">Longitud</th>
+                        <th class="text-center">Características</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,9 +63,9 @@
                                 <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
                                 <td><strong>@h.Nombre</strong></td>
                                 <td>@h.Localizacion</td>
-                                <td style="text-align: right;">@h.Latitud</td>
-                                <td style="text-align: right;">@h.Longitud</td>
-                                <td style="text-align: center;">@h.Caracteristicas.Count</td>
+                                <td class="text-end">@h.Latitud</td>
+                                <td class="text-end">@h.Longitud</td>
+                                <td class="text-center">@h.Caracteristicas.Count</td>
                             </tr>
                         }
                     }
@@ -69,6 +74,9 @@
         </div>
 
         <div class="win-btn-action-bar">
+            <div class="me-auto">
+                <WinBackButton />
+            </div>
             @if (Auth.EsInvestigador)
             {
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedHabitat == null || isLoading)">

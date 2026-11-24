@@ -80,27 +80,24 @@ namespace Application.Services
         public async Task<BestiaDTO?> GetAsync(Guid id)
         {
             var bestia = await bestiaRepository.GetAsync(id);
-            if (bestia == null)
-                return null;
-
-            return new BestiaDTO
-            {
-                Id = bestia.Id,
-                Nombre = bestia.Nombre,
-                Peligrosidad = bestia.Peligrosidad,
-                Estado = bestia.Estado,
-                IdHabitat = bestia.IdHabitat,
-                HabitatNombre = bestia.Habitat?.Nombre,
-                CategoriasIds = bestia.Categorias.Select(c => c.Id).ToList(),
-                CategoriasNombres = bestia.Categorias.Select(c => c.Nombre).ToList()
-            };
+            return bestia == null ? null : MapToDTO(bestia);
         }
 
         public async Task<IEnumerable<BestiaDTO>> GetAllAsync()
         {
             var bestias = await bestiaRepository.GetAllAsync();
+            return bestias.Select(MapToDTO).ToList();
+        }
 
-            return bestias.Select(b => new BestiaDTO
+        private BestiaDTO MapToDTO(Bestia b)
+        {
+            var ultimoAprobado = b.Registros?
+                .Where(r => string.Equals(r.Estado, "aprobado", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(r => r.FechaAprobacion ?? DateTime.MinValue)
+                .ThenByDescending(r => r.NroRegistro)
+                .FirstOrDefault();
+
+            return new BestiaDTO
             {
                 Id = b.Id,
                 Nombre = b.Nombre,
@@ -108,9 +105,10 @@ namespace Application.Services
                 Estado = b.Estado,
                 IdHabitat = b.IdHabitat,
                 HabitatNombre = b.Habitat?.Nombre,
+                ImagenUrl = cloudinaryService?.GetImagenListadoBestia(ultimoAprobado?.MainPicture),
                 CategoriasIds = b.Categorias.Select(c => c.Id).ToList(),
                 CategoriasNombres = b.Categorias.Select(c => c.Nombre).ToList()
-            }).ToList();
+            };
         }
     }
 }

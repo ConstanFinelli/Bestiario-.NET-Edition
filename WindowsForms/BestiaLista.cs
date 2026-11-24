@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,9 +16,11 @@ namespace WindowsForms
 {
     public partial class BestiaLista : Form
     {
+        private static readonly HttpClient _httpClient = new();
         private List<BestiaVM> _todasBestias = new();
         private ComboBox _categoriaComboBox = null!;
         private ComboBox _habitatComboBox = null!;
+        private Button _verPendientesButton = null!;
         private bool _cargandoFiltro;
 
         public BestiaLista()
@@ -33,18 +37,27 @@ namespace WindowsForms
             this.bestiasDataGridView.Top += 34;
             this.bestiasDataGridView.Height -= 34;
 
+            var filtroPanel = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Location = new Point(12, 8),
+                Size = new Size(760, 32),
+                BackColor = ThemeHelper.Bone
+            };
+
             var lblCat = new Label
             {
                 Text = "Categoría:",
                 AutoSize = true,
-                Location = new Point(12, 14),
+                Margin = new Padding(0, 6, 6, 0),
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
 
             _categoriaComboBox = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(84, 10),
+                Margin = new Padding(0, 2, 18, 0),
                 Width = 200
             };
             _categoriaComboBox.SelectedIndexChanged += (_, _) =>
@@ -56,14 +69,14 @@ namespace WindowsForms
             {
                 Text = "Hábitat:",
                 AutoSize = true,
-                Location = new Point(300, 14),
+                Margin = new Padding(0, 6, 6, 0),
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
 
             _habitatComboBox = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(360, 10),
+                Margin = new Padding(0, 2, 0, 0),
                 Width = 200
             };
             _habitatComboBox.SelectedIndexChanged += (_, _) =>
@@ -71,15 +84,77 @@ namespace WindowsForms
                 if (!_cargandoFiltro) AplicarFiltros();
             };
 
-            this.Controls.Add(lblCat);
-            this.Controls.Add(_categoriaComboBox);
-            this.Controls.Add(lblHab);
-            this.Controls.Add(_habitatComboBox);
+            filtroPanel.Controls.Add(lblCat);
+            filtroPanel.Controls.Add(_categoriaComboBox);
+            filtroPanel.Controls.Add(lblHab);
+            filtroPanel.Controls.Add(_habitatComboBox);
+            this.Controls.Add(filtroPanel);
+
+            int btnY = this.verRegistrosButton.Top;
+            int btnHeight = this.verRegistrosButton.Height;
+
+            var volverBtn = new Button
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                MinimumSize = new Size(90, btnHeight),
+                Height = btnHeight,
+                Padding = new Padding(8, 0, 8, 0),
+                Location = new Point(12, btnY),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left
+            };
+            ThemeHelper.StyleBackButton(volverBtn);
+            volverBtn.Click += (_, _) => this.Close();
+            this.Controls.Add(volverBtn);
+            volverBtn.BringToFront();
+
+            this.verRegistrosButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            this.verRegistrosButton.Location = new Point(this.eliminarButton.Left - this.verRegistrosButton.Width - 6, btnY);
+            this.verRegistrosButton.BringToFront();
+
+            _verPendientesButton = new Button
+            {
+                Text = "Ver registro pendientes",
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                MinimumSize = new Size(155, btnHeight),
+                Height = btnHeight,
+                Padding = new Padding(8, 0, 8, 0),
+                Location = new Point(volverBtn.Right + 8, btnY),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
+                UseVisualStyleBackColor = true,
+                Visible = false
+            };
+            _verPendientesButton.Click += VerPendientesButton_Click;
+            this.Controls.Add(_verPendientesButton);
+            _verPendientesButton.BringToFront();
+        }
+
+        private void VerPendientesButton_Click(object? sender, EventArgs e)
+        {
+            using var pendientesForm = new RegistrosPendientesForm(_todasBestias.Cast<BestiaDTO>().ToList());
+            ThemeHelper.ShowSingleWindow(this, pendientesForm);
         }
 
         private void ConfigurarColumnas()
         {
             this.bestiasDataGridView.AutoGenerateColumns = false;
+            this.bestiasDataGridView.RowTemplate.Height = 52;
+
+            this.bestiasDataGridView.Columns.Add(new DataGridViewImageColumn
+            {
+                Name = "Foto",
+                HeaderText = "Foto",
+                DataPropertyName = "Foto",
+                ImageLayout = DataGridViewImageCellLayout.Zoom,
+                Width = 56,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    NullValue = null,
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(2)
+                }
+            });
 
             this.bestiasDataGridView.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -144,9 +219,9 @@ namespace WindowsForms
         private async void agregarButton_Click(object sender, EventArgs e)
         {
             BestiaDTO bestiaNueva = new BestiaDTO();
-            BestiaDetalle bestiaDetalle = new BestiaDetalle(FormMode.Add, bestiaNueva);
+            using var bestiaDetalle = new BestiaDetalle(FormMode.Add, bestiaNueva);
 
-            bestiaDetalle.ShowDialog();
+            ThemeHelper.ShowSingleWindow(this, bestiaDetalle);
 
             await this.GetBestiasAndLoad();
         }
@@ -164,8 +239,8 @@ namespace WindowsForms
 
                 if (bestia != null)
                 {
-                    BestiaDetalle bestiaDetalle = new BestiaDetalle(FormMode.Update, bestia);
-                    bestiaDetalle.ShowDialog();
+                    using var bestiaDetalle = new BestiaDetalle(FormMode.Update, bestia);
+                    ThemeHelper.ShowSingleWindow(this, bestiaDetalle);
                     await this.GetBestiasAndLoad();
                 }
             }
@@ -218,7 +293,7 @@ namespace WindowsForms
             {
                 BestiaDTO bestia = this.SelectedItem();
                 using var registrosForm = new RegistroLista(bestia.Id);
-                registrosForm.ShowDialog();
+                ThemeHelper.ShowSingleWindow(this, registrosForm);
                 return;
             }
 
@@ -255,7 +330,7 @@ namespace WindowsForms
                                 Contenidos = new List<ContenidoRegistroDTO>()
                             };
                             using var det = new RegistroDetalle(FormMode.Add, nuevo, new List<BestiaDTO> { bestia });
-                            det.ShowDialog();
+                            ThemeHelper.ShowSingleWindow(this, det);
                         }
                     }
                     else
@@ -266,7 +341,7 @@ namespace WindowsForms
                 }
 
                 using var enciclopedia = new RegistroEnciclopediaForm(vigente, bestia, new List<BestiaDTO> { bestia });
-                enciclopedia.ShowDialog();
+                ThemeHelper.ShowSingleWindow(this, enciclopedia);
             }
             catch (Exception ex)
             {
@@ -345,6 +420,7 @@ namespace WindowsForms
                     Estado = b.Estado,
                     IdHabitat = b.IdHabitat,
                     HabitatNombre = b.HabitatNombre,
+                    ImagenUrl = b.ImagenUrl,
                     HabitatTexto = string.IsNullOrEmpty(b.HabitatNombre) ? "-" : b.HabitatNombre,
                     CategoriasIds = b.CategoriasIds,
                     CategoriasNombres = b.CategoriasNombres,
@@ -352,6 +428,7 @@ namespace WindowsForms
                 }).ToList() ?? new List<BestiaVM>();
 
                 AplicarFiltros();
+                await CargarFotosAsync(_todasBestias);
             }
             catch (Exception ex)
             {
@@ -412,6 +489,9 @@ namespace WindowsForms
                 Nombre = vm.Nombre,
                 Peligrosidad = vm.Peligrosidad,
                 Estado = vm.Estado,
+                IdHabitat = vm.IdHabitat,
+                HabitatNombre = vm.HabitatNombre,
+                ImagenUrl = vm.ImagenUrl,
                 CategoriasIds = vm.CategoriasIds,
                 CategoriasNombres = vm.CategoriasNombres
             };
@@ -423,6 +503,7 @@ namespace WindowsForms
             actualizarButton.Enabled = false;
             eliminarButton.Enabled = false;
             verRegistrosButton.Enabled = false;
+            _verPendientesButton.Enabled = false;
             bestiasDataGridView.Enabled = false;
         }
 
@@ -432,6 +513,8 @@ namespace WindowsForms
             agregarButton.Visible = esInvestigador;
             actualizarButton.Visible = esInvestigador;
             eliminarButton.Visible = esInvestigador;
+            _verPendientesButton.Visible = esInvestigador;
+            _verPendientesButton.Enabled = esInvestigador;
             agregarButton.Enabled = esInvestigador;
             bestiasDataGridView.Enabled = true;
             if (bestiasDataGridView.Rows.Count > 0)
@@ -442,8 +525,59 @@ namespace WindowsForms
             }
         }
 
+        private async Task CargarFotosAsync(List<BestiaVM> items)
+        {
+            var urls = items
+                .Select(i => i.ImagenUrl)
+                .Where(u => !string.IsNullOrWhiteSpace(u))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (!urls.Any()) return;
+
+            var cache = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+            var tasks = urls.Select(async url =>
+            {
+                try
+                {
+                    var bytes = await _httpClient.GetByteArrayAsync(url);
+                    lock (cache)
+                    {
+                        cache[url!] = bytes;
+                    }
+                }
+                catch
+                {
+                    // Si falla la descarga de una imagen, se deja null
+                }
+            });
+
+            await Task.WhenAll(tasks);
+
+            if (IsDisposed) return;
+
+            foreach (var item in items)
+            {
+                if (!string.IsNullOrWhiteSpace(item.ImagenUrl) && cache.TryGetValue(item.ImagenUrl, out var bytes))
+                {
+                    try
+                    {
+                        using var ms = new MemoryStream(bytes);
+                        using var img = Image.FromStream(ms);
+                        item.Foto = new Bitmap(img);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            bestiasDataGridView.Refresh();
+        }
+
         private class BestiaVM : BestiaDTO
         {
+            public Image? Foto { get; set; }
             public string CategoriasTexto { get; set; } = string.Empty;
             public string HabitatTexto { get; set; } = string.Empty;
         }

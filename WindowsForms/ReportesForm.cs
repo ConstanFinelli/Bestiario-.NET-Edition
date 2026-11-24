@@ -59,6 +59,22 @@ namespace WindowsForms
                 _tabControl.SelectedIndex = initialTabIndex;
             }
 
+            var bottomBar = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 38,
+                Padding = new Padding(8, 5, 8, 5)
+            };
+            var volverBtn = new Button
+            {
+                Width = 92,
+                Height = 28,
+                Dock = DockStyle.Left
+            };
+            ThemeHelper.StyleBackButton(volverBtn);
+            volverBtn.Click += (_, _) => Close();
+            bottomBar.Controls.Add(volverBtn);
+
             var mainPanel = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -67,6 +83,7 @@ namespace WindowsForms
             mainPanel.Controls.Add(_tabControl);
 
             this.Controls.Add(mainPanel);
+            this.Controls.Add(bottomBar);
         }
 
         protected override void Dispose(bool disposing)

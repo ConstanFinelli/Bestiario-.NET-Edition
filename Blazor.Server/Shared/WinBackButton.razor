@@ -1,0 +1,28 @@
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<button type="button" class="win-btn win-btn-back" @onclick="VolverAtras" title="Volver">
+    &lt;- Volver
+</button>
+
+@code {
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private async Task VolverAtras()
+    {
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync();
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("eval", "window.history.length > 1 ? window.history.back() : window.location.assign('/')");
+        }
+        catch
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}

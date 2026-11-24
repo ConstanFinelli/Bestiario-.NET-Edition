@@ -95,10 +95,9 @@ namespace WindowsForms
             paso1VolverButton = new Button
             {
                 Location = new Point(70, 125),
-                Size = new Size(125, 28),
-                Text = "Volver",
-                UseVisualStyleBackColor = true
+                Size = new Size(125, 28)
             };
+            ThemeHelper.StyleBackButton(paso1VolverButton);
             paso1VolverButton.Click += (_, _) =>
             {
                 DialogResult = DialogResult.Cancel;
@@ -214,10 +213,9 @@ namespace WindowsForms
             paso2VolverButton = new Button
             {
                 Location = new Point(70, 198),
-                Size = new Size(115, 28),
-                Text = "Volver",
-                UseVisualStyleBackColor = true
+                Size = new Size(115, 28)
             };
+            ThemeHelper.StyleBackButton(paso2VolverButton);
             paso2VolverButton.Click += (_, _) => MostrarPaso1();
 
             restablecerButton = new Button

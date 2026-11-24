@@ -54,7 +54,7 @@ namespace WebAPI
                 }
             })
             .WithName("AddBestia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces<BestiaDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -76,7 +76,7 @@ namespace WebAPI
                 }
             })
             .WithName("UpdateBestia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
@@ -92,7 +92,7 @@ namespace WebAPI
                 return Results.NoContent();
             })
             .WithName("DeleteBestia")
-            .RequireAuthorization()
+            .RequireAuthorization(policy => policy.RequireRole("Investigador"))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)

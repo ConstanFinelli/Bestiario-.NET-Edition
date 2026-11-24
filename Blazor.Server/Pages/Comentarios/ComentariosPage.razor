@@ -4,9 +4,14 @@
 
 <PageTitle>Comentarios</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form win-form-md">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span class="oi oi-comment-square text-primary"></span>
             <span>Comentarios de Bestias</span>
         </div>
@@ -17,34 +22,32 @@
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
 
         <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light border">
             <label class="win-label fw-bold mb-0">Filtrar por Bestia:</label>
-            <select class="win-textbox" style="min-width: 250px;" @onchange="OnBestiaSeleccionadaCambiada">
-                <option value="">-- Todas las Bestias --</option>
-                @foreach (var b in bestias)
-                {
-                    <option value="@b.Id" selected="@(selectedFiltroBestiaId == b.Id)">@b.Nombre (@b.Peligrosidad)</option>
-                }
-            </select>
+            <div class="win-filter-select-lg">
+                <SearchableSelect TValue="Guid?" Value="@selectedFiltroBestiaId" ValueChanged="OnBestiaFiltroSelected"
+                                  Options="@(new[] { new SelectOption<Guid?>(null, "-- Todas las Bestias --") }.Concat(bestias.Select(b => new SelectOption<Guid?>(b.Id, $"{b.Nombre} ({b.Peligrosidad})"))))"
+                                  CssClass="win-textbox w-100" />
+            </div>
             @if (selectedFiltroBestiaId.HasValue)
             {
-                <button class="win-btn" style="height: 22px; font-size: 11px;" @onclick="LimpiarFiltro">Quitar Filtro</button>
+                <button class="win-btn win-btn-md" @onclick="LimpiarFiltro">Quitar Filtro</button>
             }
         </div>
 
-        <div class="win-grid-container" style="height: 260px;">
+        <div class="win-grid-container win-grid-h260">
             <table class="win-grid">
                 <thead>
                     <tr>
                         <th class="win-grid-row-header-th"></th>
-                        <th style="width: 150px;">Bestia</th>
-                        <th style="width: 140px;">Fecha</th>
-                        <th style="width: 170px;">Autor</th>
+                        <th class="win-col-w150">Bestia</th>
+                        <th class="win-col-w140">Fecha</th>
+                        <th class="win-col-w170">Autor</th>
                         <th>Contenido</th>
                     </tr>
                 </thead>
@@ -68,9 +71,9 @@
                                 @ondblclick="AbrirModalActualizar">
                                 <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
                                 <td><strong>@nombreBestia</strong></td>
-                                <td style="font-size: 11px;">@c.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td style="font-size: 11px;">@(c.CorreoUsuario ?? "-")</td>
-                                <td style="font-size: 11px;">@c.Contenido</td>
+                                <td class="win-text-sm">@c.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="win-text-sm">@(c.CorreoUsuario ?? "-")</td>
+                                <td class="win-text-sm">@c.Contenido</td>
                             </tr>
                         }
                     }
@@ -79,6 +82,9 @@
         </div>
 
         <div class="win-btn-action-bar">
+            <div class="me-auto">
+                <WinBackButton />
+            </div>
             @if (Auth.EsInvestigador)
             {
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedComentario == null || isLoading)">Eliminar</button>
@@ -182,9 +188,9 @@
         }
     }
 
-    private void OnBestiaSeleccionadaCambiada(ChangeEventArgs e)
+    private void OnBestiaFiltroSelected(Guid? id)
     {
-        selectedFiltroBestiaId = Guid.TryParse(e.Value?.ToString(), out Guid id) ? id : null;
+        selectedFiltroBestiaId = id;
         AplicarFiltro();
     }
 

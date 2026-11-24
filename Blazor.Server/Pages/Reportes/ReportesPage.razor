@@ -8,7 +8,12 @@
 
 <div class="win-form win-form-lg">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span class="oi oi-bar-chart text-primary"></span>
             <span>Reportes del Bestiario (ADO.NET)</span>
         </div>
@@ -31,7 +36,7 @@
             </div>
             @if (!Auth.IsAuthenticated)
             {
-                <button class="win-btn" @onclick="@(() => Navigation.NavigateTo("/login"))">Iniciar Sesión</button>
+                <button class="win-btn" @onclick="@(() => Navigation.NavigateTo("/login"))">Iniciar sesión</button>
             }
         }
         else
@@ -91,7 +96,7 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <div class="border bg-white p-2 h-100">
-                                <div class="fw-bold mb-2" style="font-size: 12px;">Bestias por Peligrosidad (Aprobadas vs Pendientes)</div>
+                                <div class="fw-bold mb-2 win-text-md">Bestias por Peligrosidad (Aprobadas vs Pendientes)</div>
                                 @if (!estadisticas.PorPeligrosidad.Any())
                                 {
                                     <div class="text-muted text-center py-4">Sin datos de peligrosidad.</div>
@@ -109,7 +114,7 @@
                                     double slotW = (double)chartW / count;
                                     double barW = Math.Min(48, slotW * 0.55);
 
-                                    <svg viewBox="0 0 @svgW @svgH" class="w-100" style="max-height: 220px;">
+                                    <svg viewBox="0 0 @svgW @svgH" class="w-100 report-svg">
                                         @for (int g = 0; g <= 4; g++)
                                         {
                                             double yLine = chartTop + chartH - (chartH * g / 4.0);
@@ -141,9 +146,9 @@
                                             @((MarkupString)$"<text x=\"{F(labelX)}\" y=\"{chartTop + chartH + 16}\" text-anchor=\"middle\" font-size=\"10\" fill=\"#333\">{System.Net.WebUtility.HtmlEncode(item.Peligrosidad)}</text>")
                                         }
                                     </svg>
-                                    <div class="d-flex justify-content-center gap-3 mt-1" style="font-size: 10px;">
-                                        <span><span style="display:inline-block;width:10px;height:10px;background:#198754;"></span> Aprobadas</span>
-                                        <span><span style="display:inline-block;width:10px;height:10px;background:#ffc107;"></span> Pendientes</span>
+                                    <div class="d-flex justify-content-center gap-3 mt-1 win-text-xs">
+                                        <span><span class="report-legend-dot report-legend-approved"></span> Aprobadas</span>
+                                        <span><span class="report-legend-dot report-legend-pending"></span> Pendientes</span>
                                     </div>
                                 }
                             </div>
@@ -151,7 +156,7 @@
 
                         <div class="col-md-6">
                             <div class="border bg-white p-2 h-100">
-                                <div class="fw-bold mb-2" style="font-size: 12px;">Bestias por Categoría</div>
+                                <div class="fw-bold mb-2 win-text-md">Bestias por Categoría</div>
                                 @if (!estadisticas.PorCategoria.Any())
                                 {
                                     <div class="text-muted text-center py-4">Sin datos de categorías.</div>
@@ -165,7 +170,7 @@
                                     int labelW = 105;
                                     int barMaxW = 270;
 
-                                    <svg viewBox="0 0 430 @svgH" class="w-100" style="max-height: 220px;">
+                                    <svg viewBox="0 0 430 @svgH" class="w-100 report-svg">
                                         @for (int i = 0; i < count; i++)
                                         {
                                             var c = estadisticas.PorCategoria[i];
@@ -187,9 +192,9 @@
                                             @((MarkupString)$"<text x=\"{F(xEnd + 6)}\" y=\"{y + 13}\" font-size=\"11\" font-weight=\"bold\" fill=\"#222\">{c.CantidadBestias}</text>")
                                         }
                                     </svg>
-                                    <div class="d-flex justify-content-center gap-3 mt-1" style="font-size: 10px;">
-                                        <span><span style="display:inline-block;width:10px;height:10px;background:#0d6efd;"></span> Aprobadas</span>
-                                        <span><span style="display:inline-block;width:10px;height:10px;background:#ffc107;"></span> Pendientes</span>
+                                    <div class="d-flex justify-content-center gap-3 mt-1 win-text-xs">
+                                        <span><span class="report-legend-dot report-legend-primary"></span> Aprobadas</span>
+                                        <span><span class="report-legend-dot report-legend-pending"></span> Pendientes</span>
                                     </div>
                                 }
                             </div>
@@ -198,15 +203,15 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <div class="fw-bold mb-1" style="font-size: 11px;">Tabla Resumen por Categoría</div>
-                            <div class="win-grid-container" style="height: 155px;">
+                            <div class="fw-bold mb-1 win-text-sm">Tabla Resumen por Categoría</div>
+                            <div class="win-grid-container win-grid-h155">
                                 <table class="win-grid">
                                     <thead>
                                         <tr>
                                             <th>Categoría</th>
-                                            <th style="width: 75px; text-align: center;">Total</th>
-                                            <th style="width: 85px; text-align: center;">Aprobadas</th>
-                                            <th style="width: 85px; text-align: center;">Pendientes</th>
+                                            <th class="win-col-w75 text-center">Total</th>
+                                            <th class="win-col-w85 text-center">Aprobadas</th>
+                                            <th class="win-col-w85 text-center">Pendientes</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -214,9 +219,9 @@
                                         {
                                             <tr>
                                                 <td><strong>@c.Categoria</strong></td>
-                                                <td style="text-align: center;">@c.CantidadBestias</td>
-                                                <td style="text-align: center;">@c.Aprobadas</td>
-                                                <td style="text-align: center;">@c.Pendientes</td>
+                                                <td class="text-center">@c.CantidadBestias</td>
+                                                <td class="text-center">@c.Aprobadas</td>
+                                                <td class="text-center">@c.Pendientes</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -224,15 +229,15 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="fw-bold mb-1" style="font-size: 11px;">Tabla Resumen por Peligrosidad</div>
-                            <div class="win-grid-container" style="height: 155px;">
+                            <div class="fw-bold mb-1 win-text-sm">Tabla Resumen por Peligrosidad</div>
+                            <div class="win-grid-container win-grid-h155">
                                 <table class="win-grid">
                                     <thead>
                                         <tr>
                                             <th>Peligrosidad</th>
-                                            <th style="width: 75px; text-align: center;">Total</th>
-                                            <th style="width: 85px; text-align: center;">Aprobadas</th>
-                                            <th style="width: 85px; text-align: center;">Pendientes</th>
+                                            <th class="win-col-w75 text-center">Total</th>
+                                            <th class="win-col-w85 text-center">Aprobadas</th>
+                                            <th class="win-col-w85 text-center">Pendientes</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -240,9 +245,9 @@
                                         {
                                             <tr>
                                                 <td><strong>@p.Peligrosidad</strong></td>
-                                                <td style="text-align: center;">@p.Cantidad</td>
-                                                <td style="text-align: center;">@p.Aprobadas</td>
-                                                <td style="text-align: center;">@p.Pendientes</td>
+                                                <td class="text-center">@p.Cantidad</td>
+                                                <td class="text-center">@p.Aprobadas</td>
+                                                <td class="text-center">@p.Pendientes</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -257,21 +262,19 @@
                 <div class="d-flex flex-wrap align-items-end gap-2 mb-2 p-2 bg-light border">
                     <div>
                         <label class="win-label d-block mb-0">Bestia:</label>
-                        <select class="win-textbox" style="min-width: 170px;" @bind="filtroIdBestia">
-                            <option value="">-- Todas --</option>
-                            @foreach (var b in bestias)
-                            {
-                                <option value="@b.Id">@b.Nombre</option>
-                            }
-                        </select>
+                        <div class="win-filter-select-170">
+                            <SearchableSelect TValue="string" @bind-Value="filtroIdBestia"
+                                              Options="@(new[] { new SelectOption<string>(string.Empty, "-- Todas --") }.Concat(bestias.Select(b => new SelectOption<string>(b.Id.ToString(), b.Nombre))))"
+                                              CssClass="win-textbox w-100" />
+                        </div>
                     </div>
                     <div>
                         <label class="win-label d-block mb-0">Estado:</label>
-                        <select class="win-textbox" style="min-width: 120px;" @bind="filtroEstadoRegistro">
-                            <option value="">-- Todos --</option>
-                            <option value="aprobado">aprobado</option>
-                            <option value="pendiente">pendiente</option>
-                        </select>
+                        <div class="win-filter-select-120">
+                            <SearchableSelect TValue="string" @bind-Value="filtroEstadoRegistro"
+                                              Options="@(new[] { new SelectOption<string>(string.Empty, "-- Todos --"), new SelectOption<string>("aprobado", "aprobado"), new SelectOption<string>("pendiente", "pendiente") })"
+                                              CssClass="win-textbox w-100" />
+                        </div>
                     </div>
                     <div>
                         <label class="win-label d-block mb-0">Aprobados Desde:</label>
@@ -287,19 +290,19 @@
                     </div>
                 </div>
 
-                <div class="win-grid-container" style="height: 290px;">
+                <div class="win-grid-container win-grid-h290">
                     <table class="win-grid">
                         <thead>
                             <tr>
                                 <th>Bestia</th>
-                                <th style="width: 85px;">Peligrosidad</th>
-                                <th style="width: 125px;">Hábitat</th>
-                                <th style="width: 55px; text-align: center;">Nro</th>
-                                <th style="width: 80px; text-align: center;">Estado</th>
-                                <th style="width: 115px;">Aprobación</th>
-                                <th style="width: 140px;">Publicador</th>
-                                <th style="width: 115px;">Aprobador</th>
-                                <th style="width: 65px; text-align: center;">Secciones</th>
+                                <th class="win-col-w85">Peligrosidad</th>
+                                <th class="win-col-w125">Hábitat</th>
+                                <th class="win-col-w55 text-center">Nro</th>
+                                <th class="win-col-w80 text-center">Estado</th>
+                                <th class="win-col-w115">Aprobación</th>
+                                <th class="win-col-w140">Publicador</th>
+                                <th class="win-col-w115">Aprobador</th>
+                                <th class="win-col-w65 text-center">Secciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -320,8 +323,8 @@
                                     {
                                         bestiaActual = r.BestiaNombre;
                                         int subtotalBestia = registrosReporte.Count(x => x.IdBestia == r.IdBestia);
-                                        <tr style="background-color: #eef3fb; font-weight: bold;">
-                                            <td colspan="9" style="font-size: 11px;">
+                                        <tr class="report-group-row">
+                                            <td colspan="9" class="win-text-sm">
                                                 ▶ @r.BestiaNombre (@r.Peligrosidad) — Hábitat: @r.HabitatNombre — @subtotalBestia registro(s)
                                             </td>
                                         </tr>
@@ -329,15 +332,15 @@
                                     <tr>
                                         <td>@r.BestiaNombre</td>
                                         <td>@r.Peligrosidad</td>
-                                        <td style="font-size: 11px;">@r.HabitatNombre</td>
-                                        <td style="text-align: center; font-weight: bold;">@r.NroRegistro</td>
-                                        <td style="text-align: center;">
-                                            <span class="badge @(r.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark")" style="font-size: 10px;">@r.Estado</span>
+                                        <td class="win-text-sm">@r.HabitatNombre</td>
+                                        <td class="text-center fw-bold">@r.NroRegistro</td>
+                                        <td class="text-center">
+                                            <span class="badge @(r.Estado == "aprobado" ? "bg-success" : "bg-warning text-dark") win-badge-sm">@r.Estado</span>
                                         </td>
-                                        <td style="font-size: 11px;">@(r.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
-                                        <td style="font-size: 11px;">@r.PublicadorCorreo</td>
-                                        <td style="font-size: 11px;">@r.AprobadorNombre</td>
-                                        <td style="text-align: center;">@r.CantidadContenidos</td>
+                                        <td class="win-text-sm">@(r.FechaAprobacion?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                        <td class="win-text-sm">@r.PublicadorCorreo</td>
+                                        <td class="win-text-sm">@r.AprobadorNombre</td>
+                                        <td class="text-center">@r.CantidadContenidos</td>
                                     </tr>
                                 }
                             }
@@ -345,12 +348,17 @@
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-between mt-2 p-2 bg-light border" style="font-size: 11px;">
+                <div class="d-flex justify-content-between mt-2 p-2 bg-light border win-text-sm">
                     <span><strong>Total de registros mostrados:</strong> @registrosReporte.Count</span>
                     <span><strong>Total de secciones de contenido:</strong> @registrosReporte.Sum(r => r.CantidadContenidos)</span>
                 </div>
             }
         }
+        <div class="win-btn-action-bar">
+            <div class="me-auto">
+                <WinBackButton />
+            </div>
+        </div>
     </div>
 
     <div class="win-statusbar">

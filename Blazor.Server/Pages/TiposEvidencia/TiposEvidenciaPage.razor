@@ -4,9 +4,14 @@
 
 <PageTitle>Tipos de Evidencia</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form win-form-md">
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span class="oi oi-tag text-primary"></span>
             <span>Tipos de Evidencia</span>
         </div>
@@ -17,18 +22,18 @@
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
 
-        <div class="win-grid-container" style="height: 250px;">
+        <div class="win-grid-container win-grid-h250">
             <table class="win-grid">
                 <thead>
                     <tr>
                         <th class="win-grid-row-header-th"></th>
-                        <th style="width: 140px;">Id</th>
-                        <th style="width: 280px;">Descripción</th>
+                        <th class="win-col-w140">Id</th>
+                        <th class="win-col-w280">Descripción</th>
                         <th>ResourceType</th>
                     </tr>
                 </thead>
@@ -50,9 +55,9 @@
                                 @onclick="() => SeleccionarFila(t)"
                                 @ondblclick="@(async () => { if (Auth.EsInvestigador) await AbrirModalActualizar(); })">
                                 <td class="win-grid-row-header">@(isSelected ? "▶" : "")</td>
-                                <td style="font-family: monospace; font-size: 10px;">@t.Id</td>
+                                <td class="win-mono-xs">@t.Id</td>
                                 <td>@t.Descripcion</td>
-                                <td><span class="badge bg-info text-dark" style="font-size: 10px;">@t.ResourceType</span></td>
+                                <td><span class="badge bg-info text-dark win-badge-sm">@t.ResourceType</span></td>
                             </tr>
                         }
                     }
@@ -60,14 +65,17 @@
             </table>
         </div>
 
-        @if (Auth.EsInvestigador)
-        {
-            <div class="win-btn-action-bar">
+        <div class="win-btn-action-bar">
+            <div class="me-auto">
+                <WinBackButton />
+            </div>
+            @if (Auth.EsInvestigador)
+            {
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedTipo == null || isLoading)">Eliminar</button>
                 <button class="win-btn" @onclick="AbrirModalActualizar" disabled="@(selectedTipo == null || isLoading)">Actualizar</button>
                 <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">Agregar</button>
-            </div>
-        }
+            }
+        </div>
     </div>
 
     <div class="win-statusbar">

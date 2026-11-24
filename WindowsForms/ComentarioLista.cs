@@ -174,8 +174,8 @@ namespace WindowsForms
                 IdUsuario = LoginForm.UsuarioLogueado?.Id ?? Guid.Empty
             };
 
-            ComentarioDetalle detalle = new ComentarioDetalle(FormMode.Add, nuevo, bestias);
-            detalle.ShowDialog();
+            using var detalle = new ComentarioDetalle(FormMode.Add, nuevo, bestias);
+            ThemeHelper.ShowSingleWindow(this, detalle);
             await CargarComentarios();
         }
 
@@ -190,8 +190,8 @@ namespace WindowsForms
                 var fresco = await ComentarioApiClient.GetAsync(vm.Id);
                 if (fresco != null)
                 {
-                    ComentarioDetalle detalle = new ComentarioDetalle(FormMode.Update, fresco, bestias);
-                    detalle.ShowDialog();
+                    using var detalle = new ComentarioDetalle(FormMode.Update, fresco, bestias);
+                    ThemeHelper.ShowSingleWindow(this, detalle);
                     await CargarComentarios();
                 }
             }

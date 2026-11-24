@@ -4,11 +4,15 @@
 
 <PageTitle>Categorias</PageTitle>
 
-<div class="win-form" style="width: 940px; max-width: 96vw;">
+<div class="win-form win-form-md">
     <!-- Barra de Título Windows -->
     <div class="win-titlebar">
-        <div class="d-flex align-items-center gap-1">
-            <span class="oi oi-window text-primary"></span>
+        <div class="d-flex align-items-center gap-2">
+            <NavLink href="/" class="win-titlebar-link">
+                <span class="oi oi-window text-primary"></span>
+                <span>Bestiario-NET</span>
+            </NavLink>
+            <span class="opacity-75">|</span>
             <span>Categorias</span>
         </div>
     </div>
@@ -20,19 +24,19 @@
     <div class="win-form-content">
         @if (!string.IsNullOrEmpty(feedbackMessage))
         {
-            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2")" style="font-size: 11px;">
+            <div class="@(isFeedbackError ? "win-error-msg" : "alert alert-success py-1 mb-2") win-alert">
                 @feedbackMessage
             </div>
         }
 
         <!-- Grilla DataGridView -->
-        <div class="win-grid-container" style="height: 250px;">
+        <div class="win-grid-container win-grid-h250">
             <table class="win-grid">
                 <thead>
                     <tr>
                         <th class="win-grid-row-header-th"></th>
-                        <th style="width: 120px;">Id</th>
-                        <th style="width: 200px;">Nombre</th>
+                        <th class="win-col-w120">Id</th>
+                        <th class="win-col-w200">Nombre</th>
                         <th>Descripcion</th>
                     </tr>
                 </thead>
@@ -74,10 +78,12 @@
             </table>
         </div>
 
-        @if (Auth.EsInvestigador)
-        {
-            <!-- Botones de Acción (Alineados abajo a la derecha, idéntico a Windows Forms) -->
-            <div class="win-btn-action-bar">
+        <div class="win-btn-action-bar">
+            <div class="me-auto">
+                <WinBackButton />
+            </div>
+            @if (Auth.EsInvestigador)
+            {
                 <button class="win-btn" @onclick="AbrirModalEliminar" disabled="@(selectedCategoria == null || isLoading)">
                     Eliminar
                 </button>
@@ -87,8 +93,8 @@
                 <button class="win-btn" @onclick="AbrirModalAgregar" disabled="@isLoading">
                     Agregar
                 </button>
-            </div>
-        }
+            }
+        </div>
     </div>
 
     <!-- Barra de Estado Inferior -->
