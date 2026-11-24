@@ -64,7 +64,6 @@ namespace WindowsForms
             bool estaAprobado = _registro.Estado != null
                 && _registro.Estado.Equals("aprobado", StringComparison.OrdinalIgnoreCase);
 
-            // Barra inferior de botones
             var bottomPanel = new Panel
             {
                 Dock = DockStyle.Bottom,
@@ -231,7 +230,6 @@ namespace WindowsForms
                 bottomPanel.Controls.Add(proponerBtn);
             }
 
-            // Encabezado con nombre de la bestia
             var headerLabel = new Label
             {
                 Text = _bestia?.Nombre ?? "Bestia",
@@ -243,7 +241,6 @@ namespace WindowsForms
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
-            // Barra de consulta histórica por fecha
             var fechaPanel = new FlowLayoutPanel
             {
                 Dock = DockStyle.Top,
@@ -306,7 +303,6 @@ namespace WindowsForms
             fechaPanel.Controls.Add(fechaPicker);
             fechaPanel.Controls.Add(cargarFechaBtn);
 
-            // Contenedor central (2 columnas)
             var mainTable = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -318,7 +314,6 @@ namespace WindowsForms
             mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36F));
             mainTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
-            // Columna izquierda: secciones de contenido
             var leftPanel = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -377,7 +372,6 @@ namespace WindowsForms
                 leftPanel.Controls.Add(flow);
             }
 
-            // Columna derecha: tarjeta de detalles
             var rightCard = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -449,7 +443,6 @@ namespace WindowsForms
             mainTable.Controls.Add(leftPanel, 0, 0);
             mainTable.Controls.Add(rightCard, 1, 0);
 
-            // Panel inferior de evidencias (tarjetas con vista previa scrolleable como en Web)
             var evidenciasPanel = new Panel
             {
                 Dock = DockStyle.Bottom,

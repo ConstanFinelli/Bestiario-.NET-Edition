@@ -548,7 +548,6 @@ namespace WindowsForms
                 }
                 catch
                 {
-                    // Si falla la descarga de una imagen, se deja null
                 }
             });
 

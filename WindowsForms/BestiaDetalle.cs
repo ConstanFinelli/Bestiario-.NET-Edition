@@ -179,7 +179,6 @@ namespace WindowsForms
                 }
             }
 
-            // Marcar categorías asignadas
             categoriasSeleccionadasIds.Clear();
             foreach (var catId in this.Bestia.CategoriasIds)
             {
@@ -197,8 +196,8 @@ namespace WindowsForms
                 idLabel.Visible = false;
                 idTextBox.Visible = false;
                 this.Text = "Agregar Bestia";
-                this.peligrosidadComboBox.SelectedIndex = 1; // Media
-                this.estadoComboBox.SelectedIndex = 0; // pendiente
+                this.peligrosidadComboBox.SelectedIndex = 1;
+                this.estadoComboBox.SelectedIndex = 0;
             }
 
             if (Mode == FormMode.Update)
@@ -222,7 +221,6 @@ namespace WindowsForms
                     this.Bestia.Estado = estadoComboBox.SelectedItem?.ToString() ?? "pendiente";
                     this.Bestia.IdHabitat = (habitatComboBox.SelectedItem as HabitatComboItem)?.Id;
 
-                    // Extraer categorías seleccionadas (incluyendo las no visibles por filtro)
                     this.Bestia.CategoriasIds.Clear();
                     foreach (var catId in categoriasSeleccionadasIds)
                     {

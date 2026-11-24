@@ -273,7 +273,6 @@ namespace WindowsForms
                 _cardPanels[noticia.Id] = card;
             }
 
-            // Equalize height per row of 3 cards so rows align cleanly while showing full content
             for (int i = 0; i < cards.Count; i += columns)
             {
                 int rowCount = Math.Min(columns, cards.Count - i);
