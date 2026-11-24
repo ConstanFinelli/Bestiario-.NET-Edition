@@ -606,12 +606,12 @@
                                         <input type="text" class="win-textbox w-100" placeholder="Título de la sección..." 
                                                @bind="nuevoTitulo" disabled="@isSaving" maxlength="100" />
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col">
                                         <input type="text" class="win-textbox w-100" placeholder="Contenido o descripción..." 
                                                @bind="nuevoContenido" disabled="@isSaving" />
                                     </div>
-                                    <div class="col-2 text-end">
-                                        <button type="button" class="win-btn w-100 win-btn-row" 
+                                    <div class="col-auto text-end">
+                                        <button type="button" class="win-btn win-btn-row" 
                                                 @onclick="AgregarContenido" disabled="@isSaving">
                                             + Agregar Sección
                                         </button>

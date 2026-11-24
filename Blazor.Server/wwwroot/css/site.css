@@ -505,7 +505,7 @@ html, body {
 }
 
 .win-btn-2xs { height: 19px; font-size: 10px; padding: 0 5px; }
-.win-btn-row { height: 24px; font-size: 11px; }
+.win-btn-row { height: 24px; font-size: 11px; white-space: nowrap; }
 .win-btn-del-xs { font-size: 10px; }
 
 .win-text-md { font-size: 12px; }

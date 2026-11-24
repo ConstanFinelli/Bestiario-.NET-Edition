@@ -44,17 +44,16 @@
                             <th class="win-col-w110">Tipo</th>
                             <th class="win-col-w190">Nombre y Apellido</th>
                             <th class="win-col-w110">DNI</th>
-                            <th class="text-center">Notificaciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (isLoading)
                         {
-                            <tr><td colspan="6" class="text-center py-4 text-muted">Cargando usuarios...</td></tr>
+                            <tr><td colspan="5" class="text-center py-4 text-muted">Cargando usuarios...</td></tr>
                         }
                         else if (usuarios == null || !usuarios.Any())
                         {
-                            <tr><td colspan="6" class="text-center py-4 text-muted">No hay usuarios registrados.</td></tr>
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No hay usuarios registrados.</td></tr>
                         }
                         else
                         {
@@ -74,7 +73,6 @@
                                     </td>
                                     <td>@(inv != null ? $"{inv.Nombre} {inv.Apellido}" : "-")</td>
                                     <td>@(inv != null ? inv.Dni : "-")</td>
-                                    <td class="text-center">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
                                 </tr>
                             }
                         }
@@ -199,7 +197,6 @@
                     {
                         Id = inv.Id,
                         Correo = inv.Correo,
-                        RecibirNotificaciones = inv.RecibirNotificaciones,
                         Dni = inv.Dni,
                         Nombre = inv.Nombre,
                         Apellido = inv.Apellido
@@ -210,8 +207,7 @@
                     usuarioParaEditar = new LectorDTO
                     {
                         Id = fresco.Id,
-                        Correo = fresco.Correo,
-                        RecibirNotificaciones = fresco.RecibirNotificaciones
+                        Correo = fresco.Correo
                     };
                 }
                 modalMode = FormMode.Update;

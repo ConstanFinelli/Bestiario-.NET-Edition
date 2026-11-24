@@ -81,16 +81,6 @@
                     </div>
                 }
 
-                <div class="row align-items-center mb-3">
-                    <div class="col-4"></div>
-                    <div class="col-8">
-                        <label class="win-check-label">
-                            <input type="checkbox" class="win-check-input" @bind="recibirNotificaciones" disabled="@isSaving" />
-                            Recibir notificaciones
-                        </label>
-                    </div>
-                </div>
-
                 <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
                     <button type="button" class="win-btn" @onclick="Save" disabled="@isSaving">
                         @(isSaving ? "Guardando..." : "Aceptar")
@@ -118,7 +108,6 @@
     private string dni = string.Empty;
     private string nombre = string.Empty;
     private string apellido = string.Empty;
-    private bool recibirNotificaciones = true;
 
     private bool isSaving = false;
     private string? errorMessage;
@@ -136,7 +125,6 @@
             dni = inv.Dni;
             nombre = inv.Nombre;
             apellido = inv.Apellido;
-            recibirNotificaciones = inv.RecibirNotificaciones;
         }
         else if (Usuario != null)
         {
@@ -145,7 +133,6 @@
             dni = string.Empty;
             nombre = string.Empty;
             apellido = string.Empty;
-            recibirNotificaciones = Usuario.RecibirNotificaciones;
         }
         contrasenia = string.Empty;
     }
@@ -189,7 +176,6 @@
                     Id = Mode == FormMode.Update ? Usuario.Id : Guid.Empty,
                     Correo = correo.Trim(),
                     Contrasenia = string.IsNullOrWhiteSpace(contrasenia) ? null : contrasenia,
-                    RecibirNotificaciones = recibirNotificaciones,
                     Dni = dni.Trim(),
                     Nombre = nombre.Trim(),
                     Apellido = apellido.Trim()
@@ -206,8 +192,7 @@
                 {
                     Id = Mode == FormMode.Update ? Usuario.Id : Guid.Empty,
                     Correo = correo.Trim(),
-                    Contrasenia = string.IsNullOrWhiteSpace(contrasenia) ? null : contrasenia,
-                    RecibirNotificaciones = recibirNotificaciones
+                    Contrasenia = string.IsNullOrWhiteSpace(contrasenia) ? null : contrasenia
                 };
 
                 if (Mode == FormMode.Add)

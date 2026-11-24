@@ -118,13 +118,12 @@ namespace Blazor.Server.Services
             return false;
         }
 
-        public async Task<bool> RegistrarLectorAsync(string correo, string contrasenia, bool recibirNotificaciones = true)
+        public async Task<bool> RegistrarLectorAsync(string correo, string contrasenia)
         {
             var lectorDto = new LectorDTO
             {
                 Correo = correo,
-                Contrasenia = contrasenia,
-                RecibirNotificaciones = recibirNotificaciones
+                Contrasenia = contrasenia
             };
 
             var created = await UsuarioApiClient.AddLectorAsync(lectorDto);

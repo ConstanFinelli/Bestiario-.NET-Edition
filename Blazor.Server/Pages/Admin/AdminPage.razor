@@ -295,7 +295,6 @@
                                 <thead>
                                     <tr>
                                         <th>Correo (ID)</th>
-                                        <th class="win-col-w120">Notificaciones</th>
                                         <th class="win-col-w90">Acción</th>
                                     </tr>
                                 </thead>
@@ -304,7 +303,6 @@
                                     {
                                         <tr>
                                             <td><strong>@u.Correo</strong> <span class="text-muted win-text-xs">(ID: @u.Id.ToString().Substring(0, 8)...)</span></td>
-                                            <td class="win-text-sm">@(u.RecibirNotificaciones ? "Sí" : "No")</td>
                                             <td>
                                                 <button class="win-btn text-danger win-btn-xs"
                                                         @onclick="@(() => SolicitarEliminar("usuario", u.Id, u.Correo))">
@@ -329,10 +327,6 @@
                                         <label class="win-label">Contraseña:</label>
                                         <input type="password" class="win-textbox w-100" @bind="lecNuevoPass" maxlength="100" />
                                     </div>
-                                    <div class="mb-2 form-check">
-                                        <input type="checkbox" class="form-check-input" id="chkLecNuevoNotif" @bind="lecNuevoNotif" />
-                                        <label class="form-check-label" for="chkLecNuevoNotif">Recibir notificaciones</label>
-                                    </div>
                                     <button class="win-btn" @onclick="CrearLectorAsync" disabled="@isLoading">Crear</button>
                                 </fieldset>
                             </div>
@@ -351,10 +345,6 @@
                                     <div class="mb-2">
                                         <label class="win-label">Nueva contraseña (opcional):</label>
                                         <input type="password" class="win-textbox w-100" @bind="lecEditPass" maxlength="100" />
-                                    </div>
-                                    <div class="mb-2 form-check">
-                                        <input type="checkbox" class="form-check-input" id="chkLecEditNotif" @bind="lecEditNotif" />
-                                        <label class="form-check-label" for="chkLecEditNotif">Recibir notificaciones</label>
                                     </div>
                                     <button class="win-btn" @onclick="ActualizarLectorAsync" disabled="@isLoading">Actualizar</button>
                                 </fieldset>
@@ -485,11 +475,9 @@
     // Lectores forms
     private string lecNuevoCorreo = string.Empty;
     private string lecNuevoPass = string.Empty;
-    private bool lecNuevoNotif = true;
     private string lecEditId = string.Empty;
     private string lecEditCorreo = string.Empty;
     private string lecEditPass = string.Empty;
-    private bool lecEditNotif = true;
 
     // Tipos Evidencia forms
     private string tipoNuevaDesc = string.Empty;
@@ -735,7 +723,6 @@
         {
             var l = lectores.FirstOrDefault(x => x.Id == id);
             lecEditCorreo = l?.Correo ?? string.Empty;
-            lecEditNotif = l?.RecibirNotificaciones ?? true;
             lecEditPass = string.Empty;
         }
     }
@@ -752,12 +739,10 @@
             await UsuarioApiClient.AddLectorAsync(new LectorDTO
             {
                 Correo = lecNuevoCorreo.Trim(),
-                Contrasenia = lecNuevoPass,
-                RecibirNotificaciones = lecNuevoNotif
+                Contrasenia = lecNuevoPass
             });
             lecNuevoCorreo = string.Empty;
             lecNuevoPass = string.Empty;
-            lecNuevoNotif = true;
         }, "Usuario lector creado sin modificar la sesión actual.");
     }
 
@@ -774,8 +759,7 @@
             {
                 Id = id,
                 Correo = lecEditCorreo.Trim(),
-                Contrasenia = string.IsNullOrWhiteSpace(lecEditPass) ? null : lecEditPass,
-                RecibirNotificaciones = lecEditNotif
+                Contrasenia = string.IsNullOrWhiteSpace(lecEditPass) ? null : lecEditPass
             });
             lecEditPass = string.Empty;
         }, "Lector actualizado correctamente.");
