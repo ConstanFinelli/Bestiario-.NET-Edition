@@ -52,7 +52,7 @@ namespace Data
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> GetNextNroRegistroAsync(Guid idBestia)
+        private async Task<int> GetNextNroRegistroAsync(Guid idBestia)
         {
             var max = await context.Registros
                 .Where(r => r.IdBestia == idBestia)

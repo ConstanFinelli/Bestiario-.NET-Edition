@@ -15,9 +15,18 @@ namespace WindowsForms
         private readonly BestiaDTO? _bestia;
         private readonly List<BestiaDTO> _bestias;
         private Label _evidenciasLabel = null!;
-        private FlowLayoutPanel _evidenciasCardsPanel = null!;
+        private Button _verEvidenciasBtn = null!;
+        private Panel? _evidenciasCardsPanel;
+        private Label? _evidenciasModalLabel;
+        private Label? _evidenciasPaginaLabel;
+        private Button? _evidenciasPrevBtn;
+        private Button? _evidenciasNextBtn;
         private Button? _proponerEvidenciaBtn;
+        private Button? _modalProponerEvidenciaBtn;
+        private Form? _evidenciasModalForm;
         private List<EvidenciaDTO> _evidenciasActuales = new();
+        private int _evidenciasPaginaActual = 1;
+        private const int EvidenciasPorPagina = 8;
         private Label _comentariosLabel = null!;
         private FlowLayoutPanel _comentariosCardsPanel = null!;
         private TextBox? _comentarioTextoBox;
@@ -446,14 +455,21 @@ namespace WindowsForms
             var evidenciasPanel = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 250,
+                Height = 54,
                 Padding = new Padding(16, 6, 16, 6)
+            };
+
+            var evidenciasDivider = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 1,
+                BackColor = Color.FromArgb(189, 182, 167)
             };
 
             var evidenciasHeader = new Panel
             {
-                Dock = DockStyle.Top,
-                Height = 28
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 4, 0, 0)
             };
 
             _evidenciasLabel = new Label
@@ -466,32 +482,47 @@ namespace WindowsForms
             };
             evidenciasHeader.Controls.Add(_evidenciasLabel);
 
+            var evidenciasButtonsFlow = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Right,
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Padding = new Padding(0, 3, 0, 0)
+            };
+
+            _verEvidenciasBtn = new Button
+            {
+                Text = "Ver evidencias",
+                AutoSize = false,
+                Size = new Size(135, 30),
+                TextAlign = ContentAlignment.MiddleCenter,
+                UseVisualStyleBackColor = true,
+                Margin = new Padding(0, 0, hayUsuario ? 8 : 0, 0)
+            };
+            _verEvidenciasBtn.Click += (_, _) => MostrarModalEvidencias();
+            evidenciasButtonsFlow.Controls.Add(_verEvidenciasBtn);
+
             if (hayUsuario)
             {
                 _proponerEvidenciaBtn = new Button
                 {
                     Text = "+ Proponer nueva evidencia",
-                    Width = 185,
-                    Height = 24,
-                    Dock = DockStyle.Right,
-                    UseVisualStyleBackColor = true
+                    AutoSize = true,
+                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                    MinimumSize = new Size(195, 30),
+                    Padding = new Padding(10, 2, 10, 2),
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    UseVisualStyleBackColor = true,
+                    Margin = new Padding(0)
                 };
-                _proponerEvidenciaBtn.Click += async (_, _) => await ProponerEvidenciaAsync();
-                evidenciasHeader.Controls.Add(_proponerEvidenciaBtn);
+                _proponerEvidenciaBtn.Click += async (_, _) => await ProponerEvidenciaAsync(this);
+                evidenciasButtonsFlow.Controls.Add(_proponerEvidenciaBtn);
             }
 
-            _evidenciasCardsPanel = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = true,
-                BackColor = ThemeHelper.Bone,
-                Padding = new Padding(0, 4, 0, 0)
-            };
-
-            evidenciasPanel.Controls.Add(_evidenciasCardsPanel);
+            evidenciasHeader.Controls.Add(evidenciasButtonsFlow);
             evidenciasPanel.Controls.Add(evidenciasHeader);
+            evidenciasPanel.Controls.Add(evidenciasDivider);
 
             Panel? comentariosPanel = null;
             if (estaAprobado)
@@ -499,7 +530,7 @@ namespace WindowsForms
                 comentariosPanel = new Panel
                 {
                     Dock = DockStyle.Bottom,
-                    Height = hayUsuario ? 245 : 155,
+                    Height = hayUsuario ? 260 : 155,
                     Padding = new Padding(16, 4, 16, 6)
                 };
 
@@ -538,19 +569,26 @@ namespace WindowsForms
                     var addPanel = new Panel
                     {
                         Dock = DockStyle.Bottom,
-                        Height = 96,
+                        Height = 112,
                         BackColor = Color.FromArgb(239, 236, 227),
                         BorderStyle = BorderStyle.FixedSingle,
-                        Padding = new Padding(8)
+                        Padding = new Padding(10, 8, 10, 8)
                     };
 
                     var addTitleLabel = new Label
                     {
                         Text = "Agregar comentario",
                         Dock = DockStyle.Top,
-                        Height = 18,
+                        Height = 22,
                         Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
                         ForeColor = ThemeHelper.TextDark
+                    };
+
+                    var addTitleSpacer = new Panel
+                    {
+                        Dock = DockStyle.Top,
+                        Height = 6,
+                        BackColor = Color.FromArgb(239, 236, 227)
                     };
 
                     _comentarioTextoBox = new TextBox
@@ -566,23 +604,25 @@ namespace WindowsForms
                     var publishRow = new Panel
                     {
                         Dock = DockStyle.Bottom,
-                        Height = 30,
+                        Height = 34,
                         BackColor = Color.FromArgb(239, 236, 227),
-                        Padding = new Padding(0, 4, 0, 0)
+                        Padding = new Padding(0, 6, 0, 0)
                     };
 
                     _publicarComentarioBtn = new Button
                     {
                         Text = "Publicar comentario",
                         Dock = DockStyle.Right,
-                        Width = 140,
-                        Height = 26,
+                        Width = 155,
+                        Height = 28,
+                        TextAlign = ContentAlignment.MiddleCenter,
                         UseVisualStyleBackColor = true
                     };
                     _publicarComentarioBtn.Click += async (_, _) => await PublicarComentarioAsync();
 
                     publishRow.Controls.Add(_publicarComentarioBtn);
                     addPanel.Controls.Add(_comentarioTextoBox);
+                    addPanel.Controls.Add(addTitleSpacer);
                     addPanel.Controls.Add(publishRow);
                     addPanel.Controls.Add(addTitleLabel);
                     comentariosPanel.Controls.Add(addPanel);
@@ -617,35 +657,274 @@ namespace WindowsForms
                     .OrderBy(e => e.NroEvidencia)
                     .ToList();
 
-                _evidenciasLabel.Text = $"Evidencias registradas ({_evidenciasActuales.Count})";
-                _evidenciasCardsPanel.SuspendLayout();
-                _evidenciasCardsPanel.Controls.Clear();
-
-                if (!_evidenciasActuales.Any())
+                string textoContador = $"Evidencias registradas ({_evidenciasActuales.Count})";
+                _evidenciasLabel.Text = textoContador;
+                if (_evidenciasModalLabel != null && !_evidenciasModalLabel.IsDisposed)
                 {
-                    _evidenciasCardsPanel.Controls.Add(new Label
-                    {
-                        Text = "No hay evidencias registradas para esta bestia.",
-                        AutoSize = true,
-                        Font = new Font("Segoe UI", 9F, FontStyle.Italic),
-                        ForeColor = ThemeHelper.TextMuted,
-                        Padding = new Padding(4, 8, 4, 8)
-                    });
-                    _evidenciasCardsPanel.ResumeLayout();
-                    return;
+                    _evidenciasModalLabel.Text = textoContador;
                 }
 
-                foreach (var ev in _evidenciasActuales)
+                if (_evidenciasCardsPanel != null && !_evidenciasCardsPanel.IsDisposed)
                 {
-                    _evidenciasCardsPanel.Controls.Add(CrearTarjetaEvidencia(ev, esInvestigador));
+                    RenderizarEvidenciasEnPanel(_evidenciasCardsPanel, esInvestigador);
                 }
-
-                _evidenciasCardsPanel.ResumeLayout();
             }
             catch
             {
                 _evidenciasActuales = new List<EvidenciaDTO>();
                 _evidenciasLabel.Text = "Evidencias registradas (no disponibles)";
+                if (_evidenciasModalLabel != null && !_evidenciasModalLabel.IsDisposed)
+                {
+                    _evidenciasModalLabel.Text = "Evidencias registradas (no disponibles)";
+                }
+            }
+        }
+
+        private void RenderizarEvidenciasEnPanel(Panel panel, bool esInvestigador)
+        {
+            panel.SuspendLayout();
+            panel.Controls.Clear();
+
+            int totalPaginas = Math.Max(1, (int)Math.Ceiling(_evidenciasActuales.Count / (double)EvidenciasPorPagina));
+            _evidenciasPaginaActual = Math.Clamp(_evidenciasPaginaActual, 1, totalPaginas);
+
+            if (_evidenciasPaginaLabel != null && !_evidenciasPaginaLabel.IsDisposed)
+            {
+                _evidenciasPaginaLabel.Text = _evidenciasActuales.Any()
+                    ? $"Página {_evidenciasPaginaActual} de {totalPaginas}"
+                    : "Página 1 de 1";
+            }
+            if (_evidenciasPrevBtn != null && !_evidenciasPrevBtn.IsDisposed)
+            {
+                _evidenciasPrevBtn.Enabled = _evidenciasPaginaActual > 1;
+            }
+            if (_evidenciasNextBtn != null && !_evidenciasNextBtn.IsDisposed)
+            {
+                _evidenciasNextBtn.Enabled = _evidenciasPaginaActual < totalPaginas;
+            }
+
+            if (!_evidenciasActuales.Any())
+            {
+                panel.Controls.Add(new Label
+                {
+                    Text = "No hay evidencias registradas para esta bestia.",
+                    AutoSize = true,
+                    Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+                    ForeColor = ThemeHelper.TextMuted,
+                    Padding = new Padding(4, 8, 4, 8)
+                });
+                panel.ResumeLayout();
+                return;
+            }
+
+            var paginaItems = _evidenciasActuales
+                .Skip((_evidenciasPaginaActual - 1) * EvidenciasPorPagina)
+                .Take(EvidenciasPorPagina)
+                .ToList();
+
+            int rowCount = (int)Math.Ceiling(paginaItems.Count / 2.0);
+            var grid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 2,
+                RowCount = rowCount,
+                BackColor = ThemeHelper.Bone,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            for (int r = 0; r < rowCount; r++)
+            {
+                grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            }
+
+            for (int i = 0; i < paginaItems.Count; i++)
+            {
+                var card = CrearTarjetaEvidencia(paginaItems[i], esInvestigador);
+                card.Dock = DockStyle.Fill;
+                card.MinimumSize = new Size(0, 210);
+                card.Margin = new Padding(6);
+                grid.Controls.Add(card, i % 2, i / 2);
+            }
+
+            panel.Controls.Add(grid);
+            panel.AutoScrollPosition = Point.Empty;
+            panel.ResumeLayout();
+        }
+
+        private void MostrarModalEvidencias()
+        {
+            bool esInvestigador = LoginForm.UsuarioLogueado is InvestigadorDTO
+                || LoginForm.UsuarioLogueado?.TipoUsuario == "Investigador";
+            bool hayUsuario = LoginForm.UsuarioLogueado != null;
+            string nombreBestia = _bestia?.Nombre ?? "Bestia";
+            _evidenciasPaginaActual = 1;
+
+            using var modal = new Form
+            {
+                Text = $"Evidencias registradas — {nombreBestia}",
+                ClientSize = new Size(940, 560),
+                MinimumSize = new Size(780, 480),
+                FormBorderStyle = FormBorderStyle.Sizable,
+                MaximizeBox = true,
+                StartPosition = FormStartPosition.CenterParent,
+                BackColor = ThemeHelper.Bone,
+                Font = new Font("Segoe UI", 9.5F)
+            };
+
+            var topBar = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 46,
+                Padding = new Padding(16, 8, 16, 6)
+            };
+
+            _evidenciasModalLabel = new Label
+            {
+                Text = _evidenciasLabel.Text,
+                Dock = DockStyle.Fill,
+                Font = new Font("Georgia", 10.5F, FontStyle.Bold),
+                ForeColor = ThemeHelper.TextDark,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            topBar.Controls.Add(_evidenciasModalLabel);
+
+            if (hayUsuario)
+            {
+                _modalProponerEvidenciaBtn = new Button
+                {
+                    Text = "+ Proponer nueva evidencia",
+                    AutoSize = true,
+                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                    MinimumSize = new Size(195, 30),
+                    Padding = new Padding(10, 2, 10, 2),
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Dock = DockStyle.Right,
+                    UseVisualStyleBackColor = true
+                };
+                _modalProponerEvidenciaBtn.Click += async (_, _) => await ProponerEvidenciaAsync(modal);
+                topBar.Controls.Add(_modalProponerEvidenciaBtn);
+            }
+
+            _evidenciasCardsPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = ThemeHelper.Bone,
+                Padding = new Padding(10, 4, 10, 8)
+            };
+
+            var bottomBar = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 48,
+                BackColor = Color.FromArgb(236, 232, 222),
+                Padding = new Padding(12, 8, 12, 8)
+            };
+
+            var cerrarBtn = new Button
+            {
+                Width = 95,
+                Height = 30,
+                Dock = DockStyle.Left
+            };
+            ThemeHelper.StyleBackButton(cerrarBtn);
+            cerrarBtn.Click += (_, _) => modal.Close();
+
+            var paginacionFlow = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Right,
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                BackColor = Color.FromArgb(236, 232, 222),
+                Padding = new Padding(0, 1, 0, 0)
+            };
+
+            _evidenciasPrevBtn = new Button
+            {
+                Text = "< Anterior",
+                AutoSize = false,
+                Size = new Size(92, 28),
+                TextAlign = ContentAlignment.MiddleCenter,
+                UseVisualStyleBackColor = true,
+                Margin = new Padding(0, 0, 8, 0)
+            };
+            _evidenciasPrevBtn.Click += (_, _) =>
+            {
+                if (_evidenciasPaginaActual > 1)
+                {
+                    _evidenciasPaginaActual--;
+                    if (_evidenciasCardsPanel != null && !_evidenciasCardsPanel.IsDisposed)
+                        RenderizarEvidenciasEnPanel(_evidenciasCardsPanel, esInvestigador);
+                }
+            };
+
+            _evidenciasPaginaLabel = new Label
+            {
+                Text = "Página 1 de 1",
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = ThemeHelper.TextDark,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(4, 6, 4, 0),
+                Margin = new Padding(0, 0, 8, 0)
+            };
+
+            _evidenciasNextBtn = new Button
+            {
+                Text = "Siguiente >",
+                AutoSize = false,
+                Size = new Size(96, 28),
+                TextAlign = ContentAlignment.MiddleCenter,
+                UseVisualStyleBackColor = true,
+                Margin = new Padding(0)
+            };
+            _evidenciasNextBtn.Click += (_, _) =>
+            {
+                int totalPaginas = Math.Max(1, (int)Math.Ceiling(_evidenciasActuales.Count / (double)EvidenciasPorPagina));
+                if (_evidenciasPaginaActual < totalPaginas)
+                {
+                    _evidenciasPaginaActual++;
+                    if (_evidenciasCardsPanel != null && !_evidenciasCardsPanel.IsDisposed)
+                        RenderizarEvidenciasEnPanel(_evidenciasCardsPanel, esInvestigador);
+                }
+            };
+
+            paginacionFlow.Controls.Add(_evidenciasPrevBtn);
+            paginacionFlow.Controls.Add(_evidenciasPaginaLabel);
+            paginacionFlow.Controls.Add(_evidenciasNextBtn);
+
+            bottomBar.Controls.Add(cerrarBtn);
+            bottomBar.Controls.Add(paginacionFlow);
+
+            modal.Controls.Add(_evidenciasCardsPanel);
+            modal.Controls.Add(topBar);
+            modal.Controls.Add(bottomBar);
+
+            modal.Load += (_, _) =>
+            {
+                ThemeHelper.ApplyTheme(modal);
+                RenderizarEvidenciasEnPanel(_evidenciasCardsPanel, esInvestigador);
+            };
+
+            _evidenciasModalForm = modal;
+            try
+            {
+                modal.ShowDialog(this);
+            }
+            finally
+            {
+                _evidenciasModalForm = null;
+                _evidenciasCardsPanel = null;
+                _evidenciasModalLabel = null;
+                _evidenciasPaginaLabel = null;
+                _evidenciasPrevBtn = null;
+                _evidenciasNextBtn = null;
+                _modalProponerEvidenciaBtn = null;
             }
         }
 
@@ -653,11 +932,11 @@ namespace WindowsForms
         {
             var card = new Panel
             {
-                Width = 395,
+                Width = 425,
                 Height = 205,
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
-                Margin = new Padding(0, 0, 10, 10),
+                Margin = new Padding(0, 0, 12, 12),
                 Padding = new Padding(8)
             };
 
@@ -882,28 +1161,34 @@ namespace WindowsForms
         private async Task DescargarEvidenciaAsync(EvidenciaDTO ev)
         {
             if (string.IsNullOrWhiteSpace(ev.FileUrl)) return;
+            var owner = _evidenciasModalForm ?? this;
 
             try
             {
-                var uri = new Uri(ev.FileUrl);
-                string ext = Path.GetExtension(uri.LocalPath);
+                bool isImage = string.Equals(ev.TipoEvidenciaResourceType?.Trim(), "image", StringComparison.OrdinalIgnoreCase);
+                string downloadUrl = isImage && ev.FileUrl.Contains("f_auto", StringComparison.Ordinal)
+                    ? ev.FileUrl.Replace("f_auto", "f_jpg", StringComparison.Ordinal)
+                    : ev.FileUrl;
+
+                var uri = new Uri(downloadUrl);
+                string ext = isImage ? ".jpg" : Path.GetExtension(uri.LocalPath);
                 string suggestedName = $"evidencia_{ev.NroEvidencia}{(string.IsNullOrWhiteSpace(ext) ? string.Empty : ext)}";
 
                 using var sfd = new SaveFileDialog
                 {
                     FileName = suggestedName,
-                    Filter = "Todos los archivos|*.*"
+                    Filter = isImage ? "Imagen JPEG (*.jpg)|*.jpg|Todos los archivos|*.*" : "Todos los archivos|*.*"
                 };
-                if (sfd.ShowDialog(this) != DialogResult.OK) return;
+                if (sfd.ShowDialog(owner) != DialogResult.OK) return;
 
                 using var http = new HttpClient();
                 var bytes = await http.GetByteArrayAsync(uri);
                 await File.WriteAllBytesAsync(sfd.FileName, bytes);
-                MessageBox.Show("Evidencia descargada correctamente.", "Descarga completa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(owner, "Evidencia descargada correctamente.", "Descarga completa", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"No se pudo descargar la evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(owner, $"No se pudo descargar la evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -981,19 +1266,20 @@ namespace WindowsForms
                 try { picBox.LoadAsync(evidencia.FileUrl); } catch { }
             };
 
-            ThemeHelper.ShowSingleWindow(this, imgDlg);
+            imgDlg.ShowDialog(_evidenciasModalForm ?? this);
         }
 
-        private async Task ProponerEvidenciaAsync()
+        private async Task ProponerEvidenciaAsync(Form? owner = null)
         {
             if (LoginForm.UsuarioLogueado == null) return;
+            var ownerForm = owner ?? _evidenciasModalForm ?? this;
 
             try
             {
                 var tipos = (await TipoEvidenciaApiClient.GetAllAsync()).ToList();
                 if (!tipos.Any())
                 {
-                    MessageBox.Show("No hay tipos de evidencia disponibles.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ownerForm, "No hay tipos de evidencia disponibles.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -1048,7 +1334,7 @@ namespace WindowsForms
                 };
 
                 dlg.Controls.AddRange(new Control[] { lblTipo, cboTipo, lblFecha, dtpFecha, lblArchivo, btnArchivo, lblNombreArch, btnEnviar, btnCancelar });
-                if (ThemeHelper.ShowSingleWindow(this, dlg) != DialogResult.OK || string.IsNullOrWhiteSpace(selectedPath))
+                if (dlg.ShowDialog(ownerForm) != DialogResult.OK || string.IsNullOrWhiteSpace(selectedPath))
                     return;
 
                 var tipoSel = (TipoEvidenciaDTO)cboTipo.SelectedItem!;
@@ -1069,7 +1355,8 @@ namespace WindowsForms
                 string? uploadedPublicId = null;
                 try
                 {
-                    if (_proponerEvidenciaBtn != null) _proponerEvidenciaBtn.Enabled = false;
+                    if (_proponerEvidenciaBtn != null && !_proponerEvidenciaBtn.IsDisposed) _proponerEvidenciaBtn.Enabled = false;
+                    if (_modalProponerEvidenciaBtn != null && !_modalProponerEvidenciaBtn.IsDisposed) _modalProponerEvidenciaBtn.Enabled = false;
                     await using var stream = System.IO.File.OpenRead(selectedPath);
                     uploadedPublicId = await CloudinaryApiClient.UploadImageAsync(
                         stream,
@@ -1099,21 +1386,23 @@ namespace WindowsForms
                     {
                         try { await CloudinaryApiClient.DeleteImageAsync(uploadedPublicId); } catch { }
                     }
-                    MessageBox.Show($"Error al proponer evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ownerForm, $"Error al proponer evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {
-                    if (_proponerEvidenciaBtn != null) _proponerEvidenciaBtn.Enabled = true;
+                    if (_proponerEvidenciaBtn != null && !_proponerEvidenciaBtn.IsDisposed) _proponerEvidenciaBtn.Enabled = true;
+                    if (_modalProponerEvidenciaBtn != null && !_modalProponerEvidenciaBtn.IsDisposed) _modalProponerEvidenciaBtn.Enabled = true;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al preparar propuesta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ownerForm, $"Error al preparar propuesta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private async Task AprobarEvidenciaAsync(EvidenciaDTO sel)
         {
+            var owner = _evidenciasModalForm ?? this;
             try
             {
                 await EvidenciaApiClient.AprobarAsync(sel.IdBestia, sel.NroEvidencia);
@@ -1121,13 +1410,15 @@ namespace WindowsForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al aprobar evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(owner, $"Error al aprobar evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private async Task EliminarEvidenciaAsync(EvidenciaDTO sel)
         {
+            var owner = _evidenciasModalForm ?? this;
             var confirm = MessageBox.Show(
+                owner,
                 $"¿Eliminar la evidencia #{sel.NroEvidencia}?",
                 "Confirmar eliminación",
                 MessageBoxButtons.YesNo,
@@ -1141,7 +1432,7 @@ namespace WindowsForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(owner, $"Error al eliminar evidencia: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1206,7 +1497,7 @@ namespace WindowsForms
                 var headerRow = new Panel
                 {
                     Location = new Point(10, 8),
-                    Size = new Size(innerWidth, 28),
+                    Size = new Size(innerWidth, 32),
                     BackColor = Color.White
                 };
 
@@ -1217,7 +1508,7 @@ namespace WindowsForms
                     ForeColor = ThemeHelper.TextDark,
                     BackColor = Color.White,
                     AutoSize = true,
-                    Location = new Point(0, 2)
+                    Location = new Point(0, 5)
                 };
 
                 var fechaLabel = new Label
@@ -1227,7 +1518,7 @@ namespace WindowsForms
                     ForeColor = ThemeHelper.TextMuted,
                     BackColor = Color.White,
                     AutoSize = true,
-                    Location = new Point(autorLabel.PreferredWidth + 4, 3)
+                    Location = new Point(autorLabel.PreferredWidth + 4, 6)
                 };
 
                 headerRow.Controls.Add(autorLabel);
@@ -1238,12 +1529,12 @@ namespace WindowsForms
                     var eliminarBtn = new Button
                     {
                         Text = "Eliminar",
-                        AutoSize = true,
-                        AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                        MinimumSize = new Size(68, 26),
-                        Padding = new Padding(6, 2, 6, 2),
-                        Dock = DockStyle.Right,
-                        Font = new Font("Segoe UI", 8F),
+                        AutoSize = false,
+                        Size = new Size(78, 28),
+                        Location = new Point(innerWidth - 78, 2),
+                        Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        Font = new Font("Segoe UI", 8.5F),
                         ForeColor = Color.DarkRed,
                         BackColor = ThemeHelper.Parchment,
                         FlatStyle = FlatStyle.Flat,

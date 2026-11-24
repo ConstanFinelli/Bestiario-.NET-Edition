@@ -1315,12 +1315,27 @@
 
     private static string GetDownloadUrl(EvidenciaDTO ev)
     {
-        var url = Uri.EscapeDataString(ev.FileUrl ?? string.Empty);
-        var ext = Path.GetExtension(ev.FileUrl ?? string.Empty);
-        if (!string.IsNullOrWhiteSpace(ext) && ext.Contains('?'))
+        var rawUrl = ev.FileUrl ?? string.Empty;
+        var isImage = string.Equals(ev.TipoEvidenciaResourceType?.Trim(), "image", StringComparison.OrdinalIgnoreCase);
+
+        string ext;
+        if (isImage)
         {
-            ext = ext.Split('?')[0];
+            rawUrl = rawUrl.Contains("f_auto", StringComparison.Ordinal)
+                ? rawUrl.Replace("f_auto", "f_jpg", StringComparison.Ordinal)
+                : rawUrl;
+            ext = ".jpg";
         }
+        else
+        {
+            ext = Path.GetExtension(rawUrl);
+            if (!string.IsNullOrWhiteSpace(ext) && ext.Contains('?'))
+            {
+                ext = ext.Split('?')[0];
+            }
+        }
+
+        var url = Uri.EscapeDataString(rawUrl);
         var nombre = Uri.EscapeDataString($"evidencia_{ev.NroEvidencia}{(string.IsNullOrWhiteSpace(ext) ? string.Empty : ext)}");
         return $"/descargar-evidencia?url={url}&nombre={nombre}";
     }

@@ -16,7 +16,6 @@ namespace Application.Services
         private readonly string? _defaultPictureId;
 
         public bool IsConfigured => _cloudinary != null;
-        public string? DefaultPictureId => _defaultPictureId;
 
         public CloudinaryService(IConfiguration configuration)
         {
@@ -38,7 +37,7 @@ namespace Application.Services
             }
         }
 
-        public async Task<string?> UploadAsync(Stream fileStream, string fileName, string contentType)
+        public async Task<string?> UploadAsync(Stream fileStream, string fileName)
         {
             if (_cloudinary == null)
             {

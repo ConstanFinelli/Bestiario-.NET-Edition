@@ -16,7 +16,7 @@ namespace WebAPI
                 try
                 {
                     await using var stream = file.OpenReadStream();
-                    string? publicId = await cloudinaryService.UploadAsync(stream, file.FileName, file.ContentType);
+                    string? publicId = await cloudinaryService.UploadAsync(stream, file.FileName);
                     string? url = cloudinaryService.GetImagenRegistro(publicId);
                     return Results.Ok(new { publicId, url });
                 }

@@ -443,8 +443,9 @@ namespace WindowsForms
             solicitudesButton.Visible = user != null;
             solicitudesButton.Text = esInvestigador ? "Solicitudes" : "Volverse Investigador";
 
-            const int yRow3 = 230;
-            int yRow2 = noticiasButton.Bottom + Math.Max(10, (yRow3 - noticiasButton.Bottom - noticiasButton.Height) / 2);
+            int gap = Math.Max(10, noticiasButton.Height / 3);
+            int yRow2 = noticiasButton.Bottom + gap;
+            int yRow3 = yRow2 + noticiasButton.Height + gap;
             if (esInvestigador)
             {
                 solicitudesButton.Size = noticiasButton.Size;
@@ -454,13 +455,23 @@ namespace WindowsForms
 
                 int wRep = bestiasButton.Right - noticiasButton.Left;
                 reportesButton.Size = new Size(wRep, noticiasButton.Height);
-                reportesButton.Location = new Point((cardPanel.ClientSize.Width - wRep) / 2, yRow3);
+                reportesButton.Location = new Point(noticiasButton.Left, yRow3);
+
+                int requiredHeight = reportesButton.Bottom + gap * 2;
+                if (cardPanel.ClientSize.Height < requiredHeight)
+                {
+                    cardPanel.Height = requiredHeight;
+                    if (upperBoxContainer != null)
+                    {
+                        AjustarLayoutUltimasNoticias();
+                    }
+                }
             }
             else if (user != null)
             {
                 int w = (bestiasButton.Right - noticiasButton.Left);
                 solicitudesButton.Size = new Size(w, noticiasButton.Height);
-                solicitudesButton.Location = new Point((cardPanel.ClientSize.Width - w) / 2, yRow2);
+                solicitudesButton.Location = new Point(noticiasButton.Left, yRow2);
             }
 
             if (user == null)

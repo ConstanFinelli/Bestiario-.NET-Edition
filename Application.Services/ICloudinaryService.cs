@@ -6,9 +6,8 @@ namespace Application.Services
     public interface ICloudinaryService
     {
         bool IsConfigured { get; }
-        string? DefaultPictureId { get; }
 
-        Task<string?> UploadAsync(Stream fileStream, string fileName, string contentType);
+        Task<string?> UploadAsync(Stream fileStream, string fileName);
         Task DeleteImageAsync(string? publicId, string? resourceType = null);
 
         string? GetImagenRegistro(string? publicId);

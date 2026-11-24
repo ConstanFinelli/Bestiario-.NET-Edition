@@ -32,7 +32,7 @@ namespace Data
                 .FirstOrDefaultAsync(e => e.IdBestia == idBestia && e.NroEvidencia == nroEvidencia);
         }
 
-        public async Task<int> GetNextNroEvidenciaAsync(Guid idBestia)
+        private async Task<int> GetNextNroEvidenciaAsync(Guid idBestia)
         {
             var max = await context.Evidencias
                 .Where(e => e.IdBestia == idBestia)
