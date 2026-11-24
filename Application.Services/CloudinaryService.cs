@@ -45,6 +45,8 @@ namespace Application.Services
                 throw new InvalidOperationException("Cloudinary no está configurado. Configure CLOUD_NAME, API_KEY y API_SECRET.");
             }
 
+            // Cloudinary aplica la transformación entrante al subir: limita a 1920x1080
+            // manteniendo proporción (crop "limit") y optimiza la calidad automáticamente.
             var uploadParams = new AutoUploadParams
             {
                 File = new FileDescription(fileName, fileStream),
